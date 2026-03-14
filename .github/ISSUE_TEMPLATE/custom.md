@@ -1,7 +1,6 @@
 ---
-name: Custom issue template
-about: Lo que me ha pedido Guillermo
-title: ''
+nombre: Custom issue template
+descripcion: Lo que me ha pedido Guillermo
 labels: ''
 assignees: ''
 
