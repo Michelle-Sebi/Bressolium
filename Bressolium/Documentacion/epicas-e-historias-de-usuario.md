@@ -30,20 +30,19 @@
 - **HU 3.4 - Resolución de Empates:** Como sistema, debo elegir un elemento al azar entre los más votados en caso de empate para no bloquear el progreso. S
 - **HU 3.5 - Temporizador de Jornada:** Como sistema, debo cerrar el turno automáticamente a las 2 horas o cuando todos voten para mantener el ritmo del servidor. S
 - **HU 3.6 - Ejecución de la Jornada (Turno de Equipo):** Como sistema, al finalizar el tiempo o los turnos, debo procesar las votaciones, restar recursos del almacén común y entregar las recompensas (inventos/tecnología). (Talla: L)
-- **HU 3.7 - Chat de Equipo:** Como jugador, quiero un canal de chat en la interfaz para coordinar la estrategia de votación con mis compañeros. (Talla: M)
-- **HU 3.8 - Generación de Puntos de Investigación:** Como sistema, al inicio de cada jornada, debo calcular y sumar los puntos de investigación basados en el nivel de las casillas y tecnologías actuales. (Talla: M)
+- **HU 3.7 - Chat de Equipo [POSPUESTO]:** Como jugador, quiero un canal de chat en la interfaz para coordinar la estrategia de votación con mis compañeros. (Talla: M)
 
 ## 🌳 Épica 4: Tecnología, Eventos y Meta
 
 **Objetivo:** El sistema de progresión y los desafíos externos.
 
 - **HU 4.1 - Árbol Tecnológico:** Como equipo, queremos desbloquear nuevas tecnologías (ej. Rueda → Agricultura) para acceder a mejoras avanzadas y acercarnos a la terraformación. M
-- **HU 4.2 - Eventos Adversos:** Como sistema, debo disparar eventos aleatorios (sequías, invasiones) que consuman recursos para obligar a los jugadores a coordinarse. M
+- **HU 4.2 - Eventos Adversos [DESCARTADO EN MVP]:** Como sistema, debo disparar eventos aleatorios (sequías, invasiones) que consuman recursos para obligar a los jugadores a coordinarse. M
 - **HU 4.3 - Condición de Victoria:** Como equipo, queremos completar la tecnología "Viaje Espacial" para ganar la partida y aparecer en el ranking. M
 - **HU 4.4 - Desbloqueo de Exploración No Adyacente (El Avión):** Como equipo, al construir el "Avión", queremos que el sistema permita explorar cualquier casilla del mapa sin que esté pegada a una ya descubierta. (Talla: L)
 - **HU 4.5 - Gestión de Abandono:** Como sistema, si un jugador deja de participar, debo mantener sus casillas produciendo recursos de forma automática y desactivarlo de la votación (no esperarle) para no perjudicar al equipo. (Talla: S)
 
-## 🏆 Épica 5: Competitividad y Servidor
+## 🏆 Épica 5: Competitividad y Servidor [DESCARTADO EN MVP]
 
 **Objetivo:** La persistencia y el ranking global.
 

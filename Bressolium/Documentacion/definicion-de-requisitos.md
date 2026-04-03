@@ -23,7 +23,7 @@
 | Nombre del requisito | Definición | Prioridad |
 | --- | --- | --- |
 | RF3.1 | Contador de acciones: el sistema debe bloquear acciones adicionales tras consumir las 2 permitidas por jornada. | Must |
-| RF3.2 | Sincronización del Inventario Común: actualización en tiempo real de los recursos para todos los miembros del equipo. | Must |
+| RF3.2 | Sincronización del Inventario Común: actualización casi en tiempo real (mediante Long Polling u otra técnica asíncrona) de los recursos en el front. | Must |
 | RF3.3 | Motor de Votación: registrar votos individuales y ejecutar el cierre de jornada basado en la mayoría simple o azar en caso de empate. | Must |
 | RF3.4 | Cron Job de Jornada: cierre automático de la jornada al cumplirse 120 minutos desde la primera acción registrada. | Must |
 | RF3.5 | Chat en tiempo real: persistencia de mensajes durante la jornada actual. | Could |
