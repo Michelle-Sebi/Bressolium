@@ -39,7 +39,7 @@
 - **HU 4.1 - Árbol Tecnológico:** Como equipo, queremos desbloquear nuevas tecnologías (ej. Rueda → Agricultura) para acceder a mejoras avanzadas y acercarnos a la terraformación. M
 - **HU 4.2 - Eventos Adversos [DESCARTADO EN MVP]:** Como sistema, debo disparar eventos aleatorios (sequías, invasiones) que consuman recursos para obligar a los jugadores a coordinarse. M
 - **HU 4.3 - Condición de Victoria:** Como equipo, queremos completar la tecnología "Viaje Espacial" para ganar la partida y aparecer en el ranking. M
-- **HU 4.4 - Desbloqueo de Exploración No Adyacente (El Avión):** Como equipo, al construir el "Avión", queremos que el sistema permita explorar cualquier casilla del mapa sin que esté pegada a una ya descubierta. (Talla: L)
+
 - **HU 4.5 - Gestión de Abandono:** Como sistema, si un jugador deja de participar, debo mantener sus casillas produciendo recursos de forma automática y desactivarlo de la votación (no esperarle) para no perjudicar al equipo. (Talla: S)
 
 ## 🏆 Épica 5: Competitividad y Servidor [DESCARTADO EN MVP]

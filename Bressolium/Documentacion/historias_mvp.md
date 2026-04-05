@@ -177,13 +177,7 @@ A continuación se detallan las historias de usuario aprobadas para el MVP, reda
     **Entonces** el sistema marca el estado de la partida como "Finalizada/Ganada"
     **Y** paraliza futuros turnos publicando un mensaje de victoria en el ranking.
 
-### HU 4.4 - Desbloqueo de Exploración No Adyacente (El Avión)
-**Característica:** Mecánica especial de salto
-  **Escenario:** Invento que salta restricciones del mapa.
-    **Dado** que el equipo ya ha construido el "Avión"
-    **Cuando** un jugador intenta explorar una casilla a pesar de estar rodeada de casillas oscuras (sin borde común a una descubierta)
-    **Entonces** el sistema, al tener la flag del Avión activa, sobreescribe el error de adyacencia X/Y
-    **Y** le permite utilizar esa casilla descontando una acción normalmente.
+
 
 ### HU 4.5 - Gestión de Abandono
 **Característica:** Mitigación de jugadores inactivos

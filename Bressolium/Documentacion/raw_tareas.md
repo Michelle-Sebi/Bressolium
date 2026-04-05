@@ -159,14 +159,14 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Criterios de Aceptación (DoD)**: El seed genera las dependencias correctamente ("Rueda" -> "Carro").
 
 ### Tarea 15
-- **Título**: `[Feat] Mecánicas del Avión y Fin de Juego`
+- **Título**: `[Feat] Fin de Juego (Terraformación)`
 - **Estimación**: S
 - **Área**: [BACKEND]
 - **Asignado a**: Bárbara
 - **Bloqueado por**: Tarea 13
-- **Descripción**: Al resolver turno, añadir flag `is_spaceship_unlocked` para declarar victoria (HU 4.3). Modificar controlador de Explorar para puentear IF Adyacencia si `is_airplane_unlocked` es true en Partida (HU 4.4).
-- **Scripts / Git**: Rama `feat/T15-back-avion`.
-- **Criterios de Aceptación (DoD)**: Test Pest demuestra que se puede explorar la coordenada 0,10 desde 0,0 si se tiene el Avión.
+- **Descripción**: Al resolver turno, añadir flag `is_spaceship_unlocked` al JSON (o BD) para declarar victoria y detener el juego (HU 4.3).
+- **Scripts / Git**: Rama `feat/T15-back-victoria`.
+- **Criterios de Aceptación (DoD)**: Test Pest comprueba que la partida finaliza si se evoluciona la Nave Espacial.
 
 ### Tarea 16
 - **Título**: `[Feat] Gestión de Abandono (Jugadores Inactivos Backend)`
