@@ -22,7 +22,7 @@ El proyecto está dividido estrictamente en dos directorios principales en la ra
 - **Validación de Datos:** Al no usar TypeScript, debes emplear anotaciones **JSDoc** o **PropTypes** de manera rutinaria para tipar y documentar las respuestas esperadas desde la API en los componentes principales.
 - **Estilos:** Utiliza exclusivamente clases utilitarias de *Tailwind CSS*. No crees archivos `.css` globales o modulares externos a menos que sea estrictamente necesario (como inicializar Tailwind).
 - **Consumo de API:** Todas las llamadas al backend se deben centralizar en métodos dentro del directorio `/frontend/src/services/` utilizando `fetch` o Axios, leyendo siempre la url base de una variable de entorno (`VITE_API_URL`).
-- **Testing Frontend:** En caso de que se solicite escribir pruebas, utiliza siempre **Jest** combinado con **React Testing Library**.
+- **Testing Frontend:** En caso de que se solicite escribir pruebas, utiliza siempre **Vitest** combinado con **React Testing Library**.
 
 ## 3. Pautas de Código - Backend (Laravel)
 - **API REST & Seguridad:** Todos los endpoints consumidos por el cliente React deben estar protegidos y autenticados oficialmente usando **Laravel Sanctum**. No implementes JWT de librerías de terceros.

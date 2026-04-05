@@ -30,6 +30,7 @@ Toma estos requisitos y genera el **Product Backlog completo inicial** dividiend
    - **Estimación (Tallas de camisetas)**: XS, S, M, L, XL.
    - **Área**: Front / Back / DB
    - **Asignado a**: Michelle / Bárbara
+   - **Bloqueado por**: Ninguna | Tarea X (Indicar de qué tarea anterior depende obligatoriamente para poder empezar a codificarse).
    - **Descripción**: Qué hay que hacer a nivel técnico.
    - **Scripts / Pasos de Git requeridos**: Ramas a crear y convenciones a seguir por el Dev al subir esto.
    - **Criterios de Aceptación (DoD)**: Qué tiene que funcionar para dar el código por bueno.
