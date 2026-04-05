@@ -29,7 +29,7 @@ test('endpoint /api/tablero devuelve matriz json de casillas asociada a la parti
         ->assertJsonStructure([
         'success',
         'data' => [
-            '*' => ['id', 'x', 'y', 'recurso_id', 'descubierta']
+            '*' => ['id', 'coord_x', 'coord_y', 'tipo_casilla_id', 'explorada']
         ],
         'error'
     ]);

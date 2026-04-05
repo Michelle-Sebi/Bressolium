@@ -13,7 +13,7 @@ uses(RefreshDatabase::class);
 
 test('la tabla casillas tiene estructura para grid XY y estado', function () {
     expect(Schema::hasTable('casillas'))->toBeTrue()
-        ->and(Schema::hasColumns('casillas', ['id', 'partida_id', 'x', 'y', 'recurso_id', 'nivel', 'descubierta']))->toBeTrue();
+        ->and(Schema::hasColumns('casillas', ['id', 'partida_id', 'coord_x', 'coord_y', 'tipo_casilla_id', 'nivel', 'explorada']))->toBeTrue();
 });
 
 test('el seeder de Diccionario Base inserta los 5 tipos genéricos', function () {

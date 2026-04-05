@@ -20,17 +20,17 @@ test('la tabla users contiene las columnas base', function () {
 
 test('la tabla partidas contiene estado_jornada JSON y cultura_base', function () {
     expect(Schema::hasTable('partidas'))->toBeTrue()
-        ->and(Schema::hasColumns('partidas', ['id', 'estado_jornada', 'cultura_base', 'created_at']))->toBeTrue()
+        ->and(Schema::hasColumns('partidas', ['id', 'estado_jornada', 'cultura_base', 'puntos', 'estado', 'created_at']))->toBeTrue()
         ->and(Schema::getColumnType('partidas', 'estado_jornada'))->toBe('json');
 });
 
 test('un usuario puede pertenecer a muchas partidas (Relación N:M/1:N Pivote)', function () {
     $user = User::factory()->create();
     $partida = Partida::factory()->create();
-    
+
     // Asumiendo tabla pivote partida_user
     $user->partidas()->attach($partida->id);
-    
+
     expect($user->partidas->count())->toBe(1)
         ->and($user->partidas->first()->id)->toBe($partida->id);
 });

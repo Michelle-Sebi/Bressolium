@@ -7,14 +7,14 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 ## 👤 Épica 1: Gestión de Usuarios y Equipos
 
 ### Tarea 1
-- **Título**: `[Feat] Migraciones y Modelos base de Usuarios y Partidas`
+- **Título**: `[Feat] Migraciones y Modelos base de Usuarios y Partidas (UUID)`
 - **Estimación**: S
 - **Área**: [BASE DE DATOS]
 - **Asignado a**: Bárbara
 - **Bloqueado por**: Ninguna
-- **Descripción**: Crear la migración para `users` (si requiere adaptar el por defecto de Laravel) y `partidas`. La tabla `partidas` debe incluir el campo `estado_jornada` (JSON), `cultura_base` (String) y su modelo Eloquent con las relaciones (1 a N hacia usuarios o pivote N a M).
-- **Scripts / Git**: Rama `feat/T1-migraciones-base` desde `main`. PR cuando las migraciones corran limpias.
-- **Criterios de Aceptación (DoD)**: `php artisan migrate` se ejecuta sin errores. Tablas en MySQL con estructura correcta.
+- **Descripción**: Crear la migración para `users` y `partidas`. **Obligatorio: Usar UUID como Clave Primaria (PK)**. La tabla `partidas` debe incluir el campo `estado_jornada` (JSON), `cultura_base` (String), `puntos` (int) y `estado` (string) para cumplir con el diagrama ER V2.
+- **Scripts / Git**: Rama `feat/T1-migraciones-base` desde `main`. 
+- **Criterios de Aceptación (DoD)**: `php artisan migrate` funciona. Las tablas usan UUIDs.
 
 ### Tarea 2
 - **Título**: `[Feat] Setup de autenticación API con Sanctum`
@@ -66,9 +66,9 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Área**: [BASE DE DATOS]
 - **Asignado a**: Michelle
 - **Bloqueado por**: Tarea 1
-- **Descripción**: Migración para tabla `casillas` (id, partida_id, x, y, recurso_id, nivel, descubierta). Pre-seed de los 5 tipos base (Bosque, Cantera, Río, Prado, Mina).
+- **Descripción**: Migración para tabla `casillas` siguiendo el diagrama ER: `id` (UUID), `partida_id`, `coord_x`, `coord_y`, `tipo_casilla_id` (FK), `nivel`, `explorada` (boolean), y `jugador_asignado` (FK).
 - **Scripts / Git**: Rama `feat/T6-migracion-casillas`.
-- **Criterios de Aceptación (DoD)**: Comando `db:seed` puebla los 5 tipos genéricos correctamente.
+- **Criterios de Aceptación (DoD)**: Los nombres de columnas deben ser idénticos al ER (`coord_x`, `explorada`). Seeder inyecta tipos base.
 
 ### Tarea 7
 - **Título**: `[Feat] Generador y Controlador de Tablero API`

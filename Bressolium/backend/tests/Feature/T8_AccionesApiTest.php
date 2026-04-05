@@ -27,8 +27,8 @@ beforeEach(function () {
     $this->user->partidas()->attach($this->partida->id);
     $this->casilla = Casilla::factory()->create([
         'partida_id' => $this->partida->id,
-        'x' => 1, 'y' => 1,
-        'descubierta' => false
+        'coord_x' => 1, 'coord_y' => 1,
+        'explorada' => false
     ]);
 
     $this->actingAs($this->user);
@@ -46,7 +46,7 @@ test('explorar descuenta 1 acción de estado_jornada JSON y descubre casilla', f
     $estado_nuevo = json_decode($this->partida->estado_jornada, true);
 
     expect($estado_nuevo['acciones_restantes'])->toBe(1)
-        ->and($this->casilla->descubierta)->toBe(1); // Casilla desvelada
+        ->and($this->casilla->explorada)->toBe(1); // Casilla desvelada
 });
 
 test('rechaza accion de explorar y devuelve 403 si las acciones son cero', function () {
