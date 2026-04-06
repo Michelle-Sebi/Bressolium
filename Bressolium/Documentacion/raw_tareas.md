@@ -7,14 +7,19 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 ## 👤 Épica 1: Gestión de Usuarios y Equipos
 
 ### Tarea 1
-- **Título**: `[Feat] Migraciones y Modelos base de Usuarios y Partidas (UUID)`
+- **Título**: `[Feat] Migraciones y Modelos base (Relacional V3)`
 - **Estimación**: S
 - **Área**: [BASE DE DATOS]
 - **Asignado a**: Bárbara
 - **Bloqueado por**: Ninguna
-- **Descripción**: Crear la migración para `users` y `partidas`. **Obligatorio: Usar UUID como Clave Primaria (PK)**. La tabla `partidas` debe incluir el campo `estado_jornada` (JSON), `cultura_base` (String), `puntos` (int) y `estado` (string) para cumplir con el diagrama ER V2.
-- **Scripts / Git**: Rama `feat/T1-migraciones-base` desde `main`. 
-- **Criterios de Aceptación (DoD)**: `php artisan migrate` funciona. Las tablas usan UUIDs.
+- **Descripción**: Crear las migraciones y modelos base con **UUID como PK**:
+  1. `users` (Laravel default + UUID).
+  2. `partidas` (id, nombre, estado ENUM).
+  3. `jornadas` (id, partida_id, numero, fecha_inicio).
+  4. `jornada_user` (pivot: jornada_id, user_id, acciones_gastadas).
+  5. `votos` (id, jornada_id, user_id, tecnologia_id).
+- **Scripts / Git**: Rama `feat/T1-migraciones-base`. 
+- **Criterios de Aceptación (DoD)**: `php artisan migrate` crea las 5 tablas correctamente. No existe campo JSON ni puntos.
 
 ### Tarea 2
 - **Título**: `[Feat] Setup de autenticación API con Sanctum`
@@ -37,14 +42,14 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Criterios de Aceptación (DoD)**: El usuario puede rellenar el formulario de Login, y a través de un servicio `authService.js`, hacer login salvando el token en cliente.
 
 ### Tarea 4
-- **Título**: `[Feat] Endpoints CRUD para Equipos (Partidas)`
+- **Título**: `[Feat] Endpoints CRUD para Equipos y Creación de 1ª Jornada`
 - **Estimación**: M
 - **Área**: [BACKEND]
 - **Asignado a**: Bárbara
 - **Bloqueado por**: Tarea 1 y Tarea 2
-- **Descripción**: (HUs 1.2, 1.3, 1.4, 1.5). Endpoint para crear equipo (recibe nombre, `cultura_base`), unirse por nombre exacto, o unirse aleatoriamente (buscando de la BBDD equipos con < 5 miembros).
+- **Descripción**: (HUs 1.2, 1.3, 1.4, 1.5). Endpoint para crear equipo. Al crear una partida, se debe insertar automáticamente el primer registro en la tabla `jornadas` (numero: 1) y en `jornada_user` para los miembros iniciales.
 - **Scripts / Git**: Rama `feat/T4-crud-equipos`.
-- **Criterios de Aceptación (DoD)**: Endpoint `/api/partida/create` salva correctamente el registro json vacío y la skin en MySQL.
+- **Criterios de Aceptación (DoD)**: Al crear partida, existe un registro en `jornadas` vinculado. No usa JSON.
 
 ### Tarea 5
 - **Título**: `[Feat] Dashboard Multiequipo (Selector) Frontend`
@@ -86,10 +91,9 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Área**: [BACKEND]
 - **Asignado a**: Michelle
 - **Bloqueado por**: Tarea 7
-- **Descripción**: (HUs 2.2 y 2.3) Endpoints POST de acciones. Deben chequear obligatoriamente en `estado_jornada` si hay acciones restantes. Bloqueo de BD transaccional. Aplicar coste de recetas verificando el inventario actual de la partida si evoluciona.
+- **Descripción**: (HUs 2.2 y 2.3) Endpoints POST de acciones. Deben chequear obligatoriamente en `jornada_user` si el usuario tiene `acciones_gastadas < 2`. Bloqueo de BD transaccional. Aplicar coste de recetas verificando el inventario actual de la partida si evoluciona.
 - **Scripts / Git**: Rama `feat/T8-back-acciones`.
-- **Criterios de Aceptación (DoD)**: Falla HTTP 403 o 400 si las acciones marcadas en JSON son 0. 
-
+- **Criterios de Aceptación (DoD)**: Falla HTTP 403 si las acciones gastadas son 2. Actualiza `explorada` (Casilla) y suma 1 a `acciones_gastadas`.
 ### Tarea 9
 - **Título**: `[Feat] Componente Grid Tablero y Visualización Frontend`
 - **Estimación**: XL
@@ -105,25 +109,23 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 ## 🗳️ Épica 3: Mecánicas de Turno y Votos
 
 ### Tarea 10
-- **Título**: `[Feat] Estado JSON en DB y Long Polling`
+- **Título**: `[Feat] Sincronización Relacional y Polling`
 - **Estimación**: M
 - **Área**: [BACKEND] / [FRONTEND]
 - **Asignado a**: Michelle
 - **Bloqueado por**: Tarea 8 y Tarea 9
-- **Descripción**: Endpoints `GET /api/partida/sync` (Back). El Front (RTK Query o custom Hook) debe consumirlo cada ~5 segundos guardando la data en Redux (HU 3.2). 
+- **Descripción**: Endpoints `GET /api/partida/sync` (Back) que lee de las tablas `jornada` y `jornada_user`. El Front (RTK Query) debe consumirlo cada ~30 segundos guardando la data en Redux (HU 3.2). 
 - **Scripts / Git**: Rama `feat/T10-sync-jornada`.
-- **Criterios de Aceptación (DoD)**: El hook dispara llamadas asíncronas no bloqueantes e hidrata redibujando el inventario web.
-
+- **Criterios de Aceptación (DoD)**: El hook hidrata el Redux con el estado real de la BD sin usar campos JSON.
 ### Tarea 11
-- **Título**: `[Feat] API Votaciones de Progreso`
+- **Título**: `[Feat] API Votaciones de Progreso (Relacional)`
 - **Estimación**: M
 - **Área**: [BACKEND]
 - **Asignado a**: Bárbara
 - **Bloqueado por**: Tarea 10 y Tarea 14
-- **Descripción**: (HU 3.3). Endpoint que actualiza en el JSON `estado_jornada` una clave `votos: {tech_id: 1, user_id: 2}`. Y comprueba si ya han votado todos para disparar el evento de ejecución.
+- **Descripción**: (HU 3.3). Endpoint que inserta nuevo registro en tabla `votos`. Y comprueba si (count(votos) == total_jugadores) para disparar el evento de ejecución.
 - **Scripts / Git**: Rama `feat/T11-back-votar`.
-- **Criterios de Aceptación (DoD)**: Almacena de forma concurrente el voto inyectándolo al JSON the BD.
-
+- **Criterios de Aceptación (DoD)**: Almacena el voto de forma segura. Falla si el usuario ya votó en esa jornada.
 ### Tarea 12
 - **Título**: `[Feat] UI Votación interactiva (El Pueblo)`
 - **Estimación**: L
@@ -135,14 +137,14 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Criterios de Aceptación (DoD)**: Botón votar ocultará la vista y dejará un mensaje de espera (Gherkin test).
 
 ### Tarea 13
-- **Título**: `[Feat] Schedule / Cron Cierre de Turno Backend`
+- **Título**: `[Feat] Schedule / Cron Cierre de Turno y Salto de Jornada`
 - **Estimación**: XL
 - **Área**: [BACKEND]
 - **Asignado a**: Bárbara
 - **Bloqueado por**: Tarea 11
-- **Descripción**: (HUs 3.4, 3.5, 3.6). Job de Laravel (Command). Selecciona las tecnnologias ganadoras (empatando al azar si procede). Resta el coste de materiales, recorre casillas para proveer recursos, resetea estado_turno (vaciando votos y restaurando 2 acciones). Ejecutable por tiempo (<120m) o en caliente si votan todos.
+- **Descripción**: (HUs 3.4, 3.5, 3.6). Job de Laravel. Lee tabla `votos`, decide ganador, resta materiales, añade recursos a la partida y CRIMINAL: Crea una NUEVA fila en `jornadas` incrementando el `numero`, reseteando los registros en `jornada_user` para que todos vuelvan a tener 2 acciones.
 - **Scripts / Git**: Rama `feat/T13-cron-cierre`. Test con Pest vital.
-- **Criterios de Aceptación (DoD)**: `php artisan schedule:run` impacta a las partidas caducadas correctamente.
+- **Criterios de Aceptación (DoD)**: Al cerrar turno, el comando `jornada:close` deja la tabla `jornadas` con un nuevo número correlativo.
 
 ---
 
@@ -164,10 +166,9 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Área**: [BACKEND]
 - **Asignado a**: Bárbara
 - **Bloqueado por**: Tarea 13
-- **Descripción**: Al resolver turno, añadir flag `is_spaceship_unlocked` al JSON (o BD) para declarar victoria y detener el juego (HU 4.3).
+- **Descripción**: Al resolver turno, si la tecnología ganadora es la Nave, cambiar `partida.estado` a `FINALIZADA` (HU 4.3).
 - **Scripts / Git**: Rama `feat/T15-back-victoria`.
-- **Criterios de Aceptación (DoD)**: Test Pest comprueba que la partida finaliza si se evoluciona la Nave Espacial.
-
+- **Criterios de Aceptación (DoD)**: Test Pest comprueba que la partida cambia de estado al ganar.
 ### Tarea 16
 - **Título**: `[Feat] Gestión de Abandono (Jugadores Inactivos Backend)`
 - **Estimación**: S

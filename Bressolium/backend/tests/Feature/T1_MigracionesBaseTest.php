@@ -18,10 +18,9 @@ test('la tabla users contiene las columnas base', function () {
         ->and(Schema::hasColumns('users', ['id', 'name', 'email', 'password']))->toBeTrue();
 });
 
-test('la tabla partidas contiene estado_jornada JSON y cultura_base', function () {
+test('la tabla partidas contiene nombre y estado', function () {
     expect(Schema::hasTable('partidas'))->toBeTrue()
-        ->and(Schema::hasColumns('partidas', ['id', 'estado_jornada', 'cultura_base', 'puntos', 'estado', 'created_at']))->toBeTrue()
-        ->and(Schema::getColumnType('partidas', 'estado_jornada'))->toBe('json');
+        ->and(Schema::hasColumns('partidas', ['id', 'nombre', 'estado', 'created_at']))->toBeTrue();
 });
 
 test('un usuario puede pertenecer a muchas partidas (Relación N:M/1:N Pivote)', function () {

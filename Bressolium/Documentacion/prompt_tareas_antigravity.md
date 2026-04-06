@@ -9,7 +9,7 @@
 El proyecto cuenta con la siguiente base documental que debes tener en cuenta:
 1. **Pila Tecnológica**: El backend está en **Laravel 12 (PHP)** implementando una API RESTful, mientras el frontend está en **React-Redux con JavaScript**.
 2. **Requisitos Funcionales (Épicas)**: Gestión de Usuarios, Tablero/Exploración, Turnos/Cooperación, y Tecnología/Victoria. *Nota: Se descartan métricas de escalabilidad global, multiservidor y eventos adversos (fuera del scope del MVP).*
-3. **Modelo de Base de Datos**: Un esquema híbrido relacional con MySQL. Incluye tablas de Usuarios, Partida (que almacena un JSON para el estado volátil del turno), Casillas, Tecnologías, Inventos, Materiales y Recetas intermedias.
+3. **Modelo de Base de Datos**: Un esquema relacional normalizado con MySQL. Incluye tablas de Usuarios, Partida, Jornadas (para el control de turnos), Votos, Casillas, Tecnologías, Inventos, Materiales y Recetas. **Prohibido el uso de JSON para estados volátiles; usar tablas relacionadas**. No implementar Cultura Base/Skins.
 4. **Acuerdos de Equipo (Working Agreements)**:
    - Repositorio colaborativo en GitHub usando Trunk-Based Development sobre la rama `main`.
    - Nomenclatura de ramas: `feat/<desc>`, `fix/<desc>`, `docs/<desc>`.

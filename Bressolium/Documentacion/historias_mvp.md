@@ -38,13 +38,9 @@ A continuación se detallan las historias de usuario aprobadas para el MVP, reda
     **Entonces** el sistema busca un equipo con huecos libres (menos de 5 miembros)
     **Y** lo asigna de forma automática sin necesidad de más interacción.
 
-### HU 1.5 - Elección de civilización
+### HU 1.5 - [DESCARTADO] Elección de civilización
 **Característica:** Personalización temática
-  **Escenario:** Aplicar un "skin" visual al equipo.
-    **Dado** que se está creando un equipo nuevo
-    **Cuando** se selecciona una cultura base (ej. Estética Clásica)
-    **Entonces** el sistema asocia ese parámetro a la Partida
-    **Y** todos los iconos y gráficos del frontend usarán el set de dicha cultura.
+  **Nota:** No se implementará en el MVP para reducir complejidad técnica.
 
 ### HU 1.6 - Selector de Equipo Activo
 **Característica:** Multisesión en diferentes equipos

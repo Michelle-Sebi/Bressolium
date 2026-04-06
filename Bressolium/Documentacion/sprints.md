@@ -9,7 +9,7 @@ Este es el orden técnico exacto con el que tienes que arrastrar tus Issues a ca
 - Tarea 6: [Feat] Migraciones de Casillas y Diccionario Base (Backend - Michelle) [Talla: S]
 - Tarea 14: [Feat] Migraciones Relaciones Proceso Técnico (Backend - Michelle) [Talla: M]
 - Tarea 2: [Feat] Setup Auth Sanctum API (Backend - Michelle) [Talla: M]
-- Tarea 4: [Feat] Endpoints CRUD Equipos (Backend - Bárbara) [Talla: M]
+- Tarea 4: [Feat] Endpoints CRUD Equipos y 1ª Jornada (Backend - Bárbara) [Talla: M]
 
 # 🏗️ Sprint 2: El Cliente Web y el Tablero API
 (Aparece React y se empiezan a repartir las casillas).
@@ -23,7 +23,7 @@ Este es el orden técnico exacto con el que tienes que arrastrar tus Issues a ca
 
 - Tarea 8: [Feat] Acciones Individuales API (Explorar/Mejorar) (Backend - Michelle) [Talla: L]
 - Tarea 9: [Feat] Componente CSS Grid Tablero (Frontend - Bárbara) [Talla: XL]
-- Tarea 10: [Feat] Estado JSON Sincronizado y Long Polling (Fullstack - Michelle) [Talla: M]
+- Tarea 10: [Feat] Sincronización Relacional Jornadas y Polling (Fullstack - Michelle) [Talla: M]
 
 # 🗳️ Sprint 4: Economía, Votaciones y Cierre
 (Los turnos funcionan, la tecnología fluye y se puede ganar).

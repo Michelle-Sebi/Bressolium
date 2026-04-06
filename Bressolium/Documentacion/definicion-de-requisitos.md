@@ -7,7 +7,7 @@
 | RF1.1 | El sistema debe permitir el registro de usuarios mediante email y contraseña cifrada. | Must |
 | RF1.2 | El sistema debe validar que el nombre del equipo sea único en el servidor. | Must |
 | RF1.3 | El sistema debe permitir el almacenamiento de la relación “Jugador–Equipo” de 1 a N (un jugador en varios equipos). | Should |
-| RF1.4 | El sistema debe aplicar un “Skin” o set de activos visuales según la civilización elegida al crear el equipo. | Could |
+| RF1.4 | [DESCARTADO] El sistema debe permitir elegir civilización. | Won't |
 
 **Épica 2: El Tablero y la Exploración**
 

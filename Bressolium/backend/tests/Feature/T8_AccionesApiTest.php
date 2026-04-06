@@ -16,13 +16,13 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->user = User::factory()->create();
 
-    // Inyectamos JSON en BD. Empieza con 2 acciones.
-    $this->partida = Partida::factory()->create([
-        'estado_jornada' => json_encode([
-            'acciones_restantes' => 2,
-            'votos' => []
-        ])
-    ]);
+    // Inyectamos estado de jornada relacional.
+    $this->partida = Partida::factory()->create();
+    $this->jornada = $this->partida->jornadas()->create(['numero' => 1]);
+    $this->user->partidas()->attach($this->partida->id);
+
+    // El usuario empieza con 0 acciones gastadas.
+    $this->jornada_user = $this->jornada->users()->attach($this->user->id, ['acciones_gastadas' => 0]);
 
     $this->user->partidas()->attach($this->partida->id);
     $this->casilla = Casilla::factory()->create([
@@ -40,20 +40,16 @@ test('explorar descuenta 1 acción de estado_jornada JSON y descubre casilla', f
     $response->assertStatus(200);
 
     // Refrescar y Comprobar BD
-    $this->partida->refresh();
+    $acciones_gastadas = $this->jornada->users()->where('user_id', $this->user->id)->first()->pivot->acciones_gastadas;
     $this->casilla->refresh();
 
-    $estado_nuevo = json_decode($this->partida->estado_jornada, true);
-
-    expect($estado_nuevo['acciones_restantes'])->toBe(1)
+    expect($acciones_gastadas)->toBe(1)
         ->and($this->casilla->explorada)->toBe(1); // Casilla desvelada
 });
 
-test('rechaza accion de explorar y devuelve 403 si las acciones son cero', function () {
-    // Forzamos el JSON a 0 acciones
-    $this->partida->update([
-        'estado_jornada' => json_encode(['acciones_restantes' => 0])
-    ]);
+test('rechaza accion de explorar y devuelve 403 si las acciones gastadas son dos', function () {
+    // Forzamos 2 acciones gastadas para este usuario en esta jornada
+    $this->jornada->users()->updateExistingPivot($this->user->id, ['acciones_gastadas' => 2]);
 
     $response = $this->postJson("/api/casillas/{$this->casilla->id}/explorar");
 
