@@ -1,60 +1,60 @@
 <?php
 
 use App\Models\User;
-use App\Models\Partida;
-// use App\Jobs\CierreDeJornadaJob;
+use App\Models\Game;
+// use App\Jobs\CloseRoundJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 // ==========================================
-// TEST CRÍTICO PARA: TAREA 16 (Raw_Tareas)
-// Título: Gestión de Abandono (Jugadores Inactivos)
+// CRITICAL TEST FOR: TASK 16 (Raw_Tareas)
+// Title: Abandonment Management (Inactive Players)
 // ==========================================
 
 beforeEach(function () {
-    // 2 usuarios
+    // 2 users
     $this->users = User::factory()->count(2)->create();
 
-    $this->partida = Partida::factory()->create([
-        'estado_jornada' => json_encode([
-            'acciones_restantes' => 1,
-            'votos' => [
+    $this->game = Game::factory()->create([
+        'round_status' => json_encode([
+            'actions_remaining' => 1,
+            'votes' => [
                 ['user_id' => $this->users[0]->id, 'tech_id' => 1]
-                // El usuario [1] NO HA VOTADO
+                // User [1] HAS NOT VOTED
             ]
         ])
     ]);
 });
 
-test('partida avanza si User2 está marcado is_afk e Inactivo pese a no haber votado', function () {
-    // Marcamos al Jugador 2 como inactivo
+test('game advances if User2 is marked is_afk and Inactive despite not having voted', function () {
+    // Mark Player 2 as inactive
     $this->users[1]->update(['is_afk' => true]);
 
-    // 1. Simular la ejecución manual del Job de evaluación del turno (que será programado en T13/16)
-    // (new CierreDeJornadaJob($this->partida->id))->handle();
+    // 1. Simulate manual execution of the round evaluation Job (to be scheduled in T13/16)
+    // (new CloseRoundJob($this->game->id))->handle();
 
-    // (LÓGICA MOCKEADA PROSPECTIVA DEL JOB) -->
-    $todos_votaron = true;
-    $votos_actuales = collect(json_decode($this->partida->estado_jornada, true)['votos']);
+    // (PROSPECTIVE MOCKED JOB LOGIC) -->
+    $all_voted = true;
+    $current_votes = collect(json_decode($this->game->round_status, true)['votes']);
 
-    foreach ($this->partida->users as $u) {
+    foreach ($this->game->users as $u) {
         if (!$u->is_afk) {
-            $hasVoted = $votos_actuales->firstWhere('user_id', $u->id);
+            $hasVoted = $current_votes->firstWhere('user_id', $u->id);
             if (!$hasVoted)
-                $todos_votaron = false;
+                $all_voted = false;
         }
     }
 
-    if ($todos_votaron) {
-        // Ejecutar Cierre
-        $this->partida->update(['estado_jornada' => json_encode(['votos' => [], 'acciones_restantes' => 2])]);
+    if ($all_voted) {
+        // Execute Close
+        $this->game->update(['round_status' => json_encode(['votes' => [], 'actions_remaining' => 2])]);
     }
-    // <-- FIN MOCK DE JOB
+    // <-- END JOB MOCK
 
-    $this->partida->refresh();
-    $nuevoEstado = json_decode($this->partida->estado_jornada, true);
+    $this->game->refresh();
+    $newStatus = json_decode($this->game->round_status, true);
 
-    // Esperamos vaciado porque se debió disparar el cierre al estar el U2 (is_afk)
-    expect($nuevoEstado['votos'])->toBeEmpty();
+    // Expect empty because close should have triggered with U2 marked is_afk
+    expect($newStatus['votes'])->toBeEmpty();
 });

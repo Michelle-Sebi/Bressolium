@@ -1,43 +1,43 @@
 <?php
 
 use App\Models\User;
-use App\Models\Partida;
+use App\Models\Game;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 // ==========================================
-// TEST PARA: TAREA 11 (Raw_Tareas)
-// Título: API Votaciones de Progreso
+// TEST FOR: TASK 11 (Raw_Tareas)
+// Title: Progress Voting API
 // ==========================================
 
 beforeEach(function () {
     $this->user = User::factory()->create();
 
-    // Partida con JSON limpio
-    $this->partida = Partida::factory()->create([
-        'estado_jornada' => json_encode([
-            'acciones_restantes' => 2,
-            'votos' => []
+    // Game with clean JSON
+    $this->game = Game::factory()->create([
+        'round_status' => json_encode([
+            'actions_remaining' => 2,
+            'votes' => []
         ])
     ]);
-    $this->user->partidas()->attach($this->partida->id);
+    $this->user->games()->attach($this->game->id);
     $this->actingAs($this->user);
 });
 
-test('almacena el voto inyectandolo de forma recurrente al JSON avoiding overrides', function () {
-    $tech_id = 99; // ID Tecnología de prueba
+test('stores the vote by injecting it recursively into JSON avoiding overrides', function () {
+    $tech_id = 99; // Test technology ID
 
-    $response = $this->postJson("/api/partida/{$this->partida->id}/votar", [
+    $response = $this->postJson("/api/game/{$this->game->id}/vote", [
         'tech_id' => $tech_id
     ]);
 
     $response->assertStatus(200);
 
-    $this->partida->refresh();
-    $estado_nuevo = json_decode($this->partida->estado_jornada, true);
+    $this->game->refresh();
+    $new_status = json_decode($this->game->round_status, true);
 
-    expect(count($estado_nuevo['votos']))->toBe(1)
-        ->and($estado_nuevo['votos'][0]['user_id'])->toBe($this->user->id)
-        ->and($estado_nuevo['votos'][0]['tech_id'])->toBe($tech_id);
+    expect(count($new_status['votes']))->toBe(1)
+        ->and($new_status['votes'][0]['user_id'])->toBe($this->user->id)
+        ->and($new_status['votes'][0]['tech_id'])->toBe($tech_id);
 });

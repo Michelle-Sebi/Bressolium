@@ -1,75 +1,75 @@
 <?php
 
 use App\Models\User;
-use App\Models\Partida;
-use App\Models\Casilla;
+use App\Models\Game;
+use App\Models\Tile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 // ==========================================
-// TEST PARA: TAREA 8 (Raw_Tareas)
-// Título: Acciones Individuales API (Explorar / Mejorar)
-// Notas CRÍTICAS TDD: Aquí se prueban bloqueos transaccionales
+// TEST FOR: TASK 8 (Raw_Tareas)
+// Title: Individual Actions API (Explore / Upgrade)
+// CRITICAL TDD Notes: Transactional locks are tested here
 // ==========================================
 
 beforeEach(function () {
     $this->user = User::factory()->create();
 
-    // Inyectamos estado de jornada relacional.
-    $this->partida = Partida::factory()->create();
-    $this->jornada = $this->partida->jornadas()->create(['numero' => 1]);
-    $this->user->partidas()->attach($this->partida->id);
+    // Inject relational round state.
+    $this->game = Game::factory()->create();
+    $this->round = $this->game->rounds()->create(['number' => 1]);
+    $this->user->games()->attach($this->game->id);
 
-    // El usuario empieza con 0 acciones gastadas.
-    $this->jornada_user = $this->jornada->users()->attach($this->user->id, ['acciones_gastadas' => 0]);
+    // User starts with 0 actions spent.
+    $this->round_user = $this->round->users()->attach($this->user->id, ['actions_spent' => 0]);
 
-    $this->user->partidas()->attach($this->partida->id);
-    $this->casilla = Casilla::factory()->create([
-        'partida_id' => $this->partida->id,
+    $this->user->games()->attach($this->game->id);
+    $this->tile = Tile::factory()->create([
+        'game_id' => $this->game->id,
         'coord_x' => 1, 'coord_y' => 1,
-        'explorada' => false
+        'explored' => false
     ]);
 
     $this->actingAs($this->user);
 });
 
-test('explorar descuenta 1 acción de estado_jornada JSON y descubre casilla', function () {
-    $response = $this->postJson("/api/casillas/{$this->casilla->id}/explorar");
+test('exploring spends 1 action in round JSON and reveals tile', function () {
+    $response = $this->postJson("/api/tiles/{$this->tile->id}/explore");
 
     $response->assertStatus(200);
 
-    // Refrescar y Comprobar BD
-    $acciones_gastadas = $this->jornada->users()->where('user_id', $this->user->id)->first()->pivot->acciones_gastadas;
-    $this->casilla->refresh();
+    // Refresh and Check BD
+    $actions_spent = $this->round->users()->where('user_id', $this->user->id)->first()->pivot->actions_spent;
+    $this->tile->refresh();
 
-    expect($acciones_gastadas)->toBe(1)
-        ->and($this->casilla->explorada)->toBe(1); // Casilla desvelada
+    expect($actions_spent)->toBe(1)
+        ->and($this->tile->explored)->toBe(1); // Tile revealed
 });
 
-test('rechaza accion de explorar y devuelve 403 si las acciones gastadas son dos', function () {
-    // Forzamos 2 acciones gastadas para este usuario en esta jornada
-    $this->jornada->users()->updateExistingPivot($this->user->id, ['acciones_gastadas' => 2]);
+test('rejects explore action and returns 403 if actions_spent are two', function () {
+    // Force 2 actions spent for this user in this round
+    $this->round->users()->updateExistingPivot($this->user->id, ['actions_spent' => 2]);
 
-    $response = $this->postJson("/api/casillas/{$this->casilla->id}/explorar");
+    $response = $this->postJson("/api/tiles/{$this->tile->id}/explore");
 
-    // Fallo de backend esperado por regla de negocio
+    // Expected backend failure due to business rule
     $response->assertStatus(403)
-        ->assertJson(['error' => 'No te quedan acciones este turno']);
+        ->assertJson(['error' => 'You have no actions left this turn']);
 });
 
-test('rechaza peticion de evolucionar (HTTP 400) si el JSON no tiene suficientes materiales', function () {
-    // Asumiendo que el equipo tiene 5 de Madera, pero evolucionar a Nivel 1 pide 10.
-    $this->partida->update([
-        'estado_jornada' => json_encode([
-            'acciones_restantes' => 2,
-            'inventario_materiales' => ['Madera' => 5]
+test('rejects upgrade request (HTTP 400) if JSON does not have enough materials', function () {
+    // Assuming the team has 5 Wood, but upgrading to Level 1 requires 10.
+    $this->game->update([
+        'round_status' => json_encode([
+            'actions_remaining' => 2,
+            'materials_inventory' => ['Wood' => 5]
         ])
     ]);
 
-    // Simulamos endpoint de evolucionar (Mejorar)
-    $response = $this->postJson("/api/casillas/{$this->casilla->id}/evolucionar");
+    // Simulate upgrade (Improve) endpoint
+    $response = $this->postJson("/api/tiles/{$this->tile->id}/upgrade");
 
     $response->assertStatus(400)
-        ->assertJson(['error' => 'Materiales insuficientes para esta mejora']);
+        ->assertJson(['error' => 'Insufficient materials for this upgrade']);
 });

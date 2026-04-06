@@ -1,42 +1,42 @@
 <?php
 
 use App\Models\User;
-use App\Models\Partida;
+use App\Models\Game;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 // ==========================================
-// TEST PARA: TAREA 10 (Raw_Tareas)
-// Título: Estado JSON en DB y Endpoint de Sincronización
+// TEST FOR: TASK 10 (Raw_Tareas)
+// Title: Relational Sync Endpoint for Rounds
 // ==========================================
 
 beforeEach(function () {
     $this->user = User::factory()->create();
-    $this->partida = Partida::factory()->create([
-        'estado_jornada' => json_encode([
-            'acciones_restantes' => 2,
-            'votos' => []
+    $this->game = Game::factory()->create([
+        'round_status' => json_encode([
+            'actions_remaining' => 2,
+            'votes' => []
         ])
     ]);
 
-    $this->user->partidas()->attach($this->partida->id);
+    $this->user->games()->attach($this->game->id);
     $this->actingAs($this->user);
 });
 
-test('endpoint GET /api/partida/sync devuelve el JSON de la jornada limpio', function () {
-    $response = $this->getJson("/api/partida/{$this->partida->id}/sync");
+test('endpoint GET /api/game/sync returns the round JSON clean', function () {
+    $response = $this->getJson("/api/game/{$this->game->id}/sync");
 
     $response->assertStatus(200)
         ->assertJsonStructure([
         'success',
         'data' => [
-            'estado_jornada' => [
-                'acciones_restantes',
-                'votos'
+            'round_status' => [
+                'actions_remaining',
+                'votes'
             ]
         ]
     ]);
 
-    expect($response->json('data.estado_jornada.acciones_restantes'))->toBe(2);
+    expect($response->json('data.round_status.actions_remaining'))->toBe(2);
 });

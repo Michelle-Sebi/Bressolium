@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Schema;
 use App\Models\User;
-use App\Models\Partida;
+use App\Models\Game;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -18,18 +18,18 @@ test('la tabla users contiene las columnas base', function () {
         ->and(Schema::hasColumns('users', ['id', 'name', 'email', 'password']))->toBeTrue();
 });
 
-test('la tabla partidas contiene nombre y estado', function () {
-    expect(Schema::hasTable('partidas'))->toBeTrue()
-        ->and(Schema::hasColumns('partidas', ['id', 'nombre', 'estado', 'created_at']))->toBeTrue();
+test('la tabla games contiene name y status', function () {
+    expect(Schema::hasTable('games'))->toBeTrue()
+        ->and(Schema::hasColumns('games', ['id', 'name', 'status', 'created_at']))->toBeTrue();
 });
 
 test('un usuario puede pertenecer a muchas partidas (Relación N:M/1:N Pivote)', function () {
     $user = User::factory()->create();
-    $partida = Partida::factory()->create();
+    $game = Game::factory()->create();
 
-    // Asumiendo tabla pivote partida_user
-    $user->partidas()->attach($partida->id);
+    // Asumiendo tabla pivote game_user
+    $user->games()->attach($game->id);
 
-    expect($user->partidas->count())->toBe(1)
-        ->and($user->partidas->first()->id)->toBe($partida->id);
+    expect($user->games->count())->toBe(1)
+        ->and($user->games->first()->id)->toBe($game->id);
 });

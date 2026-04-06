@@ -1,35 +1,35 @@
 <?php
 
 use App\Models\User;
-use App\Models\Partida;
-use App\Models\Casilla;
+use App\Models\Game;
+use App\Models\Tile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 // ==========================================
-// TEST PARA: TAREA 7 (Raw_Tareas)
-// Título: Generador y Controlador de Tablero API
+// TEST FOR: TASK 7 (Raw_Tareas)
+// Title: Board Generator and API Controller
 // ==========================================
 
 beforeEach(function () {
     $this->user = User::factory()->create();
-    $this->partida = Partida::factory()->create();
-    $this->user->partidas()->attach($this->partida->id);
+    $this->game = Game::factory()->create();
+    $this->user->games()->attach($this->game->id);
     $this->actingAs($this->user);
 });
 
-test('endpoint /api/tablero devuelve matriz json de casillas asociada a la partida activa', function () {
-    // Simulamos casillas creadas via evento o seeder al iniciar la partida
-    Casilla::factory()->count(10)->create(['partida_id' => $this->partida->id]);
+test('endpoint /api/board returns json tile matrix associated with the active game', function () {
+    // Simulate tiles created via event or seeder when the game starts
+    Tile::factory()->count(10)->create(['game_id' => $this->game->id]);
 
-    $response = $this->getJson("/api/tablero/{$this->partida->id}");
+    $response = $this->getJson("/api/board/{$this->game->id}");
 
     $response->assertStatus(200)
         ->assertJsonStructure([
         'success',
         'data' => [
-            '*' => ['id', 'coord_x', 'coord_y', 'tipo_casilla_id', 'explorada']
+            '*' => ['id', 'coord_x', 'coord_y', 'tile_type_id', 'explored']
         ],
         'error'
     ]);

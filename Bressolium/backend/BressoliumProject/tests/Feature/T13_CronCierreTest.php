@@ -1,63 +1,62 @@
 <?php
 
 use App\Models\User;
-use App\Models\Partida;
-// use App\Jobs\CierreDeJornadaJob;   // (A importar cuando se cree el Controller)
+use App\Models\Game;
+// use App\Jobs\CloseRoundJob;   // (To import once the Controller is created)
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 // ==========================================
-// TEST CRÍTICO PARA: TAREA 13 (Raw_Tareas)
-// Título: Schedule / Cron Cierre de Turno Backend
+// CRITICAL TEST FOR: TASK 13 (Raw_Tareas)
+// Title: Schedule / Cron Round Close Backend
 // ==========================================
 
 beforeEach(function () {
     $this->users = User::factory()->count(3)->create();
 
-    // Forzamos que la partida ya tiene votos recogidos (2 por la tech 1, 1 por la tech 2)
-    $this->partida = Partida::factory()->create([
-        'estado_jornada' => json_encode([
-            'acciones_restantes' => 0,
-            'votos' => [
+    // Force game with votes already collected (2 for tech 1, 1 for tech 2)
+    $this->game = Game::factory()->create([
+        'round_status' => json_encode([
+            'actions_remaining' => 0,
+            'votes' => [
                 ['user_id' => $this->users[0]->id, 'tech_id' => 1],
-                ['user_id' => $this->users[1]->id, 'tech_id' => 1], // Ganadora (mayoría)
+                ['user_id' => $this->users[1]->id, 'tech_id' => 1], // Winner (majority)
                 ['user_id' => $this->users[2]->id, 'tech_id' => 2],
             ]
         ])
     ]);
 });
 
-test('el job de cierre evalua ganador, restaura JSON e inicializa turno nuevo', function () {
-    // 1. Simular la ejecución manual del Job
-    // (new CierreDeJornadaJob($this->partida->id))->handle(); // <- DESCOMENTAR AL TENER EL CÓDIGO
+test('the close job evaluates winner, resets JSON and initializes new round', function () {
+    // 1. Simulate manual Job execution
+    // (new CloseRoundJob($this->game->id))->handle(); // <- UNCOMMENT WHEN CODE EXISTS
 
-    // Como no tenemos el código aún para correr, mockeamos la mutación en BD manualmente 
-    // tal como la haría el JOB.
-    $this->partida->update([
-        'estado_jornada' => json_encode([
-            'acciones_restantes' => 2, // Reseteadas
-            'votos' => [] // Vaciados para el dia 2
+    // Mock the BD mutation as the JOB would do it.
+    $this->game->update([
+        'round_status' => json_encode([
+            'actions_remaining' => 2, // Reset
+            'votes' => [] // Cleared for day 2
         ])
     ]);
 
-    // 2. Refrescamos y evaluamos
-    $this->partida->refresh();
-    $nuevoEstado = json_decode($this->partida->estado_jornada, true);
+    // 2. Refresh and evaluate
+    $this->game->refresh();
+    $newStatus = json_decode($this->game->round_status, true);
 
-    expect($nuevoEstado['votos'])->toBeEmpty()
-        ->and($nuevoEstado['acciones_restantes'])->toBe(2);
+    expect($newStatus['votes'])->toBeEmpty()
+        ->and($newStatus['actions_remaining'])->toBe(2);
 
-// (AÑADIR LUEGO: Test de comprobar que el "inventario" restó el coste del ganador y sumó la Tech)
+// (ADD LATER: Test to check that the "inventory" deducted winner cost and added Tech)
 });
 
-test('el algoritmo de cron resuelve un empate de votos al azar sin crashear', function () {
-    // Forzamos empate 2 a 2 entre Tech 1 y Tech 2
+test('the cron algorithm resolves a vote tie randomly without crashing', function () {
+    // Force a 2-2 tie between Tech 1 and Tech 2
     $this->users = User::factory()->count(4)->create();
-    $this->partida->update([
-        'estado_jornada' => json_encode([
-            'acciones_restantes' => 0,
-            'votos' => [
+    $this->game->update([
+        'round_status' => json_encode([
+            'actions_remaining' => 0,
+            'votes' => [
                 ['user_id' => $this->users[0]->id, 'tech_id' => 1],
                 ['user_id' => $this->users[1]->id, 'tech_id' => 1],
                 ['user_id' => $this->users[2]->id, 'tech_id' => 2],
@@ -66,16 +65,16 @@ test('el algoritmo de cron resuelve un empate de votos al azar sin crashear', fu
         ])
     ]);
 
-    // Ejecuta resolución simulada. 
-    // Un collect o Math::array_rand de PHP escogerá una key aleatoria en caso de count() idénticos
-    $votos_array = json_decode($this->partida->estado_jornada, true)['votos'];
-    $conteo = array_count_values(array_column($votos_array, 'tech_id'));
+    // Run simulated resolution.
+    // A collect or array_rand will pick a random key on identical count()
+    $votes_array = json_decode($this->game->round_status, true)['votes'];
+    $count = array_count_values(array_column($votes_array, 'tech_id'));
 
-    // Obtener los que tienen el max count
-    $maxVotos = max($conteo);
-    $candidatos = array_keys(array_filter($conteo, fn($v) => $v == $maxVotos));
-    $tech_ganadora = $candidatos[array_rand($candidatos)];
+    // Get those with max count
+    $maxVotes = max($count);
+    $candidates = array_keys(array_filter($count, fn($v) => $v == $maxVotes));
+    $winning_tech = $candidates[array_rand($candidates)];
 
-    // Assertion: La máquina debe ser capaz de desempatar seleccionando a 1 o 2 
-    expect(in_array($tech_ganadora, [1, 2]))->toBeTrue();
+    // Assertion: The machine must be able to break the tie selecting 1 or 2
+    expect(in_array($winning_tech, [1, 2]))->toBeTrue();
 });

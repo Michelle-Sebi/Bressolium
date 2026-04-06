@@ -1,27 +1,27 @@
 <?php
 
 use App\Models\User;
-use App\Models\Partida;
+use App\Models\Game;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 // ==========================================
-// TEST PARA: TAREA 4 (Raw_Tareas)
-// Título: Endpoints CRUD para Equipos (Partidas)
-// Requisitos: HU 1.2 (Creación), HU 1.3 (Unirse) y HU 1.4 (Asignación Aleatoria)
+// TEST FOR: TASK 4 (Raw_Tareas)
+// Title: CRUD Endpoints for Teams (Games)
+// Requirements: HU 1.2 (Creation), HU 1.3 (Join) and HU 1.4 (Random Assignment)
 // ==========================================
 
 beforeEach(function () {
-    // Autenticamos a un usuario para todos estos tests
+    // Authenticate a user for all these tests
     $this->user = User::factory()->create();
-    $this->actingAs($this->user); // Simula el token Sanctum
+    $this->actingAs($this->user); // Simulates Sanctum token
 });
 
-test('crear equipo inicializa estado json vacío y responde JSON stand', function () {
-    $response = $this->postJson('/api/partida/create', [
-        'nombre_equipo' => 'Pioneros Digitales',
-        'cultura_base' => 'Cyberpunk'
+test('creating a game initializes empty round_status json and responds with JSON standard', function () {
+    $response = $this->postJson('/api/game/create', [
+        'team_name' => 'Digital Pioneers',
+        'base_culture' => 'Cyberpunk'
     ]);
 
     $response->assertStatus(200)
@@ -29,35 +29,35 @@ test('crear equipo inicializa estado json vacío y responde JSON stand', functio
         'success' => true,
     ]);
 
-    // Aserción BD: Comprobar que en MySQL se almacenó JSON
-    expect(Partida::count())->toBe(1);
-    $partida = Partida::first();
-    expect($partida->cultura_base)->toBe('Cyberpunk')
-        ->and($partida->estado_jornada)->toBeJson()
-        ->and($partida->users->contains($this->user))->toBeTrue();
+    // BD Assertion: Check that JSON was stored in the DB
+    expect(Game::count())->toBe(1);
+    $game = Game::first();
+    expect($game->base_culture)->toBe('Cyberpunk')
+        ->and($game->round_status)->toBeJson()
+        ->and($game->users->contains($this->user))->toBeTrue();
 });
 
-test('unirse por nombre exacto asocia al jugador con el equipo (HU 1.3)', function () {
-    $partida = Partida::factory()->create(['nombre_equipo' => 'Los Testeadores']);
+test('joining by exact name associates the player with the team (HU 1.3)', function () {
+    $game = Game::factory()->create(['team_name' => 'The Testers']);
 
-    $response = $this->postJson('/api/partida/join', [
-        'nombre_equipo' => 'Los Testeadores'
+    $response = $this->postJson('/api/game/join', [
+        'team_name' => 'The Testers'
     ]);
 
     $response->assertStatus(200);
-    expect($this->user->partidas->pluck('id'))->toContain($partida->id);
+    expect($this->user->games->pluck('id'))->toContain($game->id);
 });
 
-test('la asignación aleatoria busca equipos con menos de 5 miembros (HU 1.4)', function () {
-    // Partida Llena (Simulada)
-    $partidaLlena = Partida::factory()->hasUsers(5)->create();
-    // Partida Con Hueco (Simulada)
-    $partidaLibre = Partida::factory()->hasUsers(2)->create();
+test('random assignment finds teams with fewer than 5 members (HU 1.4)', function () {
+    // Full Game (Simulated)
+    $fullGame = Game::factory()->hasUsers(5)->create();
+    // Game With Slot (Simulated)
+    $freeGame = Game::factory()->hasUsers(2)->create();
 
-    $response = $this->postJson('/api/partida/join-random');
+    $response = $this->postJson('/api/game/join-random');
 
     $response->assertStatus(200);
-    // El usuario tuvo que caer en la partida con hueco, no en la llena
-    expect($partidaLibre->fresh()->users->contains($this->user))->toBeTrue()
-        ->and($partidaLlena->fresh()->users->contains($this->user))->toBeFalse();
+    // User should land in the game with a slot, not the full one
+    expect($freeGame->fresh()->users->contains($this->user))->toBeTrue()
+        ->and($fullGame->fresh()->users->contains($this->user))->toBeFalse();
 });
