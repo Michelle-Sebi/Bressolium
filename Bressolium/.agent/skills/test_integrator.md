@@ -11,4 +11,4 @@ Tu objetivo es **Green Tests**. Cuando se te pida integrar o pasar tests:
     *   Implementa una función `seedData()`: Si el LocalStorage está vacío, carga los datos del JSON proporcionado.
 3.  **Ciclo de Corrección:**
     *   Modifica el código fuente para satisfacer los tests.
-    *   NUNCA modifiques los tests para que pasen (hacer trampas). Arregla la implementación.
+    *   NUNCA modifiques los tests para que pasen (hacer trampas). Arregla la implementación. 
