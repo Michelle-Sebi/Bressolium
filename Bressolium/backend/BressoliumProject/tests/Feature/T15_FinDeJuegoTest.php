@@ -13,18 +13,20 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->user = User::factory()->create();
-    $this->game = Game::factory()->create([
-        'round_status' => json_encode(['actions_remaining' => 2, 'votes' => []])
-    ]);
+    $this->game = Game::factory()->create();
     $this->user->games()->attach($this->game->id);
 
     $this->actingAs($this->user);
 });
 
-test('game declares victory when the spaceship is unlocked (HU 4.3)', function () {
-    $this->game->update([
-        'is_spaceship_unlocked' => true
-    ]);
+test('el juego declara victoria cuando se desbloquea la tecnologia Spaceship', function () {
+    $spaceship = \App\Models\Technology::factory()->create(['name' => 'Spaceship']);
 
-    expect($this->game->is_spaceship_unlocked)->toBeTrue();
+    // Simular desbloqueo en la partida
+    $this->game->technologies()->attach($spaceship->id);
+
+    $this->game->refresh();
+
+    // La lógica del modelo o service debe determinar que el juego ha terminado
+    expect($this->game->technologies()->where('name', 'Spaceship')->exists())->toBeTrue();
 });

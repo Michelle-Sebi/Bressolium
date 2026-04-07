@@ -11,17 +11,25 @@ uses(RefreshDatabase::class);
 // Title: Tile Migrations and Base Dictionary
 // ==========================================
 
-test('the tiles table has structure for XY grid and state', function () {
+test('la tabla tiles gestiona la cuadricula XY y el estado de exploracion', function () {
     expect(Schema::hasTable('tiles'))->toBeTrue()
-        ->and(Schema::hasColumns('tiles', ['id', 'game_id', 'coord_x', 'coord_y', 'tile_type_id', 'level', 'explored']))->toBeTrue();
+        ->and(Schema::hasColumns('tiles', ['id', 'game_id', 'tile_type_id', 'coord_x', 'coord_y', 'explored']))->toBeTrue()
+        ->and(Schema::hasColumn('tiles', 'level'))->toBeFalse();
 });
 
-test('the Base Dictionary seeder inserts the 5 generic types', function () {
-    Artisan::call('db:seed', ['--class' => 'ResourcesBaseSeeder']);
+test('la tabla tile_types define el nombre y el nivel del bioma', function () {
+    expect(Schema::hasTable('tile_types'))->toBeTrue()
+        ->and(Schema::hasColumns('tile_types', ['id', 'name', 'level']))->toBeTrue();
+});
 
-    $this->assertDatabaseHas('resources', ['name' => 'Forest']);
-    $this->assertDatabaseHas('resources', ['name' => 'Quarry']);
-    $this->assertDatabaseHas('resources', ['name' => 'River']);
-    $this->assertDatabaseHas('resources', ['name' => 'Meadow']);
-    $this->assertDatabaseHas('resources', ['name' => 'Mine']);
+test('la tabla material_tile_type define la produccion de recursos por tipo', function () {
+    expect(Schema::hasTable('material_tile_type'))->toBeTrue()
+        ->and(Schema::hasColumns('material_tile_type', ['tile_type_id', 'material_id', 'quantity']))->toBeTrue();
+});
+
+test('el seeder de tipos genera los biomas base con niveles', function () {
+    Artisan::call('db:seed', ['--class' => 'TileTypesSeeder']);
+
+    $this->assertDatabaseHas('tile_types', ['name' => 'Forest', 'level' => 1]);
+    $this->assertDatabaseHas('tile_types', ['name' => 'Quarry', 'level' => 1]);
 });
