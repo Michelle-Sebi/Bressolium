@@ -15,6 +15,7 @@ class Vote extends Model
         'round_id',
         'user_id',
         'technology_id',
+        'invention_id',
     ];
 
     /**

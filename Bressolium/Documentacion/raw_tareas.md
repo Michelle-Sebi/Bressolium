@@ -20,7 +20,7 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
   5. `votes` (id, round_id, user_id, technology_id, invention_id).
   6. `game_user` (pivot: game_id, user_id, is_afk).
 - **Scripts / Git**: Rama `feat/T1-base-migrations`. 
-- **Criterios de Aceptación (DoD)**: `php artisan migrate` crea las tablas correctamente. `votes` permite nulos en tech/inv. `rounds` tiene `ended_at`.
+- **Criterios de Aceptación (DoD)**: `./vendor/bin/sail artisan migrate` crea las tablas correctamente. `votes` permite nulos en tech/inv. `rounds` tiene `ended_at`.
 
 ### Tarea 2
 - **Título**: `[Feat] API Authentication Setup with Sanctum`

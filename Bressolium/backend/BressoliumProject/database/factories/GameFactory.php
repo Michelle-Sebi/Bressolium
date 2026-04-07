@@ -18,8 +18,8 @@ class GameFactory extends Factory
     public function definition(): array
     {
         return [
-            'name'   => $this->faker->words(2, true),
-            'status' => $this->faker->randomElement(['WAITING', 'ACTIVE', 'FINISHED']),
+            'name' => $this->faker->words(2, true),
+            'status' => 'WAITING',
         ];
     }
 }
