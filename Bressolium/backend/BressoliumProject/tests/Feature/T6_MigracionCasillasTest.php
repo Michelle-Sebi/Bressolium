@@ -13,7 +13,7 @@ uses(RefreshDatabase::class);
 
 test('la tabla tiles gestiona la cuadricula XY y el estado de exploracion', function () {
     expect(Schema::hasTable('tiles'))->toBeTrue()
-        ->and(Schema::hasColumns('tiles', ['id', 'game_id', 'tile_type_id', 'coord_x', 'coord_y', 'explored']))->toBeTrue()
+        ->and(Schema::hasColumns('tiles', ['id', 'game_id', 'tile_type_id', 'assigned_player', 'coord_x', 'coord_y', 'explored']))->toBeTrue()
         ->and(Schema::hasColumn('tiles', 'level'))->toBeFalse();
 });
 
