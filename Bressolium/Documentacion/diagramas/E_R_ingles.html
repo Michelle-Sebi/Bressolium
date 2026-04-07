@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bressolium ER Diagram — V4 Definitive (English)</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            margin: 0;
+            padding: 1.5rem;
+        }
+
+        h1 {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            color: #2E4057;
+        }
+
+        p {
+            font-size: 13px;
+            color: #666;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+        }
+
+        #erd {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #1a1a1a;
+                color: #e0e0e0;
+            }
+
+            h1 {
+                color: #7eb8f7;
+            }
+
+            p {
+                color: #aaa;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Bressolium Entity-Relationship Diagram — V4 Definitive</h1>
+    <p>Normalized relational schema for the MVP. No JSON. All PKs are UUID. Based on the original Canva model + v3_final
+        + Round/Vote additions.</p>
+    <div id="erd"></div>
+    <script type="module">
+        import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+        const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'base',
+            fontFamily: 'sans-serif',
+            themeVariables: {
+                darkMode: dark,
+                fontSize: '13px',
+                fontFamily: 'sans-serif',
+                primaryColor: dark ? '#2a2a3a' : '#e8eaf6',
+                primaryTextColor: '#1a1a2e',
+                primaryBorderColor: dark ? '#5c5c8a' : '#7986cb',
+                lineColor: dark ? '#9c9a92' : '#73726c',
+                textColor: dark ? '#c2c0b6' : '#3d3d3a',
+                attributeBackgroundColorEven: dark ? '#1e1e2e' : '#f5f5ff',
+                attributeBackgroundColorOdd: dark ? '#252535' : '#ffffff',
+            },
+        });
+        const diagram = `erDiagram
+
+  USER {
+    uuid id PK
+    string name
+    string email UK
+    string password
+  }
+
+  GAME {
+    uuid id PK
+    string name UK
+    enum status "WAITING | ACTIVE | FINISHED"
+  }
+
+  ROUND {
+    uuid id PK
+    uuid game_id FK
+    int number "Turn counter"
+    timestamp start_date
+    timestamp ended_at "Nullable - forced closure"
+  }
+
+  VOTE {
+    uuid id PK
+    uuid round_id FK
+    uuid user_id FK
+    uuid technology_id FK "Nullable"
+    uuid invention_id FK "Nullable"
+  }
+
+  TILE {
+    uuid id PK
+    uuid game_id FK
+    uuid tile_type_id FK
+    uuid assigned_player FK "Nullable"
+    int coord_x
+    int coord_y
+    boolean explored "Default false"
+  }
+
+  TILE_TYPE {
+    uuid id PK
+    string name "Forest, Quarry, River, Meadow, Mine"
+    int level "1, 2, 3, 4..."
+  }
+
+  MATERIAL {
+    uuid id PK
+    string name "oak, flint, copper..."
+  }
+
+  TECHNOLOGY {
+    uuid id PK
+    string name
+  }
+
+  INVENTION {
+    uuid id PK
+    string name
+  }
+
+  RECIPE {
+    uuid id PK
+    string type "INVENTION | TECHNOLOGY"
+    uuid invention_id FK "Nullable"
+    uuid technology_id FK "Nullable"
+  }
+
+  %% ===== Core relationships =====
+  USER }o--o{ GAME : "plays in (N:M, is_afk)"
+  GAME ||--|{ ROUND : "has rounds"
+  GAME ||--|{ TILE : "composed of"
+
+  %% ===== Round mechanics =====
+  USER }o--o{ ROUND : "participates (actions_spent)"
+  ROUND ||--o{ VOTE : "receives"
+  USER ||--o{ VOTE : "casts"
+
+  %% ===== Board =====
+  TILE }o--|| USER : "assigned to"
+  TILE }o--|| TILE_TYPE : "is type"
+
+  %% ===== Resource production =====
+  TILE_TYPE }o--o{ MATERIAL : "produces (quantity)"
+
+  %% ===== Common inventory =====
+  GAME }o--o{ MATERIAL : "has in stock (quantity, is_active)"
+
+  %% ===== Game progress (what the team has unlocked) =====
+  GAME }o--o{ TECHNOLOGY : "has researched"
+  GAME }o--o{ INVENTION : "has built"
+
+  %% ===== Tech tree unlocks =====
+  TILE_TYPE }o--o{ TECHNOLOGY : "requires to evolve"
+  TILE_TYPE }o--o{ INVENTION : "requires to evolve"
+  INVENTION }o--o{ INVENTION : "unlocks"
+  INVENTION }o--o{ TECHNOLOGY : "unlocks"
+  TECHNOLOGY }o--o{ TECHNOLOGY : "unlocks"
+
+  %% ===== Recipes (associative entity) =====
+  MATERIAL ||--o{ RECIPE : "composed of (quantity)"
+  RECIPE }o--|| INVENTION : "produces"
+  RECIPE }o--|| TECHNOLOGY : "produces"
+
+  %% ===== Vote targets =====
+  VOTE }o--o| TECHNOLOGY : "votes for"
+  VOTE }o--o| INVENTION : "votes for"
+`;
+        const { svg } = await mermaid.render('erd-svg', diagram);
+        document.getElementById('erd').innerHTML = svg;
+
+        // Round entity boxes for aesthetic polish
+        document.querySelectorAll('#erd svg.erDiagram .node').forEach(node => {
+            const firstPath = node.querySelector('path[d]');
+            if (!firstPath) return;
+            const d = firstPath.getAttribute('d');
+            const nums = d.match(/-?[\d.]+/g)?.map(Number);
+            if (!nums || nums.length < 8) return;
+            const xs = [nums[0], nums[2], nums[4], nums[6]];
+            const ys = [nums[1], nums[3], nums[5], nums[7]];
+            const x = Math.min(...xs), y = Math.min(...ys);
+            const w = Math.max(...xs) - x, h = Math.max(...ys) - y;
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', x); rect.setAttribute('y', y);
+            rect.setAttribute('width', w); rect.setAttribute('height', h);
+            rect.setAttribute('rx', '8');
+            for (const a of ['fill', 'stroke', 'stroke-width', 'class', 'style']) {
+                if (firstPath.hasAttribute(a)) rect.setAttribute(a, firstPath.getAttribute(a));
+            }
+            firstPath.replaceWith(rect);
+        });
+        document.querySelectorAll('#erd svg.erDiagram .row-rect-odd path, #erd svg.erDiagram .row-rect-even path').forEach(p => {
+            p.setAttribute('stroke', 'none');
+        });
+    </script>
+</body>
+
+</html>
