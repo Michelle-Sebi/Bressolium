@@ -31,4 +31,25 @@ class Game extends Model
     {
         return $this->hasMany(Round::class);
     }
+
+    public function materials(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Material::class, 'game_material')
+            ->withPivot('quantity')
+            ->withTimestamps();
+    }
+
+    public function technologies(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Technology::class, 'game_technology')
+            ->withPivot('is_active')
+            ->withTimestamps();
+    }
+
+    public function inventions(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Invention::class, 'game_invention')
+            ->withPivot('is_active')
+            ->withTimestamps();
+    }
 }
