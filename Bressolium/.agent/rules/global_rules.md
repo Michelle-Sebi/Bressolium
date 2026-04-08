@@ -27,7 +27,7 @@ El proyecto está dividido estrictamente en dos directorios principales en la ra
 ## 3. Pautas de Código - Backend (Laravel)
 - **API REST & Seguridad:** Todos los endpoints consumidos por el cliente React deben estar protegidos y autenticados oficialmente usando **Laravel Sanctum**. No implementes JWT de librerías de terceros.
 - **Formato de Respuesta:** Todos los controladores deben devolver respuestas estandarizadas en JSON, preferiblemente siguiendo este formato estricto: `{ "success": boolean, "data": object | null, "error": string | null }`.
-- **Base de Datos:** El proyecto utiliza MySQL. Toda la persistencia temporal de la "jornada" debe interactuar con el campo de tipo JSON (`estado_jornada`) de la tabla `PARTIDA`.
+- **Base de Datos:** El proyecto utiliza MySQL. Se sigue un modelo relacional puro (V4) sin dependencias de tipos JSON para el estado del juego. Todas las tablas y campos deben estar en **INGLÉS** (ej. `GAME`, `ROUND`, `TILE`). Ver diagrama [ER_v4.html](file:///home/mu/Desktop/DAW/Bressolium/Bressolium/Documentacion/diagramas/ER_v4.html).
 - **Concurrencia:** En funciones críticas (por ejemplo, el cron de resolución de turno o el sistema de votos), utiliza *Database Locks* o *Jobs / Queues* de Laravel para evitar colisiones condicionales (Race Conditions).
 - **Eloquent:** Utiliza la convención de modelos, migraciones y fábricas (factories) nativas de Laravel. 
 - **Testing Backend:** En caso de que se te solicite escribir pruebas, prioriza usar **Pest** (ideal para Laravel 12) o alternativamente PHPUnit.
@@ -43,6 +43,7 @@ El proyecto usa *Trunk-Based Development*. Al sugerir comandos o crear pasos de 
 - La nomenclatura obligatoria será: `tipo/numero-tarea-descripcion` (ej. `feat/HU01-login-usuario`).
 - Usa **Conventional Commits** (ej. `feat: ...`, `fix: ...`, `docs: ...`, `style: ...`).
 - Referencia siempre una issue cuando sugieras PRs (`Closes #1`).
+- **Entorno de Desarrollo**: El uso de **Laravel Sail** es obligatorio para garantizar la paridad de entornos. Todos los comandos sugeridos deben usar el prefijo `sail` o `./vendor/bin/sail`.
 
 ## 6. Contexto de Proyecto (MVP)
 Para este MVP de desarrollo rápido, ten siempre presente que:

@@ -13,31 +13,40 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->user = User::factory()->create();
+    $this->game = Game::factory()->create();
+    $this->round = $this->game->rounds()->create(['number' => 1]);
 
-    // Game with clean JSON
-    $this->game = Game::factory()->create([
-        'round_status' => json_encode([
-            'actions_remaining' => 2,
-            'votes' => []
-        ])
-    ]);
     $this->user->games()->attach($this->game->id);
     $this->actingAs($this->user);
 });
 
-test('stores the vote by injecting it recursively into JSON avoiding overrides', function () {
-    $tech_id = 99; // Test technology ID
+test('almacena el voto en la tabla votes vinculandolo a la jornada actual', function () {
+    $tech = \App\Models\Technology::factory()->create();
 
     $response = $this->postJson("/api/game/{$this->game->id}/vote", [
-        'tech_id' => $tech_id
+        'technology_id' => $tech->id
     ]);
 
     $response->assertStatus(200);
 
-    $this->game->refresh();
-    $new_status = json_decode($this->game->round_status, true);
+    $this->assertDatabaseHas('votes', [
+        'round_id' => $this->round->id,
+        'user_id' => $this->user->id,
+        'technology_id' => $tech->id
+    ]);
+});
 
-    expect(count($new_status['votes']))->toBe(1)
-        ->and($new_status['votes'][0]['user_id'])->toBe($this->user->id)
-        ->and($new_status['votes'][0]['tech_id'])->toBe($tech_id);
+test('permite votar por un invento en lugar de una tecnologia', function () {
+    $inv = \App\Models\Invention::factory()->create();
+
+    $response = $this->postJson("/api/game/{$this->game->id}/vote", [
+        'invention_id' => $inv->id
+    ]);
+
+    $response->assertStatus(200);
+
+    $this->assertDatabaseHas('votes', [
+        'user_id' => $this->user->id,
+        'invention_id' => $inv->id
+    ]);
 });

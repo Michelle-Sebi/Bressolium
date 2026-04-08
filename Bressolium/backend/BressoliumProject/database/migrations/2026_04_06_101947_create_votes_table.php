@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -15,7 +14,8 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('round_id')->constrained()->cascadeOnDelete();
             $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
-            $table->uuid('technology_id'); // We'll assume technology_id is also UUID, schema for it may come later.
+            $table->uuid('technology_id')->nullable();
+            $table->uuid('invention_id')->nullable();
             $table->timestamps();
         });
     }

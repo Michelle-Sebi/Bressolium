@@ -18,10 +18,10 @@ class VoteFactory extends Factory
     public function definition(): array
     {
         return [
-            'round_id'      => \App\Models\Round::factory(),
-            'user_id'       => \App\Models\User::factory(),
-            // Mocking a UUID for technology since the model and migration are scheduled for Task 14
+            'round_id' => \App\Models\Round::factory(),
+            'user_id' => \App\Models\User::factory(),
             'technology_id' => $this->faker->uuid(),
+            'invention_id' => null,
         ];
     }
 }

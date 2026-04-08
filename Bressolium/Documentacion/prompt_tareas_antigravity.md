@@ -38,3 +38,7 @@ Toma estos requisitos y genera el **Product Backlog completo inicial** dividiend
 Crea el listado completo para abarcar todas las historias de usuario definidas en el MVP(El core del juego inicial: Login, Tablero y Base de datos). Organízalos en forma de lista clara para que podamos pasarlo a GitHub Projects de inmediato, guardándolo en un archivo llamado raw_tareas.md.
 
 **REGLA CRÍTICA PARA TI COMO ASISTENTE:** Para generar el código y detalle de cada una de las tareas, **debes detenerte y preguntar a las desarrolladoras siempre que tengas una duda**. Nunca asumas partes de la arquitectura o la lógica del negocio sin confirmarlo previamente."
+
+**REGLAS ADICIONALES (SAIL & V4):**
+- Usa siempre `sail artisan` o `./vendor/bin/sail artisan` para cualquier comando sugerido en el DoD.
+- El modelo es **Relacional Puro V4** (Inglés). Prohibido mencionar columnas JSON o nombres en español como `PARTIDA`.

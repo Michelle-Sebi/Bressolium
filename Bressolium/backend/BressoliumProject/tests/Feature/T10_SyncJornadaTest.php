@@ -13,30 +13,32 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->user = User::factory()->create();
-    $this->game = Game::factory()->create([
-        'round_status' => json_encode([
-            'actions_remaining' => 2,
-            'votes' => []
-        ])
-    ]);
+    $this->game = Game::factory()->create();
+    $this->round = $this->game->rounds()->create(['number' => 1]);
 
     $this->user->games()->attach($this->game->id);
+    $this->round->users()->attach($this->user->id, ['actions_spent' => 1]);
     $this->actingAs($this->user);
 });
 
-test('endpoint GET /api/game/sync returns the round JSON clean', function () {
+test('endpoint GET /api/game/sync devuelve el estado relacional completo del equipo', function () {
     $response = $this->getJson("/api/game/{$this->game->id}/sync");
 
     $response->assertStatus(200)
         ->assertJsonStructure([
         'success',
         'data' => [
-            'round_status' => [
-                'actions_remaining',
-                'votes'
+            'current_round' => ['number', 'start_date'],
+            'user_actions' => ['actions_spent'],
+            'inventory' => [
+                '*' => ['name', 'quantity']
+            ],
+            'progress' => [
+                'technologies' => ['*'],
+                'inventions' => ['*']
             ]
         ]
     ]);
 
-    expect($response->json('data.round_status.actions_remaining'))->toBe(2);
+    expect($response->json('data.user_actions.actions_spent'))->toBe(1);
 });

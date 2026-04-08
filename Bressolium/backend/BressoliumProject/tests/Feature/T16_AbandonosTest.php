@@ -13,48 +13,40 @@ uses(RefreshDatabase::class);
 // ==========================================
 
 beforeEach(function () {
-    // 2 users
     $this->users = User::factory()->count(2)->create();
+    $this->game = Game::factory()->create();
+    $this->round = $this->game->rounds()->create(['number' => 1]);
 
-    $this->game = Game::factory()->create([
-        'round_status' => json_encode([
-            'actions_remaining' => 1,
-            'votes' => [
-                ['user_id' => $this->users[0]->id, 'tech_id' => 1]
-                // User [1] HAS NOT VOTED
-            ]
-        ])
-    ]);
+    // Vincular usuarios a la partida
+    foreach ($this->users as $u) {
+        $this->game->users()->attach($u->id, ['is_afk' => false]);
+    }
 });
 
-test('game advances if User2 is marked is_afk and Inactive despite not having voted', function () {
-    // Mark Player 2 as inactive
-    $this->users[1]->update(['is_afk' => true]);
+test('el juego avanza si el Usuario 2 esta marcado como is_afk aunque no haya votado', function () {
+    // Marcar al Jugador 2 como AFK en la tabla PIVOTE de la partida (game_user)
+    $this->game->users()->updateExistingPivot($this->users[1]->id, ['is_afk' => true]);
 
-    // 1. Simulate manual execution of the round evaluation Job (to be scheduled in T13/16)
-    // (new CloseRoundJob($this->game->id))->handle();
+    // El Usuario 1 si vota
+    $this->round->votes()->create([
+        'user_id' => $this->users[0]->id,
+        'technology_id' => 1
+    ]);
 
-    // (PROSPECTIVE MOCKED JOB LOGIC) -->
-    $all_voted = true;
-    $current_votes = collect(json_decode($this->game->round_status, true)['votes']);
+    // -- Lógica simulada del Job de Cierre --
+    // El job debe detectar que todos los NO-AFK han votado
+    $activeUsersCount = $this->game->users()->wherePivot('is_afk', false)->count();
+    $votesInRound = $this->round->votes()->count();
 
-    foreach ($this->game->users as $u) {
-        if (!$u->is_afk) {
-            $hasVoted = $current_votes->firstWhere('user_id', $u->id);
-            if (!$hasVoted)
-                $all_voted = false;
-        }
+    if ($votesInRound >= $activeUsersCount) {
+        // Ejecutar Cierre
+        $this->game->rounds()->create(['number' => 2]);
     }
-
-    if ($all_voted) {
-        // Execute Close
-        $this->game->update(['round_status' => json_encode(['votes' => [], 'actions_remaining' => 2])]);
-    }
-    // <-- END JOB MOCK
+    // -------------------------------------
 
     $this->game->refresh();
-    $newStatus = json_decode($this->game->round_status, true);
 
-    // Expect empty because close should have triggered with U2 marked is_afk
-    expect($newStatus['votes'])->toBeEmpty();
+    // Verificación: Se ha creado el round 2 porque el AFK no bloqueo el cierre
+    expect($this->game->rounds()->count())->toBe(2);
+    $this->assertDatabaseHas('rounds', ['number' => 2, 'game_id' => $this->game->id]);
 });

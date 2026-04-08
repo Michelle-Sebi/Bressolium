@@ -15,6 +15,7 @@ class Round extends Model
         'game_id',
         'number',
         'start_date',
+        'ended_at',
     ];
 
     /**

@@ -105,3 +105,7 @@ Se hará después de la Daily
 ## Otros acuerdos
 
 <!-- Espacio libre para acuerdos específicos del equipo -->
+## 9. Entorno de Desarrollo (Docker)
+- Se utilizará **Laravel Sail** como entorno oficial para garantizar que todos los desarrolladores usen las mismas versiones de PHP, MySQL y herramientas.
+- No se deben subir cambios fuera del contenedor que puedan romper la paridad (ej. versiones locales de PHP incompatibles).
+- Los comandos se ejecutan como: `./vendor/bin/sail artisan ...`
