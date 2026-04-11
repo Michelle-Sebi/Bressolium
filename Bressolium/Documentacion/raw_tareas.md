@@ -15,11 +15,12 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Descripción**: Crear las migraciones y modelos base con **UUID como PK**:
   1. `users` (Laravel default + UUID).
   2. `games` (id, name, status ENUM).
-  3. `rounds` (id, game_id, number, start_date).
+  3. `rounds` (id, game_id, number, start_date, ended_at).
   4. `round_user` (pivot: round_id, user_id, actions_spent).
-  5. `votes` (id, round_id, user_id, technology_id).
+  5. `votes` (id, round_id, user_id, technology_id, invention_id).
+  6. `game_user` (pivot: game_id, user_id, is_afk).
 - **Scripts / Git**: Rama `feat/T1-base-migrations`. 
-- **Criterios de Aceptación (DoD)**: `php artisan migrate` crea las 5 tablas correctamente. No existe campo JSON ni puntos.
+- **Criterios de Aceptación (DoD)**: `./vendor/bin/sail artisan migrate` crea las tablas correctamente. `votes` permite nulos en tech/inv. `rounds` tiene `ended_at`.
 
 ### Tarea 2
 - **Título**: `[Feat] API Authentication Setup with Sanctum`
@@ -71,9 +72,12 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Área**: [BASE DE DATOS]
 - **Asignado a**: Michelle
 - **Bloqueado por**: Tarea 1
-- **Descripción**: Migración para tabla `tiles` siguiendo el diagrama ER: `id` (UUID), `game_id`, `coord_x`, `coord_y`, `tile_type_id` (FK), `level`, `explored` (boolean), y `assigned_player` (FK).
+- **Descripción**: Migraciones para `tiles` y `tile_types` según ER V4:
+  1. `tile_types`: id, name (Forest, etc), level (1-4).
+  2. `tiles`: id, game_id, tile_type_id (FK), coord_x, coord_y, explored, assigned_player.
+  3. `material_tile_type` (Pivot): tile_type_id, material_id, quantity (Producción).
 - **Scripts / Git**: Rama `feat/T6-tile-migration`.
-- **Criterios de Aceptación (DoD)**: Los nombres de columnas deben ser idénticos al ER (`coord_x`, `explored`). Seeder inyecta tipos base.
+- **Criterios de Aceptación (DoD)**: El Seeder inyecta los tipos (ej: "Forest L1", "Forest L2") y sus cantidades de producción. `tiles` NO tiene columna `level`.
 
 ### Tarea 7
 - **Título**: `[Feat] Board Generator and API Controller`
@@ -91,9 +95,9 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Área**: [BACKEND]
 - **Asignado a**: Michelle
 - **Bloqueado por**: Tarea 7
-- **Descripción**: (HUs 2.2 y 2.3) Endpoints POST de acciones. Deben chequear obligatoriamente en `round_user` si el usuario tiene `actions_spent < 2`. Bloqueo de BD transaccional. Aplicar coste de recetas verificando el inventario actual del game si evoluciona.
+- **Descripción**: (HUs 2.2 y 2.3) Endpoints POST de acciones. Chequear acciones en `round_user`. La evolución implica **cambiar el `tile_type_id`** de la casilla (ej: de "Forest L1" a "Forest L2"). Verificar costes multi-material en `game_material` según `recipes`.
 - **Scripts / Git**: Rama `feat/T8-back-actions`.
-- **Criterios de Aceptación (DoD)**: Falla HTTP 403 si `actions_spent` son 2. Actualiza `explored` (Tile) y suma 1 a `actions_spent`.
+- **Criterios de Aceptación (DoD)**: La evolución actualiza la FK de `tile_type_id` y resta materiales del inventario de equipo en `game_material`.
 
 ### Tarea 9
 - **Título**: `[Feat] Board Grid Component and Frontend Visualization`
@@ -115,9 +119,9 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Área**: [BACKEND] / [FRONTEND]
 - **Asignado a**: Michelle
 - **Bloqueado por**: Tarea 8 y Tarea 9
-- **Descripción**: Endpoints `GET /api/game/sync` (Back) que lee de las tablas `rounds` y `round_user`. El Front (RTK Query) debe consumirlo cada ~30 segundos guardando la data en Redux (HU 3.2).
+- **Descripción**: Endpoints `GET /api/game/sync` que lee `rounds`, `round_user`, `game_material` (inventario) y `game_technology`/`game_invention` (progreso). El Front (RTK Query) consulta cada ~30s.
 - **Scripts / Git**: Rama `feat/T10-sync-round`.
-- **Criterios de Aceptación (DoD)**: El hook hidrata el Redux con el estado real de la BD sin usar campos JSON.
+- **Criterios de Aceptación (DoD)**: El Redux se hidrata con stock de recursos y árbol de progreso desbloqueado.
 
 ### Tarea 11
 - **Título**: `[Feat] Progress Voting API (Relational)`
@@ -125,9 +129,9 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Área**: [BACKEND]
 - **Asignado a**: Bárbara
 - **Bloqueado por**: Tarea 10 y Tarea 14
-- **Descripción**: (HU 3.3). Endpoint que inserta nuevo registro en tabla `votes`. Y comprueba si (count(votes) == total_players) para disparar el evento de ejecución.
+- **Descripción**: (HU 3.3). Endpoint que inserta en `votes` (puede ser tech o invento). Comprueba si todos han votado para disparar la resolución.
 - **Scripts / Git**: Rama `feat/T11-back-vote`.
-- **Criterios de Aceptación (DoD)**: Almacena el voto de forma segura. Falla si el usuario ya votó en ese round.
+- **Criterios de Aceptación (DoD)**: Permite votar por `technology_id` O `invention_id`. Falla si el usuario ya votó.
 
 ### Tarea 12
 - **Título**: `[Feat] Interactive Voting UI (The People)`
@@ -145,9 +149,14 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Área**: [BACKEND]
 - **Asignado a**: Bárbara
 - **Bloqueado por**: Tarea 11
-- **Descripción**: (HUs 3.4, 3.5, 3.6). Job de Laravel. Lee tabla `votes`, decide ganador, resta materiales, añade recursos al game y CRÍTICO: Crea una NUEVA fila en `rounds` incrementando el `number`, reseteando los registros en `round_user` para que todos vuelvan a tener 2 acciones.
-- **Scripts / Git**: Rama `feat/T13-cron-close`. Test con Pest vital.
-- **Criterios de Aceptación (DoD)**: Al cerrar turno, el comando `round:close` deja la tabla `rounds` con un nuevo número correlativo.
+- **Descripción**: (HUs 3.4, 3.5, 3.6). Job de Laravel:
+  1. Determina ganador de `votes`.
+  2. Inserta en `game_technology` o `game_invention` según corresponda.
+  3. Resta materiales de `game_material` según la receta.
+  4. Suma producción de materiales (basado en `tiles` explorados y `tile_type_material`) a `game_material`.
+  5. Salto de Turno: Crea fila en `rounds` y resetea `round_user`.
+- **Scripts / Git**: Rama `feat/T13-cron-close`.
+- **Criterios de Aceptación (DoD)**: El inventario común (`game_material`) se actualiza correctamente tras la producción y el coste del voto.
 
 ---
 
@@ -159,9 +168,9 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Área**: [BASE DE DATOS]
 - **Asignado a**: Michelle
 - **Bloqueado por**: Ninguna
-- **Descripción**: (HU 4.1). Tablas `technologies`, `inventions`, `materials`, `recipes` (Pivot Polymorphic o asociativa simple) y pre-seed tecnológico.
+- **Descripción**: (HU 4.1). Tablas `technologies`, `inventions`, `materials`, `recipes`. Tablas de progreso por partida: `game_material`, `game_technology`, `game_invention`.
 - **Scripts / Git**: Rama `feat/T14-db-technologies`.
-- **Criterios de Aceptación (DoD)**: El seed genera las dependencias correctamente ("Wheel" -> "Cart").
+- **Criterios de Aceptación (DoD)**: El seeder incluye dependencias auto-referenciales (Tech unlocks Tech) y stock inicial en `game_material` (is_active: false para no descubiertos).
 
 ### Tarea 15
 - **Título**: `[Feat] End of Game (Terraforming)`

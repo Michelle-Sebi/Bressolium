@@ -10,12 +10,14 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('rounds', function (Blueprint $table) {
+        Schema::create('tiles', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('game_id')->constrained()->cascadeOnDelete();
-            $table->integer('number');
-            $table->timestamp('start_date')->nullable();
-            $table->timestamp('ended_at')->nullable();
+            $table->foreignUuid('tile_type_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('assigned_player')->nullable()->constrained('users')->nullOnDelete();
+            $table->integer('coord_x');
+            $table->integer('coord_y');
+            $table->boolean('explored')->default(false);
             $table->timestamps();
         });
     }
@@ -25,6 +27,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('rounds');
+        Schema::dropIfExists('tiles');
     }
 };

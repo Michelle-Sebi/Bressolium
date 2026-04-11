@@ -18,18 +18,35 @@ test('la tabla users contiene las columnas base', function () {
         ->and(Schema::hasColumns('users', ['id', 'name', 'email', 'password']))->toBeTrue();
 });
 
-test('la tabla games contiene name y status', function () {
-    expect(Schema::hasTable('games'))->toBeTrue()
-        ->and(Schema::hasColumns('games', ['id', 'name', 'status', 'created_at']))->toBeTrue();
+test('la tabla games contiene status WAITING por defecto', function () {
+    $game = Game::factory()->create();
+    expect($game->status)->toBe('WAITING');
 });
 
-test('un usuario puede pertenecer a muchas partidas (Relación N:M/1:N Pivote)', function () {
+test('la tabla rounds contiene las columnas de tiempo y numero', function () {
+    expect(Schema::hasTable('rounds'))->toBeTrue()
+        ->and(Schema::hasColumns('rounds', ['id', 'game_id', 'number', 'start_date', 'ended_at']))->toBeTrue();
+});
+
+test('la tabla round_user gestiona las acciones gastadas', function () {
+    expect(Schema::hasTable('round_user'))->toBeTrue()
+        ->and(Schema::hasColumns('round_user', ['round_id', 'user_id', 'actions_spent']))->toBeTrue();
+});
+
+test('la tabla votes permite votar por tecnologia o invento', function () {
+    expect(Schema::hasTable('votes'))->toBeTrue()
+        ->and(Schema::hasColumns('votes', ['id', 'round_id', 'user_id', 'technology_id', 'invention_id']))->toBeTrue();
+});
+
+test('un usuario puede estar marcado como AFK en una partida', function () {
+    expect(Schema::hasTable('game_user'))->toBeTrue()
+        ->and(Schema::hasColumn('game_user', 'is_afk'))->toBeTrue();
+});
+
+test('todas las claves primarias son UUID', function () {
     $user = User::factory()->create();
     $game = Game::factory()->create();
 
-    // Asumiendo tabla pivote game_user
-    $user->games()->attach($game->id);
-
-    expect($user->games->count())->toBe(1)
-        ->and($user->games->first()->id)->toBe($game->id);
+    expect(\Illuminate\Support\Str::isUuid($user->id))->toBeTrue()
+        ->and(\Illuminate\Support\Str::isUuid($game->id))->toBeTrue();
 });

@@ -10,12 +10,10 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('rounds', function (Blueprint $table) {
+        Schema::create('tile_types', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('game_id')->constrained()->cascadeOnDelete();
-            $table->integer('number');
-            $table->timestamp('start_date')->nullable();
-            $table->timestamp('ended_at')->nullable();
+            $table->string('name');
+            $table->integer('level')->default(1);
             $table->timestamps();
         });
     }
@@ -25,6 +23,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('rounds');
+        Schema::dropIfExists('tile_types');
     }
 };

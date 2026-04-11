@@ -44,7 +44,7 @@ class User extends Authenticatable
      */
     public function games(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongsToMany(Game::class);
+        return $this->belongsToMany(Game::class)->withPivot('is_afk')->withTimestamps();
     }
 
     /**
