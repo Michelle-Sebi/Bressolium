@@ -53,3 +53,44 @@ test('rutas protegidas rechazan usuarios sin token Sanctum', function () {
     $response = $this->getJson('/api/user'); // Endpoint base de prueba de Sanctum
     $response->assertStatus(401);
 });
+
+test('post a /api/register con datos inválidos devuelve errores en standar JSON', function () {
+    $response = $this->postJson('/api/register', [
+        'name' => 'Invalid',
+        // Faltan campos requeridos como email y password
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonStructure([
+            'success',
+            'data',
+            'error'
+        ]);
+
+    expect($response->json('success'))->toBeFalse()
+        ->and($response->json('data'))->toBeNull()
+        ->and($response->json('error'))->not->toBeNull();
+});
+
+test('post a /api/login con credenciales incorrectas devuelve error en standar JSON', function () {
+    User::factory()->create([
+        'email' => 'test@auth.com',
+        'password' => bcrypt('authpass')
+    ]);
+
+    $response = $this->postJson('/api/login', [
+        'email' => 'test@auth.com',
+        'password' => 'wrongpass'
+    ]);
+
+    $response->assertStatus(401)
+        ->assertJsonStructure([
+            'success',
+            'data',
+            'error'
+        ]);
+
+    expect($response->json('success'))->toBeFalse()
+        ->and($response->json('data'))->toBeNull()
+        ->and($response->json('error'))->not->toBeNull();
+});
