@@ -8,6 +8,8 @@
 - **HU 1.4 - Asignación Aleatoria:** Como jugador solitario, quiero que el sistema me asigne un equipo aleatorio para empezar a jugar de inmediato sin buscar. Talla S
 - **HU 1.5 - Elección de civilización:**  Como jugador, quiero que mi equipo pueda elegir una 'Cultura Base' (ej. Estética Ciberpunk, Steampunk o Clásica) para que el mapa y los iconos reflejen una identidad visual única.
 - **HU 1.6 - Selector de Equipo Activo:** Como jugador multiequipo, quiero poder cambiar entre las partidas de mis diferentes equipos desde el menú principal. (Talla: S)
+- **HU 1.7 - Lobby del Pionero (Centro de Mando):** Como jugador autenticado, quiero una vista previa donde en un lado pueda buscar, crear o unirme aleatoriamente a un nuevo equipo, y en el otro despliegue mis partidas actuales, para gestionar a qué civilización quiero entrar a jugar.
+- **HU 1.8 - Barra de Navegación (TopBar):** Como jugador activo en el tablero, quiero una barra superior persistente que indique mi nombre, permita hacer Login/Logout, y tenga un selector rápido desplegable de mis equipos, para situarme rápidamente y poder rotar de partida sin volver al Lobby.
 
 ## 🗺️ Épica 2: El Tablero y la Exploración
 
@@ -19,6 +21,7 @@
 - **HU 2.4 - Visualización de Recursos:** Como jugador, quiero ver en el panel lateral mis recursos activos (producidos) e inactivos (por descubrir) para planificar mi estrategia. L
 - **HU 2.5 - Nodo Central (El Pueblo):** Como jugador, quiero interactuar con la casilla central de "Pueblo" para abrir la interfaz de Tecnologías e Inventos. (Talla: M)
 - **HU 2.6 - Generación de Recursos Base:** Como sistema, debo asignar a las casillas uno de los 5 tipos iniciales (Bosque, Cantera, Río, Prado, Mina) al iniciar la partida. (Talla: S)
+- **HU 2.7 - Panel Auxiliar de Inventario Visible:** Como jugador en la vista del tablero, quiero disponer de un panel fijo que muestre los iconos de los materiales, estando opacos los bloqueados e iluminados (junto a un "badge" con su cantidad) los descubiertos, para conocer el estado exacto de mis almacenes de un vistazo.
 
 ## 🗳️ Épica 3: Mecánicas de Turno y Cooperación
 
@@ -31,6 +34,7 @@
 - **HU 3.5 - Temporizador de Jornada:** Como sistema, debo cerrar el turno automáticamente a las 2 horas o cuando todos voten para mantener el ritmo del servidor. S
 - **HU 3.6 - Ejecución de la Jornada (Turno de Equipo):** Como sistema, al finalizar el tiempo o los turnos, debo procesar las votaciones, restar recursos del almacén común y entregar las recompensas (inventos/tecnología). (Talla: L)
 - **HU 3.7 - Chat de Equipo [POSPUESTO]:** Como jugador, quiero un canal de chat en la interfaz para coordinar la estrategia de votación con mis compañeros. (Talla: M)
+- **HU 3.8 - Panel Eje de Jornada y Votación:** Como jugador, quiero un panel auxiliar junto al mapa que integre varias métricas de turno: acciones realizadas/disponibles, lista de tecnologías e inventos votables (solo los que cumplen requisitos y pueden costearse), un reloj en vivo hasta el corte de turno, y un botón de "Finalizar mi Jornada", para centralizar toda mi toma de decisiones diaria sin salir del tablero.
 
 ## 🌳 Épica 4: Tecnología, Eventos y Meta
 

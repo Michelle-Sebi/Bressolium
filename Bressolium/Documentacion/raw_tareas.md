@@ -1,93 +1,73 @@
 # Product Backlog MVP - Bressolium
 
-A continuación se desglosan las tareas técnicas correspondientes a las Historias de Usuario formadas en `historias_mvp.md`.
+A continuación se desglosan las tareas técnicas correspondientes a las Historias de Usuario formadas en `epicas-e-historias-de-usuario.md`.
 
 ---
 
 ## 👤 Épica 1: Gestión de Usuarios y Equipos
 
-### Tarea 1
-- **Título**: `[Feat] Migrations and Base Models (Relational V3)`
+### Tarea 1 [TERMINADA]
+- **Título**: `[Feat] Migrations and Base Models (Relational V4)`
 - **Estimación**: S
 - **Área**: [BASE DE DATOS]
 - **Asignado a**: Bárbara
-- **Bloqueado por**: Ninguna
-- **Descripción**: Crear las migraciones y modelos base con **UUID como PK**:
-  1. `users` (Laravel default + UUID).
-  2. `games` (id, name, status ENUM).
-  3. `rounds` (id, game_id, number, start_date, ended_at).
-  4. `round_user` (pivot: round_id, user_id, actions_spent).
-  5. `votes` (id, round_id, user_id, technology_id, invention_id).
-  6. `game_user` (pivot: game_id, user_id, is_afk).
-- **Scripts / Git**: Rama `feat/T1-base-migrations`. 
-- **Criterios de Aceptación (DoD)**: `./vendor/bin/sail artisan migrate` crea las tablas correctamente. `votes` permite nulos en tech/inv. `rounds` tiene `ended_at`.
+- **Descripción**: Crear las migraciones y modelos base con **UUID como PK**: users, games, rounds, votes, etc.
 
-### Tarea 2
+### Tarea 2 [TERMINADA]
 - **Título**: `[Feat] API Authentication Setup with Sanctum`
 - **Estimación**: M
 - **Área**: [BACKEND]
 - **Asignado a**: Michelle
-- **Bloqueado por**: Tarea 1
-- **Descripción**: Instalar y configurar Laravel Sanctum. Crear endpoints `/api/register` y `/api/login` devolviendo tokens. Todas las respuestas JSON formadas bajo el estándar: `{success, data, error}`.
-- **Scripts / Git**: Rama `feat/T2-auth-sanctum`. Test en Pest para login.
-- **Criterios de Aceptación (DoD)**: El POST a `/login` con datos correctos devuelve HTTP 200 y el token válido.
+- **Descripción**: Configuración de Sanctum y endpoints `/api/register` y `/api/login`. Estándar `{success, data, error}`.
 
-### Tarea 3
+### Tarea 3 [TERMINADA]
 - **Título**: `[Feat] Frontend Structure, Auth Routing and Redux`
 - **Estimación**: L
 - **Área**: [FRONTEND]
 - **Asignado a**: Bárbara
-- **Bloqueado por**: Tarea 2
-- **Descripción**: Inicializar proyecto con Vite + React Router, Redux Toolkit Slices (para user auth) e instalar las vistas (Tailwind) para el Registro y Login (HU 1.1). Aplicar JSDoc en el slice.
-- **Scripts / Git**: Rama `feat/T3-front-auth`. Testing con Vitest/RTL.
-- **Criterios de Aceptación (DoD)**: El usuario puede rellenar el formulario de Login, y a través de un servicio `authService.js`, hacer login salvando el token en cliente.
+- **Descripción**: Inicializar Vite, React Router, Redux Toolkit y vistas de Auth con diseño Brutalista.
 
-### Tarea 4
+### Tarea 4 [TERMINADA]
 - **Título**: `[Feat] CRUD Endpoints for Teams and 1st Round Creation`
 - **Estimación**: M
 - **Área**: [BACKEND]
-- **Asignado a**: Bárbara
-- **Bloqueado por**: Tarea 1 y Tarea 2
-- **Descripción**: (HUs 1.2, 1.3, 1.4, 1.5). Endpoint para crear equipo. Al crear un `game`, se debe insertar automáticamente el primer registro en la tabla `rounds` (number: 1) y en `round_user` para los miembros iniciales.
-- **Scripts / Git**: Rama `feat/T4-crud-teams`.
-- **Criterios de Aceptación (DoD)**: Al crear game, existe un registro en `rounds` vinculado. No usa JSON.
+- **Asignado a**: Michelle
+- **Descripción**: Endpoints para crear equipo y generación automática de la primera ronda.
 
 ### Tarea 5
-- **Título**: `[Feat] Multi-Team Dashboard (Selector) Frontend`
+- **Título**: `[Feat] Game Lobby & Team Manager UI`
+- **Estimación**: M
+- **Área**: [FRONTEND]
+- **Asignado a**: Bárbara
+- **HUs**: 1.2, 1.3, 1.4, 1.5, 1.7
+- **Descripción**: Portal principal con diseño de bloques sólidos. Sección para buscar (lista), unirse aleatorio o crear equipo (modal civilización). Listado lateral de partidas activas del usuario.
+
+### Tarea 17
+- **Título**: `[Feat] Global TopBar & Session Navigation`
 - **Estimación**: S
 - **Área**: [FRONTEND]
 - **Asignado a**: Michelle
-- **Bloqueado por**: Tarea 3 y Tarea 4
-- **Descripción**: Vista una vez autenticado (HU 1.6). Pantalla que muestra botones con los `games` activos del usuario, y botones para Unirse o Crear. Al elegir uno, debe impactar el estado en RTK y redirigir al Board.
-- **Scripts / Git**: Rama `feat/T5-front-dashboard`.
-- **Criterios de Aceptación (DoD)**: Lista dinámica renderizada mapeando el JSON devuelto por el Backend.
+- **HUs**: 1.8
+- **Descripción**: Barra superior persistente con nombre de usuario, logout, nombre del equipo actual y selector rápido de partidas (Quick Switcher).
 
 ---
 
 ## 🗺️ Épica 2: El Tablero y la Exploración
 
-### Tarea 6
+### Tarea 6 [TERMINADA]
 - **Título**: `[Feat] Tile Migrations and Base Dictionary`
 - **Estimación**: S
 - **Área**: [BASE DE DATOS]
 - **Asignado a**: Michelle
-- **Bloqueado por**: Tarea 1
-- **Descripción**: Migraciones para `tiles` y `tile_types` según ER V4:
-  1. `tile_types`: id, name (Forest, etc), level (1-4).
-  2. `tiles`: id, game_id, tile_type_id (FK), coord_x, coord_y, explored, assigned_player.
-  3. `material_tile_type` (Pivot): tile_type_id, material_id, quantity (Producción).
-- **Scripts / Git**: Rama `feat/T6-tile-migration`.
-- **Criterios de Aceptación (DoD)**: El Seeder inyecta los tipos (ej: "Forest L1", "Forest L2") y sus cantidades de producción. `tiles` NO tiene columna `level`.
+- **Descripción**: Migraciones para tiles, tile_types y producción de materiales inicial.
 
 ### Tarea 7
 - **Título**: `[Feat] Board Generator and API Controller`
 - **Estimación**: L
 - **Área**: [BACKEND]
-- **Asignado a**: Bárbara
+- **Asignado a**: Michelle
 - **Bloqueado por**: Tarea 6
-- **Descripción**: (HU 2.1 y 2.6) Al crear equipo nuevo, se debe despachar la generación de una matriz (ej. 10x10) de `tiles` aleatorizados. Endpoint `GET /api/board` que devuelve únicamente el array.
-- **Scripts / Git**: Rama `feat/T7-back-board`.
-- **Criterios de Aceptación (DoD)**: Respuesta del Endpoint trae los `tiles` con coordenadas.
+- **Descripción**: Generación algorítmica de la matriz de tablero (10x10) aleatoria al crear equipo. Endpoint `GET /api/board`.
 
 ### Tarea 8
 - **Título**: `[Feat] Individual Actions API (Explore / Upgrade)`
@@ -95,19 +75,24 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Área**: [BACKEND]
 - **Asignado a**: Michelle
 - **Bloqueado por**: Tarea 7
-- **Descripción**: (HUs 2.2 y 2.3) Endpoints POST de acciones. Chequear acciones en `round_user`. La evolución implica **cambiar el `tile_type_id`** de la casilla (ej: de "Forest L1" a "Forest L2"). Verificar costes multi-material en `game_material` según `recipes`.
-- **Scripts / Git**: Rama `feat/T8-back-actions`.
-- **Criterios de Aceptación (DoD)**: La evolución actualiza la FK de `tile_type_id` y resta materiales del inventario de equipo en `game_material`.
+- **Descripción**: Endpoints POST para realizar jugadas. Validación de acciones diarias en `round_user` y costes de materiales en `game_material`.
 
 ### Tarea 9
 - **Título**: `[Feat] Board Grid Component and Frontend Visualization`
 - **Estimación**: XL
 - **Área**: [FRONTEND]
-- **Asignado a**: Bárbara
+- **Asignado a**: Michelle
 - **Bloqueado por**: Tarea 7
-- **Descripción**: Renderización visual (CSS Grid) del mapa. Gestión gráfica de "oscurecido" para tiles (HU 2.4). Envío de llamadas Axios a los endpoints Explore y Upgrade (HU 2.2).
-- **Scripts / Git**: Rama `feat/T9-front-grid`.
-- **Criterios de Aceptación (DoD)**: Botones integrados. Al explorar, RESTa 1 acción local de RTK y visualmente desvela la ficha.
+- **HUs**: 2.1, 2.2, 2.6
+- **Descripción**: Componente central de mapa (CSS Grid). Renderizado de casillas descubiertas y gestión de "niebla de guerra". Conexión con API de acciones.
+
+### Tarea 18
+- **Título**: `[Feat] Material Inventory Side-Panel (SidePanel Izquierdo)`
+- **Estimación**: S
+- **Área**: [FRONTEND]
+- **Asignado a**: Michelle
+- **HUs**: 2.4, 2.7
+- **Descripción**: Panel lateral de inventario. Iconos de materiales con Badges de cantidad. Estados activo/inactivo (opacidad) según descubrimiento.
 
 ---
 
@@ -117,31 +102,26 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Título**: `[Feat] Relational Sync and Polling`
 - **Estimación**: M
 - **Área**: [BACKEND] / [FRONTEND]
-- **Asignado a**: Michelle
+- **Asignado a**: Bárbara
 - **Bloqueado por**: Tarea 8 y Tarea 9
-- **Descripción**: Endpoints `GET /api/game/sync` que lee `rounds`, `round_user`, `game_material` (inventario) y `game_technology`/`game_invention` (progreso). El Front (RTK Query) consulta cada ~30s.
-- **Scripts / Git**: Rama `feat/T10-sync-round`.
-- **Criterios de Aceptación (DoD)**: El Redux se hidrata con stock de recursos y árbol de progreso desbloqueado.
+- **Descripción**: Endpoint `GET /api/game/sync` para hidratar el estado global de RTK (recursos, progreso, rounds). Polling cada ~30s.
 
 ### Tarea 11
 - **Título**: `[Feat] Progress Voting API (Relational)`
 - **Estimación**: M
 - **Área**: [BACKEND]
 - **Asignado a**: Bárbara
-- **Bloqueado por**: Tarea 10 y Tarea 14
-- **Descripción**: (HU 3.3). Endpoint que inserta en `votes` (puede ser tech o invento). Comprueba si todos han votado para disparar la resolución.
-- **Scripts / Git**: Rama `feat/T11-back-vote`.
-- **Criterios de Aceptación (DoD)**: Permite votar por `technology_id` O `invention_id`. Falla si el usuario ya votó.
+- **Bloqueado por**: Tarea 10
+- **Descripción**: Endpoint para insertar en `votes`. Validación de si el usuario ya votó o si el item ya está investigado.
 
 ### Tarea 12
-- **Título**: `[Feat] Interactive Voting UI (The People)`
+- **Título**: `[Feat] Action & Decision Control Panel (SidePanel Derecho)`
 - **Estimación**: L
 - **Área**: [FRONTEND]
-- **Asignado a**: Michelle
+- **Asignado a**: Bárbara
 - **Bloqueado por**: Tarea 11
-- **Descripción**: Modal central al pulsar Tile N0 (HU 2.5). Enumera recetas a desbloquear. Render de candados (Prerrequisitos), consumo del endpoint vote.
-- **Scripts / Git**: Rama `feat/T12-front-voting`.
-- **Criterios de Aceptación (DoD)**: Botón votar ocultará la vista y dejará un mensaje de espera (Gherkin test).
+- **HUs**: 3.8
+- **Descripción**: Panel de control de jornada: Contador visual de acciones, lista de votables (Tech/Invento) según stock, timer de fase y botón de finalizar turno.
 
 ### Tarea 13
 - **Título**: `[Feat] Schedule / Cron Round Close and Round Jump`
@@ -149,38 +129,34 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Área**: [BACKEND]
 - **Asignado a**: Bárbara
 - **Bloqueado por**: Tarea 11
-- **Descripción**: (HUs 3.4, 3.5, 3.6). Job de Laravel:
-  1. Determina ganador de `votes`.
-  2. Inserta en `game_technology` o `game_invention` según corresponda.
-  3. Resta materiales de `game_material` según la receta.
-  4. Suma producción de materiales (basado en `tiles` explorados y `tile_type_material`) a `game_material`.
-  5. Salto de Turno: Crea fila en `rounds` y resetea `round_user`.
-- **Scripts / Git**: Rama `feat/T13-cron-close`.
-- **Criterios de Aceptación (DoD)**: El inventario común (`game_material`) se actualiza correctamente tras la producción y el coste del voto.
+- **Descripción**: Job de Laravel para procesar el salto de turno: resuelve ganador de votos, aplica costes/recompensas, suma producción y crea nueva Round.
 
 ---
 
 ## 🌳 Épica 4: Tecnología y Meta
 
-### Tarea 14
+### Tarea 14 [TERMINADA]
 - **Título**: `[Feat] Migrations and Relations for the Tech Process`
 - **Estimación**: M
 - **Área**: [BASE DE DATOS]
+- **Asignado a**: Bárbara
+- **Descripción**: Tablas de árbol tecnológico (technologies, inventions, recipes) y tablas de progreso por partida.
+
+### Tarea 19
+- **Título**: `[Feat] Technology Tree & Progress Archive`
+- **Estimación**: M
+- **Área**: [FRONTEND]
 - **Asignado a**: Michelle
-- **Bloqueado por**: Ninguna
-- **Descripción**: (HU 4.1). Tablas `technologies`, `inventions`, `materials`, `recipes`. Tablas de progreso por partida: `game_material`, `game_technology`, `game_invention`.
-- **Scripts / Git**: Rama `feat/T14-db-technologies`.
-- **Criterios de Aceptación (DoD)**: El seeder incluye dependencias auto-referenciales (Tech unlocks Tech) y stock inicial en `game_material` (is_active: false para no descubiertos).
+- **HUs**: 4.1
+- **Descripción**: Visualización (Modal o sección) del historial de investigaciones del equipo y árbol de desbloqueos pendientes.
 
 ### Tarea 15
 - **Título**: `[Feat] End of Game (Terraforming)`
 - **Estimación**: S
 - **Área**: [BACKEND]
-- **Asignado a**: Bárbara
+- **Asignado a**: Michelle
 - **Bloqueado por**: Tarea 13
-- **Descripción**: Al resolver turno, si la tecnología ganadora es la Nave, cambiar `game.status` a `FINISHED` (HU 4.3).
-- **Scripts / Git**: Rama `feat/T15-back-victory`.
-- **Criterios de Aceptación (DoD)**: Test Pest comprueba que el game cambia de status al ganar.
+- **Descripción**: Lógica para finalizar la partida al completar la tecnología final ("La Nave"). Cambio de estado a `FINISHED`.
 
 ### Tarea 16
 - **Título**: `[Feat] Abandonment Management (Inactive Players Backend)`
@@ -188,6 +164,4 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Área**: [BACKEND]
 - **Asignado a**: Michelle
 - **Bloqueado por**: Tarea 13
-- **Descripción**: (HU 4.5). Modificar el Job de la Tarea 13 para ignorar en la condición "All voted" a los usuarios que llevan inactivos N rounds (guardar flag `is_afk`). Mantener la suma de sus tiles activada.
-- **Scripts / Git**: Rama `feat/T16-abandonments`.
-- **Criterios de Aceptación (DoD)**: El game avanza turno instantáneamente si el único jugador vivo votó y el otro está marcado inactivo.
+- **Descripción**: Modificar resolución de turno para ignorar a jugadores offline (flag `is_afk`) sin bloquear el avance del equipo.
