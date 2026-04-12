@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bwhite: #ffffff;
+  --color-bgray: #C1CDC1;
+  --color-bred: #CD4F39;
+  --color-bbrown: #8B7355;
+  --color-bgreen: #458B74;
+}
+
+@layer base {
+  body {
+    @apply bg-white text-bbrown font-sans antialiased;
+  }
+}
+
+@layer components {
+  /* Diseño Plano y Sólido: sin bordes ni sombras */
+  .bressolium-card {
+    @apply bg-white p-12 lg:p-24 flex flex-col justify-center h-full;
+  }
+
+  /* Botones Planos */
+  .btn-primary {
+    @apply w-full flex justify-center py-4 px-6 text-base font-bold text-white bg-bgreen hover:bg-[#3b7864] transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-danger {
+    @apply w-full flex justify-center py-4 px-6 text-base font-bold text-white bg-bred hover:bg-[#b84633] transition-colors disabled:opacity-50;
+  }
+
+  /* Inputs Minimalistas: solo línea inferior o bloques sólidos muy sutiles */
+  .input-field {
+    @apply block w-full px-4 py-4 bg-gray-50 text-bbrown border-0 border-l-4 border-bgray focus:ring-0 focus:border-bgreen focus:bg-white transition-all outline-none;
+  }
+}

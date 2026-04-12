@@ -1,5 +1,5 @@
 ---
-name: "Reglas Globales Bressolium"
+trigger: always_on
 description: "Estándares de desarrollo, arquitectura y comunicación para el asistente de IA en el MVP de Bressolium"
 ---
 
@@ -53,3 +53,12 @@ Para este MVP de desarrollo rápido, ten siempre presente que:
 
 ## 7. Interacción con el Equipo
 - **Nunca asumas:** Para generar o modificar el código de cualquier tarea, debes **detenerte y preguntar al desarrollador** siempre que tengas una duda de lógica de negocio o de implementación. Es preferible pausas cortas para aclarar requisitos que reescribir código erróneo.
+
+## 8. Guía de estilo
+Todo el frontend que implementemos respetará esa estética:
+
+Brutalismo / Minimalismo plano.
+Cero sombras y cero bordes redondeados (o muy sutiles).
+Bloques sólidos de color (Blanco, #C1CDC1 Gris, #CD4F39 Rojo, #8B7355 Marrón, #458B74 Verde).
+Abundancia de espacio negativo (padding y márgenes amplios).
+Usa el rojo solo para los warnings, verde para aceptar. El color marrón para acentos y textos.

@@ -20,13 +20,13 @@ describe('Front: Modal de Votaciones (HU 2.5 y HU 3.3)', () => {
             { id: 3, nombre: 'Motor', unlocked: false, requires: 99 }  // Bloqueada por prerequisito 99
         ];
 
-        document.body.innerHTML = \`<div id="modal-content"></div>\`;
+        document.body.innerHTML = `<div id="modal-content"></div>`;
     const modal = document.getElementById('modal-content');
 
     function renderModal(recetasArr) {
       recetasArr.forEach(receta => {
         const btn = document.createElement('button');
-        btn.id = \`tech-\${receta.id}\`;
+        btn.id = `tech-${receta.id}`;
         
         // Lógica pseudo-Redux de validación (El requisito 99 no está desbloqueado)
         let isLocked = false;
