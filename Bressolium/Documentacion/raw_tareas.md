@@ -46,7 +46,7 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Título**: `[Feat] CRUD Endpoints for Teams and 1st Round Creation`
 - **Estimación**: M
 - **Área**: [BACKEND]
-- **Asignado a**: Bárbara
+- **Asignado a**: Michelle
 - **Bloqueado por**: Tarea 1 y Tarea 2
 - **Descripción**: (HUs 1.2, 1.3, 1.4, 1.5). Endpoint para crear equipo. Al crear un `game`, se debe insertar automáticamente el primer registro en la tabla `rounds` (number: 1) y en `round_user` para los miembros iniciales.
 - **Scripts / Git**: Rama `feat/T4-crud-teams`.
@@ -166,7 +166,7 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Título**: `[Feat] Migrations and Relations for the Tech Process`
 - **Estimación**: M
 - **Área**: [BASE DE DATOS]
-- **Asignado a**: Michelle
+- **Asignado a**: Bárbara
 - **Bloqueado por**: Ninguna
 - **Descripción**: (HU 4.1). Tablas `technologies`, `inventions`, `materials`, `recipes`. Tablas de progreso por partida: `game_material`, `game_technology`, `game_invention`.
 - **Scripts / Git**: Rama `feat/T14-db-technologies`.
