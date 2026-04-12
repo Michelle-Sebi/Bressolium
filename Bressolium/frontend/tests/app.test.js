@@ -119,7 +119,7 @@ describe('Bressolium MVP - Pruebas de Historias de Usuario (Gherkin)', () => {
 
             const mockVote = vi.fn().mockImplementation(() => {
                 votingPanel.style.display = 'none';
-                statusBadge.textContent = 'Voto Registrado, esperando compañeros';
+                statusBadge.textContent = 'Voto Registrado. Esperando compañeros...';
                 return Promise.resolve({ success: true });
             });
             voteBtn.addEventListener('click', mockVote);

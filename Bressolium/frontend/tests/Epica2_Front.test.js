@@ -26,8 +26,8 @@ describe('Componente de Tablero Grid React/JSDOM', () => {
             function mapBoard(data) {
                 data.forEach(box => {
                     const div = document.createElement('div');
-                    div.id = \`casilla-\${box.id}\`;
-          div.className = \`casilla \${box.descubierta ? 'visible' : 'oscurecida'}\`;
+                    div.id = `casilla-${box.id}`;
+                    div.className = `casilla ${box.descubierta ? 'visible' : 'oscurecida'}`;
           board.appendChild(div);
         });
       }
@@ -42,10 +42,10 @@ describe('Componente de Tablero Grid React/JSDOM', () => {
 
   describe('Interacciones Frontend', () => {
     it('Al hacer click Explorar, dispara función y actualiza localmente -1 acción', () => {
-      document.body.innerHTML = \`
+      document.body.innerHTML = `
         <div id="acc-counter">2</div>
         <button id="casilla-trigger">Explorar esta casilla oscura</button>
-      \`;
+      `;
 
       const counter = document.getElementById('acc-counter');
       const btn = document.getElementById('casilla-trigger');
