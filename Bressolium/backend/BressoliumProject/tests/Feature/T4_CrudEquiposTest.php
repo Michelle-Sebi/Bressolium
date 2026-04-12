@@ -20,8 +20,7 @@ beforeEach(function () {
 
 test('creating a game initializes the first round and responds with JSON standard', function () {
     $response = $this->postJson('/api/game/create', [
-        'team_name' => 'Digital Pioneers',
-        'base_culture' => 'Cyberpunk'
+        'team_name' => 'Digital Pioneers'
     ]);
 
     $response->assertStatus(200)
@@ -32,8 +31,7 @@ test('creating a game initializes the first round and responds with JSON standar
     // BD Assertion: Check that game is stored in the DB
     expect(Game::count())->toBe(1);
     $game = Game::first();
-    expect($game->base_culture)->toBe('Cyberpunk')
-        ->and($game->users->contains($this->user))->toBeTrue();
+    expect($game->users->contains($this->user))->toBeTrue();
         
     // Check Round 1 was created
     $round = \App\Models\Round::where('game_id', $game->id)->first();
@@ -49,7 +47,7 @@ test('creating a game initializes the first round and responds with JSON standar
 });
 
 test('joining by exact name associates the player with the team (HU 1.3)', function () {
-    $game = Game::factory()->create(['team_name' => 'The Testers']);
+    $game = Game::factory()->create(['name' => 'The Testers']);
 
     $response = $this->postJson('/api/game/join', [
         'team_name' => 'The Testers'

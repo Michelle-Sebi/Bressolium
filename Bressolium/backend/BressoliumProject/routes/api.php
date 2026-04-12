@@ -10,3 +10,9 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/game/create', [\App\Http\Controllers\GameController::class, 'create']);
+    Route::post('/game/join', [\App\Http\Controllers\GameController::class, 'join']);
+    Route::post('/game/join-random', [\App\Http\Controllers\GameController::class, 'joinRandom']);
+});
