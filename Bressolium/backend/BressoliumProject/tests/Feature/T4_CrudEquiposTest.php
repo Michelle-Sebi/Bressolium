@@ -18,10 +18,9 @@ beforeEach(function () {
     $this->actingAs($this->user); // Simulates Sanctum token
 });
 
-test('creating a game initializes empty round_status json and responds with JSON standard', function () {
+test('creating a game initializes the first round and responds with JSON standard', function () {
     $response = $this->postJson('/api/game/create', [
-        'team_name' => 'Digital Pioneers',
-        'base_culture' => 'Cyberpunk'
+        'team_name' => 'Digital Pioneers'
     ]);
 
     $response->assertStatus(200)
@@ -29,16 +28,26 @@ test('creating a game initializes empty round_status json and responds with JSON
         'success' => true,
     ]);
 
-    // BD Assertion: Check that JSON was stored in the DB
+    // BD Assertion: Check that game is stored in the DB
     expect(Game::count())->toBe(1);
     $game = Game::first();
-    expect($game->base_culture)->toBe('Cyberpunk')
-        ->and($game->round_status)->toBeJson()
-        ->and($game->users->contains($this->user))->toBeTrue();
+    expect($game->users->contains($this->user))->toBeTrue();
+        
+    // Check Round 1 was created
+    $round = \App\Models\Round::where('game_id', $game->id)->first();
+    expect($round)->not->toBeNull()
+        ->and($round->number)->toBe(1);
+        
+    // Check round_user table was populated for initial members
+    $roundUserCount = \Illuminate\Support\Facades\DB::table('round_user')
+        ->where('round_id', $round->id)
+        ->where('user_id', $this->user->id)
+        ->count();
+    expect($roundUserCount)->toBe(1);
 });
 
 test('joining by exact name associates the player with the team (HU 1.3)', function () {
-    $game = Game::factory()->create(['team_name' => 'The Testers']);
+    $game = Game::factory()->create(['name' => 'The Testers']);
 
     $response = $this->postJson('/api/game/join', [
         'team_name' => 'The Testers'
