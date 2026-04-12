@@ -34,6 +34,13 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Asignado a**: Michelle
 - **Descripción**: Endpoints para crear equipo y generación automática de la primera ronda.
 
+### Tarea 20
+- **Título**: `[Refactor] Mover lógica de Auth y Teams a Servicios y Repositorios`
+- **Estimación**: S
+- **Área**: [BACKEND]
+- **Asignado a**: Bárbara
+- **Descripción**: Extraer la lógica escrita en los controladores creados en las Tareas 2 y 4 para adaptarla al patrón Controller -> Service -> Repository. Los tests no deberían romperse.
+
 ### Tarea 5
 - **Título**: `[Feat] Game Lobby & Team Manager UI`
 - **Estimación**: M
@@ -67,7 +74,7 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Área**: [BACKEND]
 - **Asignado a**: Michelle
 - **Bloqueado por**: Tarea 6
-- **Descripción**: Generación algorítmica de la matriz de tablero (10x10) aleatoria al crear equipo. Endpoint `GET /api/board`.
+- **Descripción**: Generación algorítmica de la matriz de tablero (10x10) aleatoria al crear equipo. Endpoint `GET /api/board`. (Implementar usando arquitectura Controller -> Service -> Repository).
 
 ### Tarea 8
 - **Título**: `[Feat] Individual Actions API (Explore / Upgrade)`
@@ -75,7 +82,7 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Área**: [BACKEND]
 - **Asignado a**: Michelle
 - **Bloqueado por**: Tarea 7
-- **Descripción**: Endpoints POST para realizar jugadas. Validación de acciones diarias en `round_user` y costes de materiales en `game_material`.
+- **Descripción**: Endpoints POST para realizar jugadas. Validación de acciones diarias en `round_user` y costes de materiales en `game_material`. (Implementar usando arquitectura Controller -> Service -> Repository).
 
 ### Tarea 9
 - **Título**: `[Feat] Board Grid Component and Frontend Visualization`
@@ -104,7 +111,7 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Área**: [BACKEND] / [FRONTEND]
 - **Asignado a**: Bárbara
 - **Bloqueado por**: Tarea 8 y Tarea 9
-- **Descripción**: Endpoint `GET /api/game/sync` para hidratar el estado global de RTK (recursos, progreso, rounds). Polling cada ~30s.
+- **Descripción**: Endpoint `GET /api/game/sync` para hidratar el estado global de RTK (recursos, progreso, rounds). Polling cada ~30s. (Implementar usando arquitectura Controller -> Service -> Repository).
 
 ### Tarea 11
 - **Título**: `[Feat] Progress Voting API (Relational)`
@@ -112,7 +119,7 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Área**: [BACKEND]
 - **Asignado a**: Bárbara
 - **Bloqueado por**: Tarea 10
-- **Descripción**: Endpoint para insertar en `votes`. Validación de si el usuario ya votó o si el item ya está investigado.
+- **Descripción**: Endpoint para insertar en `votes`. Validación de si el usuario ya votó o si el item ya está investigado. (Implementar usando arquitectura Controller -> Service -> Repository).
 
 ### Tarea 12
 - **Título**: `[Feat] Action & Decision Control Panel (SidePanel Derecho)`

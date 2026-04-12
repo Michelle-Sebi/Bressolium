@@ -25,6 +25,7 @@ El proyecto está dividido estrictamente en dos directorios principales en la ra
 - **Testing Frontend:** En caso de que se solicite escribir pruebas, utiliza siempre **Vitest** combinado con **React Testing Library**.
 
 ## 3. Pautas de Código - Backend (Laravel)
+- **Arquitectura:** Es obligatorio utilizar el patrón **Controller -> Service -> Repository**. Los Controladores solo validan peticiones y devuelven respuestas HTTP, los Servicios orquestan la lógica de negocio, y los Repositorios realizan todas las consultas directamente con Eloquent a la Base de Datos.
 - **API REST & Seguridad:** Todos los endpoints consumidos por el cliente React deben estar protegidos y autenticados oficialmente usando **Laravel Sanctum**. No implementes JWT de librerías de terceros.
 - **Formato de Respuesta:** Todos los controladores deben devolver respuestas estandarizadas en JSON, preferiblemente siguiendo este formato estricto: `{ "success": boolean, "data": object | null, "error": string | null }`.
 - **Base de Datos:** El proyecto utiliza MySQL. Se sigue un modelo relacional puro (V4) sin dependencias de tipos JSON para el estado del juego. Todas las tablas y campos deben estar en **INGLÉS** (ej. `GAME`, `ROUND`, `TILE`). Ver diagrama [ER_v4.html](file:///home/mu/Desktop/DAW/Bressolium/Bressolium/Documentacion/diagramas/ER_v4.html).

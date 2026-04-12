@@ -5,31 +5,35 @@ Este es el orden técnico exacto con el que tienes que arrastrar tus Issues a ca
 # 🏁 Sprint 1: La Base y el Autenticado
 (El backend arranca y la estructura atómica nace).
 
-- Tarea 1: [Feat] Base Migrations and Models (Backend - Bárbara) [Talla: S]
+- Tarea 1: [Feat] Migrations and Base Models (Relational V4) (Backend - Bárbara) [Talla: S]
 - Tarea 6: [Feat] Tile Migrations and Base Dictionary (Backend - Michelle) [Talla: S]
-- Tarea 14: [Feat] Tech Process Migrations and Relations (Backend - Michelle) [Talla: M]
-- Tarea 2: [Feat] Auth Sanctum API Setup (Backend - Michelle) [Talla: M]
-- Tarea 4: [Feat] CRUD Teams Endpoints and 1st Round (Backend - Bárbara) [Talla: M]
+- Tarea 14: [Feat] Migrations and Relations for the Tech Process (Backend - Bárbara) [Talla: M]
+- Tarea 2: [Feat] API Authentication Setup with Sanctum (Backend - Michelle) [Talla: M]
+- Tarea 4: [Feat] CRUD Endpoints for Teams and 1st Round Creation (Backend - Michelle) [Talla: M]
 
 # 🏗️ Sprint 2: El Cliente Web y el Tablero API
 (Aparece React y se empiezan a repartir los tiles).
 
-- Tarea 3: [Feat] Frontend Vite, Redux, Login Structure (Frontend - Bárbara) [Talla: L]
-- Tarea 5: [Feat] Multi-Team Dashboard Frontend (Frontend - Michelle) [Talla: S]
-- Tarea 7: [Feat] Board Generator and API Controller (Backend - Bárbara) [Talla: L]
+- Tarea 3: [Feat] Frontend Structure, Auth Routing and Redux (Frontend - Bárbara) [Talla: L] [TERMINADA]
+- Tarea 20: [Refactor] Mover lógica de Auth y Teams a Servicios y Repos (Backend - Bárbara) [Talla: S]
+- Tarea 5: [Feat] Game Lobby & Team Manager UI (Frontend - Bárbara) [Talla: M]
+- Tarea 17: [Feat] Global TopBar & Session Navigation (Frontend - Michelle) [Talla: S]
+- Tarea 7: [Feat] Board Generator and API Controller (Backend - Michelle) [Talla: L]
 
 # 🗺️ Sprint 3: Interacción, Grid y Acciones Core
 (El juego cobra vida).
 
-- Tarea 8: [Feat] Individual Actions API (Explore/Upgrade) (Backend - Michelle) [Talla: L]
-- Tarea 9: [Feat] Board CSS Grid Component (Frontend - Bárbara) [Talla: XL]
-- Tarea 10: [Feat] Relational Round Sync and Polling (Fullstack - Michelle) [Talla: M]
+- Tarea 8: [Feat] Individual Actions API (Explore / Upgrade) (Backend - Michelle) [Talla: L]
+- Tarea 9: [Feat] Board Grid Component and Frontend Visualization (Frontend - Michelle) [Talla: XL]
+- Tarea 18: [Feat] Material Inventory Side-Panel (SidePanel Izquierdo) (Frontend - Michelle) [Talla: S]
+- Tarea 10: [Feat] Relational Sync and Polling (Fullstack - Bárbara) [Talla: M]
 
 # 🗳️ Sprint 4: Economía, Votaciones y Cierre
 (Los turnos funcionan, la tecnología fluye y se puede ganar).
 
-- Tarea 11: [Feat] Progress Voting API (Backend - Bárbara) [Talla: M]
-- Tarea 12: [Feat] Interactive Voting UI "The People" (Frontend - Michelle) [Talla: L]
-- Tarea 13: [Feat] Round Close Cron Backend (Backend - Bárbara) [Talla: XL]
-- Tarea 15: [Feat] End of Game Terraforming (Backend - Bárbara) [Talla: S]
-- Tarea 16: [Feat] Abandonment Management (AFK) (Backend - Michelle) [Talla: S]
+- Tarea 11: [Feat] Progress Voting API (Relational) (Backend - Bárbara) [Talla: M]
+- Tarea 12: [Feat] Action & Decision Control Panel (SidePanel Derecho) (Frontend - Bárbara) [Talla: L]
+- Tarea 19: [Feat] Technology Tree & Progress Archive (Frontend - Michelle) [Talla: M]
+- Tarea 13: [Feat] Schedule / Cron Round Close and Round Jump (Backend - Bárbara) [Talla: XL]
+- Tarea 15: [Feat] End of Game (Terraforming) (Backend - Michelle) [Talla: S]
+- Tarea 16: [Feat] Abandonment Management (Inactive Players Backend) (Backend - Michelle) [Talla: S]
