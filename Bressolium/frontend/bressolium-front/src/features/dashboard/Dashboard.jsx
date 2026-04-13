@@ -12,7 +12,8 @@ import {
   fetchGamesThunk, 
   fetchMyGamesThunk, 
   createGameThunk, 
-  joinRandomThunk 
+  joinRandomThunk,
+  setCurrentGame
 } from '../game/gameSlice';
 
 const Dashboard = () => {
@@ -46,8 +47,9 @@ const Dashboard = () => {
     dispatch(joinRandomThunk());
   };
 
-  const handleGoToGame = (gameId) => {
-    navigate(`/board?gameId=${gameId}`);
+  const handleGoToGame = (game) => {
+    dispatch(setCurrentGame(game));
+    navigate(`/board`);
   };
 
   return (
@@ -124,7 +126,7 @@ const Dashboard = () => {
             myGames.map(game => (
               <div 
                 key={game.id} 
-                onClick={() => handleGoToGame(game.id)}
+                onClick={() => handleGoToGame(game)}
                 className="group cursor-pointer bg-bgray p-6 hover:bg-bbrown transition-all"
               >
                 <div className="flex justify-between items-center">

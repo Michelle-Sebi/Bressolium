@@ -24,7 +24,13 @@ const authService = {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error || 'Login fallido');
+      let errorMessage = 'Login fallido';
+      if (typeof data.error === 'object' && data.error !== null) {
+        errorMessage = Object.values(data.error).flat().join(' ');
+      } else if (data.error) {
+        errorMessage = data.error;
+      }
+      throw new Error(errorMessage);
     }
 
     // Guardamos el token en localStorage según DoD de Tarea 3
@@ -50,7 +56,14 @@ const authService = {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error || 'Registro fallido');
+      let errorMessage = 'Registro fallido';
+      if (typeof data.error === 'object' && data.error !== null) {
+        // Flatten the validation errors into a single string
+        errorMessage = Object.values(data.error).flat().join(' ');
+      } else if (data.error) {
+        errorMessage = data.error;
+      }
+      throw new Error(errorMessage);
     }
 
     localStorage.setItem('auth_token', data.data?.token || data.token);

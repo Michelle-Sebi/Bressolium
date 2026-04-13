@@ -69,6 +69,7 @@ export const joinRandomThunk = createAsyncThunk(
 const initialState = {
   availableGames: [],
   myGames: [],
+  currentGame: null,
   status: 'IDLE', // 'IDLE' | 'LOADING' | 'SUCCESS' | 'ERROR'
   error: null,
 };
@@ -79,6 +80,9 @@ const gameSlice = createSlice({
   reducers: {
     clearGameError: (state) => {
       state.error = null;
+    },
+    setCurrentGame: (state, action) => {
+      state.currentGame = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -110,5 +114,5 @@ const gameSlice = createSlice({
   },
 });
 
-export const { clearGameError } = gameSlice.actions;
+export const { clearGameError, setCurrentGame } = gameSlice.actions;
 export default gameSlice.reducer;

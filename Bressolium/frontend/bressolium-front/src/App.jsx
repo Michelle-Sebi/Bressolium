@@ -4,6 +4,8 @@ import Login from './features/auth/Login';
 import Register from './features/auth/Register';
 import Dashboard from './features/dashboard/Dashboard';
 
+import MainLayout from './components/layout/MainLayout';
+
 function App() {
   return (
     <div className="min-h-screen bg-[#f7f9f7]">
@@ -11,7 +13,12 @@ function App() {
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        
+        {/* Rutas Protegidas bajo MainLayout */}
+        <Route element={<MainLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          {/* Aquí irán las futuras rutas como /board */}
+        </Route>
       </Routes>
     </div>
   );
