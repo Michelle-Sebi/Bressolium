@@ -79,6 +79,8 @@ const Dashboard = () => {
           {/* Buscador y Lista */}
           <div className="mt-12">
             <input 
+              id="search"
+              name="search"
               type="text" 
               placeholder="BUSCAR EQUIPO..."
               className="input-field mb-4"
@@ -168,6 +170,7 @@ const Dashboard = () => {
                 <label htmlFor="teamName" className="block text-xs font-bold text-gray-400 mb-2 uppercase">NOMBRE DEL EQUIPO</label>
                 <input 
                   id="teamName"
+                  name="teamName"
                   type="text" 
                   className="input-field" 
                   required
