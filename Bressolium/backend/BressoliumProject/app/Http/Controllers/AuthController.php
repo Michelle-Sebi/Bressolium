@@ -84,10 +84,10 @@ class AuthController extends Controller
         }
 
         try {
-            $token = $this->authService->login($request->email, $request->password);
+            $data = $this->authService->login($request->email, $request->password);
             return response()->json([
                 'success' => true,
-                'data' => ['token' => $token],
+                'data' => $data,
                 'error' => null
             ], 200);
         } catch (Exception $e) {

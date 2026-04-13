@@ -34,7 +34,7 @@ describe('TopBar Component (Tarea 17)', () => {
         auth: { user: { name: 'Michelle' } },
         game: { 
           currentGame: { id: 'g1', name: 'Equipo Bressolium' }, 
-          activeGames: [] 
+          myGames: [] 
         }
       });
     });
@@ -53,7 +53,7 @@ describe('TopBar Component (Tarea 17)', () => {
         auth: { user: { name: 'Michelle' } },
         game: { 
           currentGame: { id: 'g1', name: 'Equipo Bressolium' },
-          activeGames: [
+          myGames: [
             { id: 'g1', name: 'Equipo Bressolium' },
             { id: 'g2', name: 'Expedición Alfa' }
           ]
@@ -76,7 +76,7 @@ describe('TopBar Component (Tarea 17)', () => {
     reactRedux.useSelector.mockImplementation((selectorFunc) => {
       return selectorFunc({
         auth: { user: { name: 'Michelle' } },
-        game: { currentGame: null, activeGames: [] }
+        game: { currentGame: null, myGames: [] }
       });
     });
 

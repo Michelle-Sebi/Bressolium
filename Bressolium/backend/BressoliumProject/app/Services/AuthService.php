@@ -37,14 +37,14 @@ class AuthService
     }
 
     /**
-     * Valida credenciales y devuelve el token de sesión.
+     * Valida credenciales y devuelve datos de usuario y token de sesión.
      * 
      * @param string $email
      * @param string $password
-     * @return string
+     * @return array
      * @throws \Exception
      */
-    public function login(string $email, string $password): string
+    public function login(string $email, string $password): array
     {
         $user = $this->userRepository->findByEmail($email);
 
@@ -52,6 +52,11 @@ class AuthService
             throw new \Exception('Invalid credentials');
         }
 
-        return $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return [
+            'user' => $user->only(['id', 'name', 'email']),
+            'token' => $token
+        ];
     }
 }
