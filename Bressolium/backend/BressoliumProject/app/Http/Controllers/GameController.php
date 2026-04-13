@@ -77,6 +77,44 @@ class GameController extends Controller
     }
 
     /**
+     * Devuelve las partidas en las que participa el usuario autenticado.
+     */
+    public function myGames(Request $request)
+    {
+        try {
+            $games = $this->gameService->getMyGames($request->user()->id);
+            return response()->json([
+                'success' => true,
+                'data' => $games
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Devuelve todas las partidas disponibles para unirse.
+     */
+    public function allGames()
+    {
+        try {
+            $games = $this->gameService->getAllGames();
+            return response()->json([
+                'success' => true,
+                'data' => $games
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Une al usuario a una partida aleatoria disponible.
      * 
      * @param Request $request

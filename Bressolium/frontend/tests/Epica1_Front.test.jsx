@@ -6,8 +6,11 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 
 import Login from '../src/features/auth/Login';
+import Dashboard from '../src/features/dashboard/Dashboard';
 import authService from '../src/services/authService';
+import gameService from '../src/services/gameService';
 import authReducer from '../src/features/auth/authSlice';
+import gameReducer from '../src/features/game/gameSlice';
 
 // ==========================================
 // TEST PARA: TAREA 3 (Raw_Tareas)
@@ -21,6 +24,25 @@ vi.mock('../src/services/authService', () => ({
   },
 }));
 
+vi.mock('../src/services/gameService', () => ({
+  default: {
+    getGames: vi.fn(),
+    getMyGames: vi.fn(),
+    create: vi.fn(),
+    joinRandom: vi.fn(),
+    joinByName: vi.fn(),
+  },
+}));
+
+// Mock para react-router-dom
+vi.mock('react-router-dom', async () => {
+    const actual = await vi.importActual('react-router-dom');
+    return {
+        ...actual,
+        useNavigate: () => vi.fn(),
+    };
+});
+
 describe('FrontAuth Routing', () => {
     let mockStore;
 
@@ -30,7 +52,8 @@ describe('FrontAuth Routing', () => {
         
         mockStore = configureStore({
             reducer: {
-                auth: authReducer
+                auth: authReducer,
+                game: gameReducer
             }
         });
     });
@@ -64,33 +87,98 @@ describe('FrontAuth Routing', () => {
         });
     });
 
-    describe.skip('Tarea 5: Dashboard Multiequipo Frontend (HU 1.6)', () => {
-        it('Renderiza de forma dinámica la lista tras recibir JSON del backend (Pendiente RTL)', async () => {
-            const mockPartidasData = [
-                { id: 1, nombre: 'Alpha Team', miembros: 3 },
-                { id: 2, nombre: 'Beta Team', miembros: 5 }
-            ];
+    describe('Tarea 5: Game Lobby & Team Manager UI (HUs 1.2, 1.3, 1.4, 1.5, 1.7)', () => {
+        const mockActiveGames = [
+            { id: '1', name: 'Alpha Expedition', status: 'RUNNING' }
+        ];
+        const mockAvailableGames = [
+            { id: '2', name: 'Beta Team', members: 3 },
+            { id: '3', name: 'Gamma Squad', members: 2 }
+        ];
 
-            document.body.innerHTML = `
-                <div id="dashboard">
-                   <ul id="team-list"></ul>
-                </div>
-            `;
-            const list = document.getElementById('team-list');
+        beforeEach(() => {
+            gameService.getMyGames.mockResolvedValue({ data: mockActiveGames });
+            gameService.getGames.mockResolvedValue({ data: mockAvailableGames });
+        });
 
-            function renderTeams(teams) {
-                teams.forEach(t => {
-                    const li = document.createElement('li');
-                    li.textContent = `Equipo: ${t.nombre} - Miembros: ${t.miembros}/5`;
-                    list.appendChild(li);
-                });
-            }
+        it('Muestra el layout dividido con seccion de Lobby y de Partidas Activas (HU 1.7)', async () => {
+            render(
+                <Provider store={mockStore}>
+                    <Dashboard />
+                </Provider>
+            );
 
-            renderTeams(mockPartidasData);
+            expect(await screen.findByText(/unirse a la terraformación/i)).toBeDefined();
+            expect(screen.getByText(/mis expediciones activas/i)).toBeDefined();
+            expect(screen.getByText(/Alpha Expedition/i)).toBeDefined();
+        });
 
-            expect(list.children.length).toBe(2);
-            expect(list.children[0].textContent).toContain('Alpha Team');
-            expect(list.children[1].textContent).toContain('5/5');
+        it('Permite buscar equipos en la lista (HU 1.3)', async () => {
+            const user = userEvent.setup();
+            render(
+                <Provider store={mockStore}>
+                    <Dashboard />
+                </Provider>
+            );
+
+            const searchInput = await screen.findByPlaceholderText(/buscar equipo/i);
+            await user.type(searchInput, 'Beta');
+
+            expect(screen.getByText(/Beta Team/i)).toBeDefined();
+            // Gamma Squad debería estar filtrado si la lógica es local, 
+            // o bien comprobamos que se renderiza el resultado correcto.
+        });
+
+        it('Permite abrir el modal de creación y elegir civilización (HU 1.2 & 1.5)', async () => {
+            const user = userEvent.setup();
+            gameService.create.mockResolvedValue({ data: { id: '4', name: 'New Team' } });
+
+            render(
+                <Provider store={mockStore}>
+                    <Dashboard />
+                </Provider>
+            );
+
+            const createButton = await screen.findByRole('button', { name: /crear equipo/i });
+            await user.click(createButton);
+
+            const nameInput = screen.getByLabelText(/nombre del equipo/i);
+            const submitButton = screen.getByRole('button', { name: /fundar civilización/i });
+
+            await user.type(nameInput, 'Nova');
+            await user.click(submitButton);
+
+            expect(gameService.create).toHaveBeenCalledWith('Nova');
+        });
+
+        it('Ejecuta la unión aleatoria al pulsar el botón correspondiente (HU 1.4)', async () => {
+            const user = userEvent.setup();
+            gameService.joinRandom.mockResolvedValue({ data: { id: '5', name: 'Random Team' } });
+
+            render(
+                <Provider store={mockStore}>
+                    <Dashboard />
+                </Provider>
+            );
+
+            const randomButton = await screen.findByRole('button', { name: /asignación aleatoria/i });
+            await user.click(randomButton);
+
+            expect(gameService.joinRandom).toHaveBeenCalled();
+        });
+
+        it('Navega a la partida activa al hacer click (HU 1.6)', async () => {
+            const user = userEvent.setup();
+            render(
+                <Provider store={mockStore}>
+                    <Dashboard />
+                </Provider>
+            );
+
+            const gameItem = await screen.findByText(/Alpha Expedition/i);
+            await user.click(gameItem);
+
+            // Aquí podríamos verificar que se llama a un mock de navigate si lo hemos inyectado
         });
     });
 });

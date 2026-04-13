@@ -43,4 +43,29 @@ class GameRepository
             ->having('users_count', '<', 5)
             ->first();
     }
+
+    /**
+     * Obtiene todas las partidas disponibles (menos de 5 usuarios).
+     * 
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getAllAvailableGames()
+    {
+        return Game::withCount('users')
+            ->having('users_count', '<', 5)
+            ->get();
+    }
+
+    /**
+     * Obtiene las partidas de un usuario específico.
+     * 
+     * @param string $userId
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getGamesByUserId(string $userId)
+    {
+        return Game::whereHas('users', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })->get();
+    }
 }
