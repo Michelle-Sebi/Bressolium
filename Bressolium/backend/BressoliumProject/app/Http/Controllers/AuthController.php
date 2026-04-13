@@ -1,14 +1,35 @@
 <?php
+/**
+ * @module AuthController
+ * @description Controlador para gestionar el acceso y registro de usuarios.
+ * Delega la lógica de negocio en AuthService.
+ */
 
 namespace App\Http\Controllers;
 
+use App\Services\AuthService;
 use Illuminate\Http\Request;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Exception;
 
 class AuthController extends Controller
 {
+    protected $authService;
+
+    /**
+     * @param AuthService $authService
+     */
+    public function __construct(AuthService $authService)
+    {
+        $this->authService = $authService;
+    }
+
+    /**
+     * Procesa la petición de registro.
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -25,24 +46,28 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'user' => $user->only(['id', 'name', 'email']),
-                'token' => $token
-            ],
-            'error' => null
-        ], 200);
+        try {
+            $data = $this->authService->register($request->all());
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+                'error' => null
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'data' => null,
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
+    /**
+     * Procesa el inicio de sesión.
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -58,24 +83,20 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        try {
+            $token = $this->authService->login($request->email, $request->password);
+            return response()->json([
+                'success' => true,
+                'data' => ['token' => $token],
+                'error' => null
+            ], 200);
+        } catch (Exception $e) {
+            $status = ($e->getMessage() === 'Invalid credentials') ? 401 : 500;
             return response()->json([
                 'success' => false,
                 'data' => null,
-                'error' => 'Invalid credentials'
-            ], 401);
+                'error' => $e->getMessage()
+            ], $status);
         }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'token' => $token
-            ],
-            'error' => null
-        ], 200);
     }
 }
