@@ -118,4 +118,20 @@ class GameService
             return $game;
         });
     }
+
+    /**
+     * Obtiene las partidas en las que participa el usuario.
+     */
+    public function getMyGames(string $userId)
+    {
+        return $this->gameRepository->getGamesByUserId($userId);
+    }
+
+    /**
+     * Obtiene todas las partidas a las que se puede unir.
+     */
+    public function getAllGames()
+    {
+        return $this->gameRepository->getAllAvailableGames();
+    }
 }

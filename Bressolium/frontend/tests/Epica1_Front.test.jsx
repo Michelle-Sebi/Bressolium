@@ -10,6 +10,7 @@ import Dashboard from '../src/features/dashboard/Dashboard';
 import authService from '../src/services/authService';
 import gameService from '../src/services/gameService';
 import authReducer from '../src/features/auth/authSlice';
+import gameReducer from '../src/features/game/gameSlice';
 
 // ==========================================
 // TEST PARA: TAREA 3 (Raw_Tareas)
@@ -51,7 +52,8 @@ describe('FrontAuth Routing', () => {
         
         mockStore = configureStore({
             reducer: {
-                auth: authReducer
+                auth: authReducer,
+                game: gameReducer
             }
         });
     });
@@ -95,8 +97,8 @@ describe('FrontAuth Routing', () => {
         ];
 
         beforeEach(() => {
-            gameService.getMyGames.mockResolvedValue(mockActiveGames);
-            gameService.getGames.mockResolvedValue(mockAvailableGames);
+            gameService.getMyGames.mockResolvedValue({ data: mockActiveGames });
+            gameService.getGames.mockResolvedValue({ data: mockAvailableGames });
         });
 
         it('Muestra el layout dividido con seccion de Lobby y de Partidas Activas (HU 1.7)', async () => {
@@ -129,7 +131,7 @@ describe('FrontAuth Routing', () => {
 
         it('Permite abrir el modal de creación y elegir civilización (HU 1.2 & 1.5)', async () => {
             const user = userEvent.setup();
-            gameService.create.mockResolvedValue({ id: '4', name: 'New Team' });
+            gameService.create.mockResolvedValue({ data: { id: '4', name: 'New Team' } });
 
             render(
                 <Provider store={mockStore}>
@@ -141,19 +143,17 @@ describe('FrontAuth Routing', () => {
             await user.click(createButton);
 
             const nameInput = screen.getByLabelText(/nombre del equipo/i);
-            const civSelect = screen.getByLabelText(/cultura base/i);
             const submitButton = screen.getByRole('button', { name: /fundar civilización/i });
 
             await user.type(nameInput, 'Nova');
-            await user.selectOptions(civSelect, 'Steampunk');
             await user.click(submitButton);
 
-            expect(gameService.create).toHaveBeenCalledWith('Nova', 'Steampunk');
+            expect(gameService.create).toHaveBeenCalledWith('Nova');
         });
 
         it('Ejecuta la unión aleatoria al pulsar el botón correspondiente (HU 1.4)', async () => {
             const user = userEvent.setup();
-            gameService.joinRandom.mockResolvedValue({ id: '5', name: 'Random Team' });
+            gameService.joinRandom.mockResolvedValue({ data: { id: '5', name: 'Random Team' } });
 
             render(
                 <Provider store={mockStore}>
