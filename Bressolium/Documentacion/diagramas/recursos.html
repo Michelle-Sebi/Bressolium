@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caselles — Árbol de Recursos</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', sans-serif; background: #111827; color: #e5e7eb; overflow: hidden; height: 100vh; }
+
+.header {
+  background: #1f2937; border-bottom: 1px solid #374151;
+  padding: 10px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; height: 54px;
+}
+.header h1 { font-size: 18px; color: #fbbf24; white-space: nowrap; }
+.filter-group { display: flex; gap: 6px; flex-wrap: wrap; }
+button {
+  padding: 5px 10px; background: #374151; color: #d1d5db;
+  border: 1px solid #4b5563; border-radius: 4px; cursor: pointer; font-size: 12px;
+}
+button:hover { background: #4b5563; }
+button.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+input[type=text] {
+  padding: 5px 10px; background: #374151; color: #e5e7eb;
+  border: 1px solid #4b5563; border-radius: 4px; font-size: 12px; width: 180px;
+}
+
+.layout { display: flex; height: calc(100vh - 54px); }
+.graph-wrap { flex: 1; overflow: hidden; position: relative; }
+svg { width: 100%; height: 100%; cursor: grab; }
+svg.grabbing { cursor: grabbing; }
+
+.panel {
+  width: 300px; background: #1f2937; border-left: 1px solid #374151;
+  padding: 16px; overflow-y: auto; font-size: 13px;
+}
+.panel h2 { font-size: 15px; color: #fbbf24; margin-bottom: 6px; }
+.badge {
+  display: inline-block; padding: 2px 8px; border-radius: 10px;
+  font-size: 11px; font-weight: bold; margin-bottom: 10px; color: #111;
+}
+.section-title { color: #9ca3af; font-size: 11px; text-transform: uppercase; margin: 10px 0 4px; letter-spacing: .05em; }
+.item { background: #111827; border-left: 3px solid #3b82f6; padding: 4px 8px; margin-bottom: 3px; font-size: 12px; }
+.item.cost { border-color: #6b7280; background: #0f172a; }
+.empty { color: #6b7280; font-style: italic; font-size: 13px; margin-top: 40px; text-align: center; }
+
+/* Legend */
+.legend {
+  position: absolute; bottom: 16px; left: 16px;
+  background: rgba(31,41,55,0.95); border: 1px solid #374151;
+  border-radius: 6px; padding: 10px 14px; font-size: 12px; pointer-events: none;
+}
+.legend-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.legend-rect { width: 14px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+/* Edge lines */
+.link { fill: none; }
+.link-cost { stroke: #4b5563; stroke-width: 1; stroke-opacity: .5; }
+.link-prereq { stroke: #f97316; stroke-width: 1.5; stroke-opacity: .7; }
+.link-prereq-inv { stroke: #f59e0b; stroke-width: 1.5; stroke-dasharray: 6,3; stroke-opacity: .7; }
+.link-enables { stroke: #a78bfa; stroke-width: 1.5; stroke-dasharray: 5,4; stroke-opacity: .7; }
+.link-produces { stroke: #22d3ee; stroke-width: 1.5; stroke-dasharray: 3,3; stroke-opacity: .7; }
+
+/* Nodes */
+.node circle, .node rect { stroke-width: 1.5; cursor: pointer; }
+.node circle:hover, .node rect:hover { stroke-width: 3; }
+.node text { pointer-events: none; font-size: 10px; fill: #d1d5db; }
+
+.dimmed { opacity: .08 !important; }
+.highlighted { opacity: 1 !important; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🎮 Caselles — Árbol de Recursos</h1>
+  <div class="filter-group">
+    <button class="filter-btn active" data-f="all">Todos</button>
+    <button class="filter-btn" data-f="raw">Crudos</button>
+    <button class="filter-btn" data-f="advanced">Avanzados</button>
+    <button class="filter-btn" data-f="tile">Casillas</button>
+    <button class="filter-btn" data-f="invention">Inventos</button>
+    <button class="filter-btn" data-f="tech">Tecnología</button>
+  </div>
+  <input type="text" id="search" placeholder="Buscar nodo...">
+  <button id="resetBtn">Reiniciar vista</button>
+</div>
+
+<div class="layout">
+  <div class="graph-wrap" id="graphWrap">
+    <svg id="svg"></svg>
+    <div class="legend">
+      <div class="legend-row"><div class="legend-dot" style="background:#4ade80"></div> Recurso crudo</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#22d3ee"></div> Recurso avanzado</div>
+      <div class="legend-row"><div class="legend-rect" style="background:#0d9488"></div> Casilla nv5</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#fb923c"></div> Invento</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#60a5fa"></div> Tecnología</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#fbbf24"></div> Victoria</div>
+      <hr style="border-color:#374151;margin:6px 0">
+      <div class="legend-row"><svg width="30" height="10"><line x1="0" y1="5" x2="30" y2="5" class="link link-cost"/></svg> Coste</div>
+      <div class="legend-row"><svg width="30" height="10"><line x1="0" y1="5" x2="30" y2="5" class="link link-prereq"/></svg> Prerrequisito</div>
+      <div class="legend-row"><svg width="30" height="10"><line x1="0" y1="5" x2="30" y2="5" class="link link-prereq-inv"/></svg> Prereq. Invento</div>
+      <div class="legend-row"><svg width="30" height="10"><line x1="0" y1="5" x2="30" y2="5" class="link link-enables"/></svg> Desbloquea</div>
+      <div class="legend-row"><svg width="30" height="10"><line x1="0" y1="5" x2="30" y2="5" class="link link-produces"/></svg> Produce</div>
+    </div>
+  </div>
+  <div class="panel" id="panel">
+    <p class="empty">Haz clic en un nodo<br>para ver detalles</p>
+  </div>
+</div>
+
+<script>
+// ─── DATA ──────────────────────────────────────────────────────────────────
+
+const NODES = [
+  // ── RAW (tier 0) — Bosque (nv1:roble | nv2:+pino | nv3:+carbon | nv4:+pieles)
+  {id:"roble",          name:"Roble",           type:"raw", tier:0, group:"Bosque"},
+  {id:"pino",           name:"Pino",            type:"raw", tier:0, group:"Bosque"},
+  {id:"carbon-natural", name:"Carbón Natural",  type:"raw", tier:0, group:"Bosque"},
+  {id:"pieles",         name:"Pieles",          type:"raw", tier:0, group:"Bosque"},
+  // Cantera (nv1:silex | nv2:+granito | nv3:+obsidiana | nv4: sin cambio)
+  {id:"silex",          name:"Sílex",           type:"raw", tier:0, group:"Cantera"},
+  {id:"granito",        name:"Granito",         type:"raw", tier:0, group:"Cantera"},
+  {id:"obsidiana",      name:"Obsidiana",       type:"raw", tier:0, group:"Cantera"},
+  // Río (nv1:agua | nv2:+cana-comun | nv3:+tierras-fertiles | nv4:+peces)
+  {id:"agua",           name:"Agua",            type:"raw", tier:0, group:"Río"},
+  {id:"cana-comun",     name:"Caña Común",      type:"raw", tier:0, group:"Río"},
+  {id:"tierras-fertiles",name:"Tierras Fértiles",type:"raw",tier:0, group:"Río"},
+  {id:"peces",          name:"Peces",           type:"raw", tier:0, group:"Río"},
+  // Prado (nv1:lino | nv2:+yute | nv3:+canamo | nv4:+lana)
+  {id:"lino",           name:"Lino",            type:"raw", tier:0, group:"Prado"},
+  {id:"yute",           name:"Yute",            type:"raw", tier:0, group:"Prado"},
+  {id:"canamo",         name:"Cáñamo",          type:"raw", tier:0, group:"Prado"},
+  {id:"lana",           name:"Lana",            type:"raw", tier:0, group:"Prado"},
+  // Veta (nv1:cobre | nv2:+hierro | nv3:+estano | nv4:+grafito)
+  {id:"cobre",          name:"Cobre",           type:"raw", tier:0, group:"Veta"},
+  {id:"hierro",         name:"Hierro",          type:"raw", tier:0, group:"Veta"},
+  {id:"estano",         name:"Estaño",          type:"raw", tier:0, group:"Veta"},
+  {id:"grafito",        name:"Grafito",         type:"raw", tier:0, group:"Veta"},
+
+  // ── ADVANCED TILES (nivel 5 de cada casilla básica)
+  {id:"pozo-goma",       name:"Pozo de Goma y Resina", type:"tile", tier:5},
+  {id:"cantera-silice",  name:"Cantera de Sílice",     type:"tile", tier:5},
+  {id:"extractor-gases", name:"Extractor de Gases",    type:"tile", tier:5},
+  {id:"granja-organizada",name:"Granja Organizada",    type:"tile", tier:5},
+  {id:"mina-minerales",  name:"Mina de Minerales",     type:"tile", tier:5},
+
+  // ── ADVANCED RESOURCES
+  // Bosque nv5
+  {id:"latex",               name:"Látex",              type:"advanced", tier:5},
+  {id:"resinas-inflamables", name:"Resinas Inflam.",    type:"advanced", tier:5},
+  {id:"mat-aisl-nat",        name:"Mat. Aislantes",     type:"advanced", tier:5},
+  // Cantera nv5
+  {id:"arena-silice",        name:"Arena de Sílice",    type:"advanced", tier:5},
+  {id:"arena-cuarzo",        name:"Arena de Cuarzo",    type:"advanced", tier:5},
+  {id:"cristales-nat",       name:"Cristales Naturales",type:"advanced", tier:5},
+  {id:"silicio",             name:"Silicio",            type:"advanced", tier:5},
+  {id:"min-semi",            name:"Min. Semiconductores",type:"advanced",tier:5},
+  // Río nv5
+  {id:"hidrogeno",           name:"Hidrógeno",          type:"advanced", tier:5},
+  {id:"gases-naturales",     name:"Gases Naturales",    type:"advanced", tier:5},
+  // Veta nv5
+  {id:"oro",                 name:"Oro",                type:"advanced", tier:5},
+  {id:"mat-mag-nat",         name:"Mat. Magnéticos",    type:"advanced", tier:5},
+
+  // ── TECHNOLOGIES
+  {id:"herramientas-piedra", name:"Herramientas de Piedra",   type:"tech", tier:1},
+  {id:"control-fuego",       name:"Control del Fuego",        type:"tech", tier:1},
+  {id:"ganaderia",           name:"Ganadería",                type:"tech", tier:2},
+  {id:"tejido",              name:"Tejido",                   type:"tech", tier:2},
+  {id:"ceramica",            name:"Cerámica y Alfarería",     type:"tech", tier:2},
+  {id:"agricultura",         name:"Agricultura",              type:"tech", tier:3},
+  {id:"fermentacion",        name:"Fermentación",             type:"tech", tier:3},
+  {id:"metalurgia",          name:"Metalurgia y Aleaciones",  type:"tech", tier:4},
+  {id:"conservacion",      name:"Conservación Alimentos",   type:"tech", tier:4},
+  {id:"quimica",             name:"Química",                  type:"tech", tier:5},
+  {id:"escritura",           name:"Escritura",                type:"tech", tier:5},
+  {id:"fotografia",          name:"Fotografía",               type:"tech", tier:6},
+  {id:"electricidad",        name:"Electricidad",             type:"tech", tier:6},
+  {id:"computacion",         name:"Computación",              type:"tech", tier:7},
+  {id:"comunicaciones",      name:"Comunicaciones Inalámb.",  type:"tech", tier:7},
+  {id:"internet",            name:"Internet",                 type:"tech", tier:7},
+  {id:"energias-renovables", name:"Energías Renovables",      type:"tech", tier:7},
+  {id:"nanotecnologia",      name:"Nanotecnología",           type:"tech", tier:7},
+  {id:"gps",                 name:"GPS",                      type:"tech", tier:8},
+  {id:"inteligencia-art",    name:"Inteligencia Artificial",  type:"tech", tier:8},
+  {id:"edicion-genetica",    name:"Edición Genética",         type:"tech", tier:8},
+  {id:"robotica",            name:"Robótica",                 type:"tech", tier:9},
+  {id:"biotecnologia",       name:"Biotecnología",            type:"tech", tier:9},
+  {id:"sistemas-autonomos",  name:"Sistemas Autónomos",       type:"tech", tier:9},
+  {id:"tecnologia-espacial", name:"Tecnología Espacial",      type:"tech", tier:9},
+  {id:"terraformacion",      name:"Terraformación",           type:"tech", tier:10},
+
+  // ── INVENTIONS
+  // Tier 1 — no tech required
+  {id:"cuchillo",        name:"Cuchillo",          type:"invention", tier:1,
+    costs:{obsidiana:8,roble:3}},
+  {id:"cuerda",          name:"Cuerda",            type:"invention", tier:1,
+    costs:{lino:8,canamo:5}},
+  {id:"tela",            name:"Tela",              type:"invention", tier:2,
+    costs:{lino:8,yute:6,lana:8}},
+  {id:"refugios",        name:"Refugios",          type:"invention", tier:1,
+    costs:{roble:15,"cana-comun":10}},
+  {id:"trampa",          name:"Trampa",            type:"invention", tier:2,
+    costs:{roble:5}},
+  // Tier 2 — Stone Tools
+  {id:"lanza",           name:"Lanza",             type:"invention", tier:2,
+    costs:{silex:8,roble:5}},
+  {id:"hacha",           name:"Hacha",             type:"invention", tier:2,
+    costs:{silex:10,roble:8}},
+  {id:"arcos",           name:"Arcos",             type:"invention", tier:2,
+    costs:{roble:8}},
+  {id:"rueda",           name:"Rueda",             type:"invention", tier:2,
+    costs:{roble:12,silex:8}},
+  {id:"carro",           name:"Carro",             type:"invention", tier:2,
+    costs:{roble:15,pieles:8}},
+  // Tier 3 — Ceramics / Agriculture
+  {id:"ceramica-inv",    name:"Cerámica",          type:"invention", tier:2,
+    costs:{granito:10,agua:5}},
+  {id:"barco",           name:"Barco",             type:"invention", tier:3,
+    costs:{roble:20,pino:15,canamo:8}},
+  {id:"molino",          name:"Molino",            type:"invention", tier:3,
+    costs:{granito:15,roble:10}},
+  {id:"acueducto",       name:"Acueducto",         type:"invention", tier:3,
+    costs:{granito:20,agua:10}},
+  {id:"arado",           name:"Arado",             type:"invention", tier:3,
+    costs:{roble:10,hierro:5}},
+  {id:"vidrio",          name:"Vidrio",            type:"invention", tier:3,
+    costs:{"arena-silice":15,"arena-cuarzo":10}},
+  // Tier 4 — Metalurgy
+  {id:"acero",           name:"Acero",             type:"invention", tier:4,
+    costs:{hierro:20,"carbon-natural":15,grafito:5}},
+  {id:"moneda",          name:"Moneda",            type:"invention", tier:4,
+    costs:{cobre:15,oro:5}},
+  {id:"brujula",         name:"Brújula",           type:"invention", tier:4,
+    costs:{hierro:15,cobre:8,"carbon-natural":10}},
+  {id:"reloj",           name:"Reloj",             type:"invention", tier:4,
+    costs:{cobre:10}},
+  // Tier 5 — Chemistry / Writing
+  {id:"papel",           name:"Papel",             type:"invention", tier:5,
+    costs:{"cana-comun":15,agua:10}},
+  {id:"imprenta",        name:"Imprenta",          type:"invention", tier:5,
+    costs:{}},
+  {id:"microscopio",     name:"Microscopio",       type:"invention", tier:5,
+    costs:{"arena-silice":10,hierro:8}},
+  {id:"penicilina",      name:"Penicilina",        type:"invention", tier:5,
+    costs:{agua:10,"tierras-fertiles":15,latex:8}},
+  {id:"bombilla",        name:"Bombilla",          type:"invention", tier:5,
+    costs:{cobre:10,"carbon-natural":8}},
+  // Tier 6 — Electricity
+  {id:"bateria",         name:"Batería",           type:"invention", tier:6,
+    costs:{cobre:15,estano:10,"resinas-inflamables":10}},
+  {id:"laser",           name:"Láser",             type:"invention", tier:6,
+    costs:{silicio:15,"cristales-nat":10}},
+  {id:"fibra-optica",    name:"Fibra Óptica",      type:"invention", tier:6,
+    costs:{silicio:20,"mat-aisl-nat":10}},
+  {id:"telescopio",      name:"Telescopio",        type:"invention", tier:6,
+    costs:{"arena-cuarzo":15,hierro:8}},
+  // Tier 7
+  {id:"telefono-movil",  name:"Teléfono Móvil",    type:"invention", tier:7,
+    costs:{silicio:20,"mat-mag-nat":10,"min-semi":10}},
+  // Tier 8
+  {id:"avion",           name:"Avión",             type:"invention", tier:8,
+    costs:{"carbon-natural":20,hierro:15}},
+  // Tier 9 — Space
+  {id:"satelite",        name:"Satélite",          type:"invention", tier:9,
+    costs:{silicio:15,"gases-naturales":10}},
+  {id:"estacion-espacial",name:"Estación Espacial",type:"invention", tier:9,
+    costs:{silicio:20,hidrogeno:15}},
+  // Victory
+  {id:"nave-asentamiento",name:"Nave Interestelar", type:"victory", tier:10,
+    costs:{silicio:400,hidrogeno:600,agua:300,"mat-aisl-nat":200}},
+];
+
+// ── EDGES ──────────────────────────────────────────────────────────────────
+// [source-id, target-id, type]
+const RAW_EDGES = [
+  // ── ADVANCED TILES unlocked by tech/invention
+  // Pozo de Goma y Resina ← Química
+  ["quimica","pozo-goma","enables"],
+  ["pozo-goma","latex","produces"],
+  ["pozo-goma","resinas-inflamables","produces"],
+  ["pozo-goma","mat-aisl-nat","produces"],
+
+  // Cantera de Sílice ← Herramientas de Piedra + Hacha
+  ["herramientas-piedra","cantera-silice","enables"],
+  ["hacha","cantera-silice","enables"],
+  ["cantera-silice","arena-silice","produces"],
+  ["cantera-silice","arena-cuarzo","produces"],
+  ["cantera-silice","cristales-nat","produces"],
+  ["cantera-silice","silicio","produces"],
+  ["cantera-silice","min-semi","produces"],
+
+  // Extractor de Gases ← Química
+  ["quimica","extractor-gases","enables"],
+  ["extractor-gases","hidrogeno","produces"],
+  ["extractor-gases","gases-naturales","produces"],
+
+  // Granja Organizada ← Agricultura + Tejido + Conservación de Alimentos + Arado
+  ["agricultura","granja-organizada","enables"],
+  ["tejido","granja-organizada","enables"],
+  ["conservacion","granja-organizada","enables"],
+  ["arado","granja-organizada","enables"],
+  ["granja-organizada","tierras-fertiles","produces"],
+
+  // Mina de Minerales ← Metalurgia + Brújula
+  ["metalurgia","mina-minerales","enables"],
+  ["brujula","mina-minerales","enables"],
+  ["mina-minerales","oro","produces"],
+  ["mina-minerales","mat-mag-nat","produces"],
+
+  // ── TECH prerequisites (invention/tech → tech)
+  ["trampa","ganaderia","prereq"],
+  ["refugios","ganaderia","prereq"],
+  ["arcos","ganaderia","prereq"],
+  ["ganaderia","tela","prereq"],
+  ["cuerda","tejido","prereq"],
+  ["tela","tejido","prereq"],
+  ["control-fuego","ceramica","prereq"],
+  ["ceramica-inv","ceramica","prereq"],
+  ["cuerda","agricultura","prereq"],
+  ["hacha","agricultura","prereq"],
+  ["ceramica","fermentacion","prereq"],
+  ["hacha","metalurgia","prereq"],
+  ["molino","metalurgia","prereq"],
+  ["fermentacion","conservacion","prereq"],
+  ["acueducto","conservacion","prereq"],
+  ["vidrio","quimica","prereq"],
+  ["acero","quimica","prereq"],
+  ["papel","escritura","prereq"],
+  ["moneda","escritura","prereq"],
+  ["microscopio","fotografia","prereq"],
+  ["papel","fotografia","prereq"],
+  ["imprenta","fotografia","prereq"],
+  ["bateria","electricidad","prereq"],
+  ["bombilla","electricidad","prereq"],
+  ["electricidad","computacion","prereq"],
+  ["reloj","computacion","prereq"],
+  ["computacion","comunicaciones","prereq"],
+  ["telefono-movil","comunicaciones","prereq"],
+  ["fibra-optica","comunicaciones","prereq"],
+  ["comunicaciones","internet","prereq"],
+  ["internet","inteligencia-art","prereq"],
+  ["computacion","inteligencia-art","prereq"],
+  ["electricidad","energias-renovables","prereq"],
+  ["acero","energias-renovables","prereq"],
+  ["microscopio","nanotecnologia","prereq"],
+  ["laser","nanotecnologia","prereq"],
+  ["computacion","gps","prereq"],
+  ["nanotecnologia","edicion-genetica","prereq"],
+  ["microscopio","edicion-genetica","prereq"],
+  ["inteligencia-art","robotica","prereq"],
+  ["acero","robotica","prereq"],
+  ["edicion-genetica","biotecnologia","prereq"],
+  ["penicilina","biotecnologia","prereq"],
+  ["robotica","sistemas-autonomos","prereq"],
+  ["inteligencia-art","sistemas-autonomos","prereq"],
+  ["telescopio","tecnologia-espacial","prereq"],
+  ["estacion-espacial","tecnologia-espacial","prereq"],
+  ["satelite","tecnologia-espacial","prereq"],
+  ["gps","tecnologia-espacial","prereq"],
+  ["tecnologia-espacial","terraformacion","prereq"],
+  ["biotecnologia","terraformacion","prereq"],
+  ["sistemas-autonomos","terraformacion","prereq"],
+
+  // ── TECH enables inventions
+  ["herramientas-piedra","lanza","enables"],
+  ["herramientas-piedra","hacha","enables"],
+  ["herramientas-piedra","rueda","enables"],
+  ["rueda","carro","enables"],
+  ["lanza","arcos","enables"],
+  ["agricultura","barco","enables"],
+  ["carro","molino","enables"],
+  ["agricultura","acueducto","enables"],
+  ["agricultura","arado","enables"],
+  ["control-fuego","ceramica-inv","enables"],
+  ["ceramica","vidrio","enables"],
+  ["metalurgia","acero","enables"],
+  ["metalurgia","moneda","enables"],
+  ["barco","brujula","enables"],
+  ["metalurgia","reloj","enables"],
+  ["quimica","papel","enables"],
+  ["quimica","microscopio","enables"],
+  ["quimica","penicilina","enables"],
+  ["quimica","bombilla","enables"],
+  ["escritura","imprenta","enables"],
+  ["imprenta","fotografia","enables"],
+  ["fotografia","telescopio","enables"],
+  ["telescopio","tecnologia-espacial","enables"],
+  ["electricidad","laser","enables"],
+  ["electricidad","fibra-optica","enables"],
+  ["computacion","telefono-movil","enables"],
+  ["energias-renovables","avion","enables"],
+  ["energias-renovables","satelite","enables"],
+  ["energias-renovables","estacion-espacial","enables"],
+  ["terraformacion","nave-asentamiento","enables"],
+
+  // ── INVENTION prerequisites (invention → invention, not consumed)
+  ["acero","reloj","prereq-inv"],
+  ["rueda","carro","prereq-inv"],
+  ["lanza","arcos","prereq-inv"],
+  ["carro","molino","prereq-inv"],
+  ["barco","brujula","prereq-inv"],
+  ["papel","imprenta","prereq-inv"],
+  ["acero","imprenta","prereq-inv"],
+  ["vidrio","microscopio","prereq-inv"],
+  ["acero","microscopio","prereq-inv"],
+  ["vidrio","bombilla","prereq-inv"],
+  ["vidrio","fibra-optica","prereq-inv"],
+  ["vidrio","telescopio","prereq-inv"],
+  ["acero","telescopio","prereq-inv"],
+  ["acero","avion","prereq-inv"],
+  ["cuerda","avion","prereq-inv"],
+  ["acero","satelite","prereq-inv"],
+  ["gps","satelite","prereq"],
+  ["acero","estacion-espacial","prereq-inv"],
+  ["estacion-espacial","nave-asentamiento","prereq-inv"],
+  ["acero","nave-asentamiento","prereq-inv"],
+  ["vidrio","nave-asentamiento","prereq-inv"],
+
+  // ── INVENTION costs (resource → invention)
+  // Cuchillo
+  ["obsidiana","cuchillo","cost"],
+  ["roble","cuchillo","cost"],
+  // Cuerda
+  ["lino","cuerda","cost"],
+  ["canamo","cuerda","cost"],
+  // Tela
+  ["lino","tela","cost"],
+  ["yute","tela","cost"],
+  ["lana","tela","cost"],
+  // Refugios
+  ["roble","refugios","cost"],
+  ["cana-comun","refugios","cost"],
+  // Trampa
+  ["cuchillo","trampa","prereq-inv"],
+  ["roble","trampa","cost"],
+  // Lanza
+  ["silex","lanza","cost"],
+  ["roble","lanza","cost"],
+  // Hacha
+  ["silex","hacha","cost"],
+  ["roble","hacha","cost"],
+  // Arcos (lanza → prereq-inv, solo roble como coste)
+  ["roble","arcos","cost"],
+  // Rueda
+  ["roble","rueda","cost"],
+  ["silex","rueda","cost"],
+  // Carro
+  ["roble","carro","cost"],
+  ["pieles","carro","cost"],
+  // Cerámica (invento)
+  ["granito","ceramica-inv","cost"],
+  ["agua","ceramica-inv","cost"],
+  // Barco
+  ["roble","barco","cost"],
+  ["pino","barco","cost"],
+  ["cuerda","barco","prereq-inv"],
+  ["canamo","barco","cost"],
+  // Molino
+  ["granito","molino","cost"],
+  ["roble","molino","cost"],
+  // Acueducto
+  ["granito","acueducto","cost"],
+  ["agua","acueducto","cost"],
+  // Arado
+  ["roble","arado","cost"],
+  ["hierro","arado","cost"],
+  // Vidrio
+  ["arena-silice","vidrio","cost"],
+  ["arena-cuarzo","vidrio","cost"],
+  // Acero
+  ["hierro","acero","cost"],
+  ["carbon-natural","acero","cost"],
+  ["grafito","acero","cost"],
+  // Moneda
+  ["cobre","moneda","cost"],
+  ["oro","moneda","cost"],
+  // Brújula
+  ["hierro","brujula","cost"],
+  ["cobre","brujula","cost"],
+  ["carbon-natural","brujula","cost"],
+  // Reloj (solo cobre como coste real, acero ya en prereq-inv arriba)
+  ["cobre","reloj","cost"],
+  // Papel
+  ["cana-comun","papel","cost"],
+  ["agua","papel","cost"],
+  // Imprenta (sin coste de recursos, prereqs ya arriba)
+  // Microscopio (costes reales: arena-silice + hierro, prereqs ya arriba)
+  ["arena-silice","microscopio","cost"],
+  ["hierro","microscopio","cost"],
+  // Penicilina
+  ["agua","penicilina","cost"],
+  ["tierras-fertiles","penicilina","cost"],
+  ["latex","penicilina","cost"],
+  // Bombilla (coste real: cobre + carbon-natural, prereq vidrio ya arriba)
+  ["cobre","bombilla","cost"],
+  ["carbon-natural","bombilla","cost"],
+  // Batería
+  ["cobre","bateria","cost"],
+  ["estano","bateria","cost"],
+  ["resinas-inflamables","bateria","cost"],
+  // Láser
+  ["silicio","laser","cost"],
+  ["cristales-nat","laser","cost"],
+  // Fibra óptica (costes reales: silicio + mat-aisl-nat, prereq vidrio ya arriba)
+  ["silicio","fibra-optica","cost"],
+  ["mat-aisl-nat","fibra-optica","cost"],
+  // Telescopio (costes reales: arena-cuarzo + hierro, prereqs ya arriba)
+  ["arena-cuarzo","telescopio","cost"],
+  ["hierro","telescopio","cost"],
+  // Teléfono
+  ["silicio","telefono-movil","cost"],
+  ["mat-mag-nat","telefono-movil","cost"],
+  ["min-semi","telefono-movil","cost"],
+  // Avión (costes reales: carbon-natural + hierro, prereqs ya arriba)
+  ["carbon-natural","avion","cost"],
+  ["hierro","avion","cost"],
+  // Satélite (costes reales: silicio + gases-naturales, prereqs ya arriba)
+  ["silicio","satelite","cost"],
+  ["gases-naturales","satelite","cost"],
+  // Estación espacial (costes reales: silicio + hidrogeno, prereqs ya arriba)
+  ["silicio","estacion-espacial","cost"],
+  ["hidrogeno","estacion-espacial","cost"],
+  // Nave (costes reales, prereqs ya arriba)
+  ["silicio","nave-asentamiento","cost"],
+  ["hidrogeno","nave-asentamiento","cost"],
+  ["agua","nave-asentamiento","cost"],
+  ["mat-aisl-nat","nave-asentamiento","cost"],
+];
+
+// ── BUILD LOOKUP ────────────────────────────────────────────────────────────
+const nodeById = {};
+NODES.forEach(n => nodeById[n.id] = n);
+
+// cost quantities
+const costQty = {};
+NODES.filter(n => n.costs).forEach(inv => {
+  Object.entries(inv.costs).forEach(([res, qty]) => {
+    costQty[`${res}→${inv.id}`] = qty;
+  });
+});
+
+// Keep sourceId/targetId as stable string refs (forceLink mutates source/target)
+const edges = RAW_EDGES.map(([s, t, type]) => ({
+  source: s, target: t,   // D3 forceLink will mutate these – we use sourceId/targetId below
+  sourceId: s, targetId: t,
+  type,
+  qty: costQty[`${s}→${t}`] || null
+})).filter(e => nodeById[e.sourceId] && nodeById[e.targetId]);
+
+// ── TILE EVOLUTION TREE DATA ─────────────────────────────────────────────────
+// Second tree: 5 basic tiles → level 1-4 resources → level 5 specialization
+const TILE_TREE = [
+  {
+    id: "t-bosque", name: "Bosque", color: "#15803d", x: 0,
+    levels: [
+      { lvl: 1, resources: ["roble ×5"] },
+      { lvl: 2, resources: ["roble ×8", "pino ×8"] },
+      { lvl: 3, resources: ["roble ×8", "pino ×8", "carbón-natural ×8"] },
+      { lvl: 4, resources: ["roble ×9", "pino ×9", "carbón-natural ×9", "pieles ×9"], tech: "Ganadería" },
+    ],
+    lvl5: { name: "Pozo de Goma y Resina", tech: "Química", inv: null,
+            resources: ["ámbar ×8","látex ×8","resinas-inflamables ×8","mat. aislantes ×4"], color: "#a16207" }
+  },
+  {
+    id: "t-cantera", name: "Cantera", color: "#78716c", x: 1,
+    levels: [
+      { lvl: 1, resources: ["sílex ×5"] },
+      { lvl: 2, resources: ["sílex ×8", "granito ×8"] },
+      { lvl: 3, resources: ["sílex ×8", "granito ×8", "obsidiana ×8"] },
+      { lvl: 4, resources: ["sílex ×9", "granito ×9", "obsidiana ×9"], tech: "Cerámica y Alfarería" },
+    ],
+    lvl5: { name: "Cantera de Sílice", tech: "Herramientas de Piedra", inv: "Hacha",
+            resources: ["arena-de-sílice ×8","arena-de-cuarzo ×8","cristales-nat. ×8","silicio ×10","min. semi. ×8"], color: "#d97706" }
+  },
+  {
+    id: "t-rio", name: "Río", color: "#0284c7", x: 2,
+    levels: [
+      { lvl: 1, resources: ["agua ×5"] },
+      { lvl: 2, resources: ["agua ×8", "caña-común ×8"] },
+      { lvl: 3, resources: ["agua ×8", "caña-común ×8", "tierras-fértiles ×8"] },
+      { lvl: 4, resources: ["agua ×9", "caña-común ×9", "tierras-fértiles ×9", "peces ×9"], tech: "Agricultura" },
+    ],
+    lvl5: { name: "Extractor de Gases", tech: "Química", inv: null,
+            resources: ["hidrógeno ×10","gases-naturales ×8"], color: "#0e7490" }
+  },
+  {
+    id: "t-prado", name: "Prado", color: "#65a30d", x: 3,
+    levels: [
+      { lvl: 1, resources: ["lino ×5"] },
+      { lvl: 2, resources: ["lino ×8", "yute ×8"] },
+      { lvl: 3, resources: ["lino ×8", "yute ×8", "cáñamo ×8"] },
+      { lvl: 4, resources: ["lino ×9", "yute ×9", "cáñamo ×9", "lana ×9"], tech: "Ganadería" },
+    ],
+    lvl5: { name: "Granja Organizada", tech: "Agricultura", inv: "Arado",
+            resources: ["tierras-fértiles ×8"], color: "#166534" }
+  },
+  {
+    id: "t-veta", name: "Veta de Roca", color: "#92400e", x: 4,
+    levels: [
+      { lvl: 1, resources: ["cobre ×5"] },
+      { lvl: 2, resources: ["cobre ×8", "hierro ×8"], tech: "Herramientas de Piedra" },
+      { lvl: 3, resources: ["cobre ×10", "hierro ×10", "estaño ×10"], tech: "Metalurgia y Aleaciones" },
+      { lvl: 4, resources: ["cobre ×12", "hierro ×12", "estaño ×12", "grafito ×12"], tech: "Metalurgia y Aleaciones" },
+    ],
+    lvl5: { name: "Mina de Minerales", tech: "Metalurgia y Aleaciones", inv: null,
+            resources: ["oro ×8","mat. magnéticos ×8"], color: "#7c3aed" }
+  },
+];
+
+// ── LAYOUT ──────────────────────────────────────────────────────────────────
+const TIERS = 11;
+const CANVAS_W = 5500;
+const NODE_SPACING = 72;  // minimum vertical gap between nodes
+
+// Compute TREE1_H dynamically so the busiest tier always fits
+const nodesByTier = {};
+NODES.forEach(n => { nodesByTier[n.tier] = (nodesByTier[n.tier] || 0) + 1; });
+const maxNodesInTier = Math.max(...Object.values(nodesByTier));
+const TREE1_H = Math.max(3200, maxNodesInTier * NODE_SPACING + 200);
+
+const TREE_GAP = 200;
+// T2_BOX_H is dynamic per cell — compute max resources in any nv1-4 level to set row height
+const T2_LINE_H = 13;   // px per resource line
+const T2_PADDING = 28;  // top padding + bottom tech badge space
+const T2_BOX_W = 210;
+// Max resources in a nv1-4 level is 4 (nv4 always has 4). With tech badge: 4*13 + 28 = 80px box.
+const T2_BOX_H = 4 * T2_LINE_H + T2_PADDING;  // 80px
+const T2_ROW_GAP = 24;  // gap between level rows
+const T2_LVL_H = T2_BOX_H + T2_ROW_GAP;       // 104px per level row
+// nv5 box is taller (up to 4 resources + req badge)
+const T2_BOX5_H = T2_BOX_H + 20;
+const TREE2_H = 5 * T2_LVL_H + T2_BOX5_H + 80;
+const CANVAS_H = TREE1_H + TREE_GAP + TREE2_H;
+const MARGIN_X = 160;
+const tierX = tier => MARGIN_X + (tier / (TIERS - 1)) * (CANVAS_W - MARGIN_X * 2);
+
+// Group raw nodes by group, spread vertically within group
+const groups = ["Bosque","Cantera","Río","Prado","Veta"];
+const groupColors = {Bosque:"#15803d",Cantera:"#78716c",Río:"#0284c7",Prado:"#65a30d",Veta:"#92400e"};
+const rawByGroup = {};
+groups.forEach((g, gi) => {
+  rawByGroup[g] = NODES.filter(n => n.type === "raw" && n.group === g);
+});
+
+// Assign initial Y for raw nodes — evenly spread in their group band
+NODES.filter(n => n.type === "raw").forEach(n => {
+  const list = rawByGroup[n.group];
+  const idx = list.indexOf(n);
+  const count = list.length;
+  const bandH = TREE1_H / groups.length;
+  const gi = groups.indexOf(n.group);
+  n.y = (gi * bandH) + ((idx + 0.5) / count) * bandH;
+  n.x = tierX(n.tier);
+});
+
+// Pre-distribute non-raw nodes evenly by tier so the simulation starts spread out
+const nonRawByTier = {};
+NODES.filter(n => n.type !== "raw").forEach(n => {
+  (nonRawByTier[n.tier] = nonRawByTier[n.tier] || []).push(n);
+});
+Object.entries(nonRawByTier).forEach(([tier, list]) => {
+  const count = list.length;
+  list.forEach((n, i) => {
+    n.x = tierX(Number(tier));
+    // Spread evenly across TREE1_H with padding
+    n.y = 80 + (i / Math.max(count - 1, 1)) * (TREE1_H - 160);
+  });
+});
+
+// Run force simulation — Y only (X is fixed per tier)
+const sim = d3.forceSimulation(NODES)
+  .force("collide", d3.forceCollide(NODE_SPACING / 2).strength(1).iterations(6))
+  .force("y", d3.forceY(d => {
+    if (d.type === "raw") return d.y;
+    return TREE1_H / 2;
+  }).strength(d => d.type === "raw" ? 0.9 : 0.02))
+  .force("link", d3.forceLink(edges)
+    .id(d => d.id)
+    .distance(140)
+    .strength(0.015))
+  .stop();
+
+// Fix X for all nodes after assigning positions
+NODES.forEach(n => { n.fx = tierX(n.tier); });
+
+// Run more ticks to let the busy tiers fully settle
+for (let i = 0; i < 800; i++) sim.tick();
+
+// Clamp Y to tree1 area
+NODES.forEach(n => {
+  n.y = Math.max(40, Math.min(TREE1_H - 40, n.y));
+  n.x = n.fx;
+});
+
+// ── RENDER ──────────────────────────────────────────────────────────────────
+const svg = d3.select("#svg");
+const wrap = document.getElementById("graphWrap");
+const W = wrap.clientWidth || window.innerWidth - 300;
+const H = wrap.clientHeight || window.innerHeight - 54;
+
+const g = svg.append("g");
+
+// Arrow markers
+const defs = svg.append("defs");
+["prereq","prereq-inv","enables","produces"].forEach(type => {
+  defs.append("marker")
+    .attr("id", `arrow-${type}`)
+    .attr("markerWidth", 8).attr("markerHeight", 8)
+    .attr("refX", 16).attr("refY", 3)
+    .attr("orient", "auto")
+    .append("polygon")
+    .attr("points", "0 0, 8 3, 0 6")
+    .attr("fill", type === "prereq" ? "#f97316" : type === "prereq-inv" ? "#f59e0b" : type === "enables" ? "#a78bfa" : "#22d3ee")
+    .attr("opacity", 0.8);
+});
+
+// Draw edges
+const linkG = g.append("g").attr("class", "links");
+const linkEls = linkG.selectAll("line")
+  .data(edges)
+  .join("line")
+  .attr("class", d => `link link-${d.type}`)
+  .attr("x1", d => nodeById[d.sourceId].x)
+  .attr("y1", d => nodeById[d.sourceId].y)
+  .attr("x2", d => nodeById[d.targetId].x)
+  .attr("y2", d => nodeById[d.targetId].y)
+  .attr("marker-end", d => ["prereq","prereq-inv","enables","produces"].includes(d.type) ? `url(#arrow-${d.type})` : null);
+
+// Cost labels (hidden by default, shown on hover)
+const costLabels = linkG.selectAll("text.cost-label")
+  .data(edges.filter(e => e.type === "cost" && e.qty))
+  .join("text")
+  .attr("class","cost-label")
+  .attr("x", d => (nodeById[d.sourceId].x + nodeById[d.targetId].x) / 2)
+  .attr("y", d => (nodeById[d.sourceId].y + nodeById[d.targetId].y) / 2)
+  .attr("text-anchor","middle")
+  .attr("font-size","9px")
+  .attr("fill","#9ca3af")
+  .attr("pointer-events","none")
+  .attr("opacity",0)
+  .text(d => `×${d.qty}`);
+
+// Draw nodes
+const nodeG = g.append("g").attr("class", "nodes");
+const nodeColors = {raw:"#4ade80", advanced:"#22d3ee", tile:"#0d9488", invention:"#fb923c", tech:"#60a5fa", victory:"#fbbf24"};
+
+const nodeEls = nodeG.selectAll("g.node")
+  .data(NODES)
+  .join("g")
+  .attr("class","node")
+  .attr("transform", d => `translate(${d.x},${d.y})`)
+  .attr("data-type", d => d.type)
+  .on("click", (evt, d) => showPanel(d))
+  .on("mouseover", (evt, d) => highlight(d))
+  .on("mouseout", () => unhighlight());
+
+// Shape per type
+nodeEls.each(function(d) {
+  const el = d3.select(this);
+  const color = nodeColors[d.type] || "#888";
+  const borderColor = d.type === "raw" ? (groupColors[d.group] || color) : color;
+
+  if (d.type === "tile") {
+    el.append("rect")
+      .attr("x",-22).attr("y",-14)
+      .attr("width",44).attr("height",28)
+      .attr("rx",4)
+      .attr("fill", color).attr("fill-opacity",.25)
+      .attr("stroke", color).attr("stroke-width",2);
+  } else {
+    const r = d.type === "victory" ? 22 : d.type === "tech" ? 14 : 11;
+    el.append("circle")
+      .attr("r", r)
+      .attr("fill", color).attr("fill-opacity",.25)
+      .attr("stroke", borderColor).attr("stroke-width",2);
+  }
+
+  // Label
+  const labelY = d.type === "tile" ? 24 : (d.type === "victory" ? 30 : 20);
+  el.append("text")
+    .attr("y", labelY)
+    .attr("text-anchor","middle")
+    .attr("font-size", d.type === "raw" ? "9px" : "10px")
+    .attr("fill","#d1d5db")
+    .text(() => {
+      const n = d.name;
+      return n.length > 16 ? n.slice(0,14)+"…" : n;
+    });
+});
+
+// Tier labels at top
+const tierLabels = ["Materiales Crudos","Inventos Básicos","Edad de Piedra","Agricultura","Metalurgia","Química","Electricidad","Computación","Energía & IA","Espacio","Victoria"];
+const tierLabelG = g.append("g");
+tierLabels.forEach((lbl, i) => {
+  tierLabelG.append("text")
+    .attr("x", tierX(i))
+    .attr("y", 18)
+    .attr("text-anchor","middle")
+    .attr("font-size","11px")
+    .attr("fill","#4b5563")
+    .attr("pointer-events","none")
+    .text(lbl);
+  // Vertical guide line (only tree1)
+  tierLabelG.append("line")
+    .attr("x1", tierX(i)).attr("y1", 24)
+    .attr("x2", tierX(i)).attr("y2", TREE1_H)
+    .attr("stroke","#1f2937")
+    .attr("stroke-width",1);
+});
+
+// ── SECOND TREE: Tile Evolution ───────────────────────────────────────────────
+const T2_Y = TREE1_H + TREE_GAP;   // top of second tree
+const T2_COL_W = CANVAS_W / 5;     // width per tile column
+
+const tree2G = g.append("g").attr("class","tree2");
+
+// Section header
+tree2G.append("rect")
+  .attr("x", 0).attr("y", T2_Y - 60)
+  .attr("width", CANVAS_W).attr("height", 50)
+  .attr("fill","#1f2937");
+tree2G.append("text")
+  .attr("x", CANVAS_W / 2).attr("y", T2_Y - 28)
+  .attr("text-anchor","middle")
+  .attr("font-size","20px").attr("font-weight","bold")
+  .attr("fill","#fbbf24")
+  .text("Evolución de Casillas (Niveles 1 → 5)");
+
+// Separator line
+tree2G.append("line")
+  .attr("x1",0).attr("y1", T2_Y - 10)
+  .attr("x2", CANVAS_W).attr("y2", T2_Y - 10)
+  .attr("stroke","#374151").attr("stroke-width",2);
+
+// Row labels
+["Nivel 1","Nivel 2","Nivel 3","Nivel 4","Nivel 5 ★"].forEach((lbl,i) => {
+  const rowY = i < 4
+    ? T2_Y + i * T2_LVL_H + T2_BOX_H / 2 + 14
+    : T2_Y + 4 * T2_LVL_H + T2_BOX5_H / 2 + 14;
+  tree2G.append("text")
+    .attr("x", 80)
+    .attr("y", rowY)
+    .attr("text-anchor","middle")
+    .attr("font-size","12px")
+    .attr("fill", i === 4 ? "#fbbf24" : "#6b7280")
+    .attr("font-weight", i === 4 ? "bold" : "normal")
+    .text(lbl);
+});
+
+// Separator after row labels
+tree2G.append("line")
+  .attr("x1",120).attr("y1", T2_Y - 10)
+  .attr("x2",120).attr("y2", T2_Y + TREE2_H)
+  .attr("stroke","#374151").attr("stroke-width",1);
+
+TILE_TREE.forEach((tile, ti) => {
+  const cx = 120 + T2_COL_W * ti + T2_COL_W / 2;
+
+  // Column header (tile name)
+  tree2G.append("rect")
+    .attr("x", cx - T2_BOX_W/2).attr("y", T2_Y - 54)
+    .attr("width", T2_BOX_W).attr("height", 34)
+    .attr("rx", 4)
+    .attr("fill", tile.color).attr("fill-opacity", 0.3)
+    .attr("stroke", tile.color).attr("stroke-width", 2);
+
+  tree2G.append("text")
+    .attr("x", cx).attr("y", T2_Y - 37)
+    .attr("text-anchor","middle")
+    .attr("dominant-baseline","middle")
+    .attr("font-size","13px").attr("font-weight","bold")
+    .attr("fill", tile.color)
+    .text(tile.name);
+
+  // Levels 1-4
+  tile.levels.forEach((lvl, li) => {
+    const by = T2_Y + li * T2_LVL_H + 10;
+    const isLast = li === tile.levels.length - 1;
+    const nRes = lvl.resources.length;
+    const boxH = nRes * T2_LINE_H + T2_PADDING;  // exact height for this level
+
+    // Box — height fits all resources
+    tree2G.append("rect")
+      .attr("x", cx - T2_BOX_W/2).attr("y", by)
+      .attr("width", T2_BOX_W).attr("height", boxH)
+      .attr("rx", 4)
+      .attr("fill", tile.color).attr("fill-opacity", 0.1)
+      .attr("stroke", tile.color).attr("stroke-width", isLast ? 2 : 1)
+      .attr("stroke-opacity", isLast ? 0.8 : 0.4);
+
+    // Level label inside box (top-left)
+    tree2G.append("text")
+      .attr("x", cx - T2_BOX_W/2 + 6).attr("y", by + 10)
+      .attr("font-size","8px")
+      .attr("fill", tile.color).attr("fill-opacity", 0.8)
+      .attr("font-weight","bold")
+      .text(`Nv${lvl.lvl}`);
+
+    // All resources — no truncation
+    lvl.resources.forEach((line, lineIdx) => {
+      tree2G.append("text")
+        .attr("x", cx).attr("y", by + 14 + lineIdx * T2_LINE_H)
+        .attr("text-anchor","middle")
+        .attr("font-size","9px")
+        .attr("fill","#d1d5db")
+        .text(line);
+    });
+
+    // Tech badge if required
+    if (lvl.tech) {
+      tree2G.append("text")
+        .attr("x", cx).attr("y", by + boxH - 5)
+        .attr("text-anchor","middle")
+        .attr("font-size","8px")
+        .attr("fill","#60a5fa")
+        .text("🔬 " + lvl.tech);
+    }
+
+    // Arrow down to next level
+    if (li < 4) {
+      const arrowY1 = by + boxH;
+      const nextBy = li === 3
+        ? T2_Y + 4 * T2_LVL_H + 10   // to lvl5 box
+        : T2_Y + (li + 1) * T2_LVL_H + 10;
+      const arrowColor = li === 3 ? "#fbbf24" : tile.color;
+
+      tree2G.append("line")
+        .attr("x1", cx).attr("y1", arrowY1 + 3)
+        .attr("x2", cx).attr("y2", nextBy - 8)
+        .attr("stroke", arrowColor).attr("stroke-width", li === 3 ? 2 : 1)
+        .attr("stroke-opacity", li === 3 ? 1 : 0.5)
+        .attr("stroke-dasharray", li === 3 ? "6,3" : null);
+
+      tree2G.append("polygon")
+        .attr("points", `${cx-5},${nextBy-8} ${cx+5},${nextBy-8} ${cx},${nextBy}`)
+        .attr("fill", arrowColor)
+        .attr("opacity", li === 3 ? 1 : 0.5);
+    }
+  });
+
+  // Level 5 box (specialization)
+  const lvl5y = T2_Y + 4 * T2_LVL_H + 10;
+  const l5 = tile.lvl5;
+
+  const nRes5 = l5.resources.length;
+  const box5H = 18 + nRes5 * T2_LINE_H + 20;  // name row + resources + req badge
+
+  tree2G.append("rect")
+    .attr("x", cx - T2_BOX_W/2 - 8).attr("y", lvl5y)
+    .attr("width", T2_BOX_W + 16).attr("height", box5H)
+    .attr("rx", 6)
+    .attr("fill", l5.color).attr("fill-opacity", 0.2)
+    .attr("stroke", l5.color).attr("stroke-width", 2.5);
+
+  // Star + Name row
+  tree2G.append("text")
+    .attr("x", cx - T2_BOX_W/2 + 4).attr("y", lvl5y + 14)
+    .attr("font-size","11px").attr("fill","#fbbf24")
+    .text("★");
+
+  tree2G.append("text")
+    .attr("x", cx + 6).attr("y", lvl5y + 14)
+    .attr("text-anchor","middle")
+    .attr("font-size","10px").attr("font-weight","bold")
+    .attr("fill", l5.color)
+    .text(l5.name.length > 22 ? l5.name.slice(0,20)+"…" : l5.name);
+
+  // All resources — no truncation
+  l5.resources.forEach((r, ri) => {
+    tree2G.append("text")
+      .attr("x", cx).attr("y", lvl5y + 26 + ri * T2_LINE_H)
+      .attr("text-anchor","middle")
+      .attr("font-size","9px")
+      .attr("fill","#22d3ee")
+      .text(r);
+  });
+
+  // Tech + inv requirement
+  const reqText = l5.inv ? `🔬 ${l5.tech}  +  🔧 ${l5.inv}` : `🔬 ${l5.tech}`;
+  tree2G.append("text")
+    .attr("x", cx).attr("y", lvl5y + box5H - 5)
+    .attr("text-anchor","middle")
+    .attr("font-size","8px")
+    .attr("fill","#a78bfa")
+    .text(reqText);
+});
+
+// ── ZOOM & PAN ───────────────────────────────────────────────────────────────
+const zoom = d3.zoom()
+  .scaleExtent([0.05, 4])
+  .on("zoom", e => g.attr("transform", e.transform));
+
+svg.call(zoom);
+
+// Initial fit
+const initialScale = Math.min(W / CANVAS_W, H / CANVAS_H) * 0.9;
+const initialTx = (W - CANVAS_W * initialScale) / 2;
+const initialTy = (H - CANVAS_H * initialScale) / 2;
+svg.call(zoom.transform, d3.zoomIdentity.translate(initialTx, initialTy).scale(initialScale));
+
+svg.on("mousedown.grabbing", () => svg.classed("grabbing", true));
+svg.on("mouseup.grabbing", () => svg.classed("grabbing", false));
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  svg.transition().duration(600)
+    .call(zoom.transform, d3.zoomIdentity.translate(initialTx, initialTy).scale(initialScale));
+  clearSearch();
+});
+
+// ── HIGHLIGHT ────────────────────────────────────────────────────────────────
+function highlight(d) {
+  const connectedIds = new Set([d.id]);
+  edges.forEach(e => {
+    if (e.sourceId === d.id) connectedIds.add(e.targetId);
+    if (e.targetId === d.id) connectedIds.add(e.sourceId);
+  });
+  nodeEls.classed("dimmed", n => !connectedIds.has(n.id));
+  nodeEls.classed("highlighted", n => connectedIds.has(n.id));
+  linkEls.classed("dimmed", e => e.sourceId !== d.id && e.targetId !== d.id);
+  // Show cost labels for connected cost edges
+  costLabels.attr("opacity", e => (e.sourceId === d.id || e.targetId === d.id) ? 1 : 0);
+}
+
+function unhighlight() {
+  nodeEls.classed("dimmed highlighted", false);
+  linkEls.classed("dimmed", false);
+  costLabels.attr("opacity", 0);
+}
+
+// ── FILTER ────────────────────────────────────────────────────────────────────
+document.querySelectorAll(".filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    const f = btn.dataset.f;
+    nodeEls.style("display", d => f === "all" || d.type === f ? null : "none");
+    linkEls.style("display", e => {
+      if (f === "all") return null;
+      const s = nodeById[e.sourceId], t = nodeById[e.targetId];
+      return (s.type === f || t.type === f) ? null : "none";
+    });
+  });
+});
+
+// ── SEARCH ────────────────────────────────────────────────────────────────────
+function clearSearch() {
+  document.getElementById("search").value = "";
+  nodeEls.classed("dimmed highlighted", false);
+  linkEls.classed("dimmed", false);
+}
+
+document.getElementById("search").addEventListener("input", e => {
+  const q = e.target.value.trim().toLowerCase();
+  if (!q) { clearSearch(); return; }
+  const matches = new Set(NODES.filter(n => n.name.toLowerCase().includes(q)).map(n => n.id));
+  nodeEls.classed("dimmed", d => !matches.has(d.id));
+  nodeEls.classed("highlighted", d => matches.has(d.id));
+  linkEls.classed("dimmed", e => !matches.has(e.sourceId) && !matches.has(e.targetId));
+});
+
+// ── PANEL ─────────────────────────────────────────────────────────────────────
+const typeLabels = {raw:"Recurso Crudo", advanced:"Recurso Avanzado", tile:"Casilla Avanzada", invention:"Invento", tech:"Tecnología", victory:"🏆 Victoria"};
+const typeBadgeColors = {raw:"#4ade80", advanced:"#22d3ee", tile:"#0d9488", invention:"#fb923c", tech:"#60a5fa", victory:"#fbbf24"};
+const edgeTypeLabels = {cost:"Coste", prereq:"Prerrequisito", "prereq-inv":"Prereq. Invento", enables:"Desbloquea", produces:"Produce"};
+
+function showPanel(d) {
+  const panel = document.getElementById("panel");
+
+  // Find incoming/outgoing edges
+  const incoming = edges.filter(e => e.targetId === d.id);
+  const outgoing = edges.filter(e => e.sourceId === d.id);
+
+  const prereqs   = incoming.filter(e => e.type === "prereq").map(e => nodeById[e.sourceId]);
+  const prereqInv = incoming.filter(e => e.type === "prereq-inv").map(e => nodeById[e.sourceId]);
+  const unlocks   = outgoing.filter(e => e.type === "enables" || e.type === "prereq").map(e => nodeById[e.targetId]);
+  const produces  = outgoing.filter(e => e.type === "produces").map(e => nodeById[e.targetId]);
+  const usedIn    = outgoing.filter(e => e.type === "cost").map(e => nodeById[e.targetId]);
+  const prereqFor = outgoing.filter(e => e.type === "prereq-inv").map(e => nodeById[e.targetId]);
+
+  const badge = `<span class="badge" style="background:${typeBadgeColors[d.type]}">${typeLabels[d.type]}</span>`;
+
+  let html = `<h2>${d.name}</h2>${badge}<div style="color:#6b7280;font-size:11px;margin-top:4px">Tier ${d.tier}</div>`;
+
+  // ── COSTES: leemos directamente de d.costs (fuente de verdad)
+  if (d.costs && Object.keys(d.costs).length > 0) {
+    html += `<div class="section-title">Coste de construcción</div>`;
+    Object.entries(d.costs).forEach(([resId, qty]) => {
+      const resNode = nodeById[resId];
+      const resName = resNode ? resNode.name : resId;
+      html += `<div class="item cost" style="display:flex;justify-content:space-between;align-items:center">
+        <span>${resName}</span>
+        <span style="color:#fbbf24;font-weight:bold;margin-left:8px">×${qty}</span>
+      </div>`;
+    });
+  } else if (d.type === "invention" || d.type === "victory") {
+    html += `<div class="section-title">Coste de construcción</div>
+    <div style="color:#6b7280;font-style:italic;font-size:12px;padding:4px 8px">Sin coste en recursos</div>`;
+  }
+
+  if (prereqInv.length) {
+    html += `<div class="section-title">Requiere inventos</div>`;
+    prereqInv.forEach(n => html += `<div class="item" style="border-color:#f59e0b">${n.name}</div>`);
+  }
+
+  if (prereqs.length) {
+    html += `<div class="section-title">Requiere tecnología</div>`;
+    prereqs.forEach(n => html += `<div class="item">${n.name}</div>`);
+  }
+
+  if (unlocks.length) {
+    html += `<div class="section-title">Desbloquea</div>`;
+    unlocks.forEach(n => html += `<div class="item" style="border-color:#a78bfa">${n.name}</div>`);
+  }
+
+  if (produces.length) {
+    html += `<div class="section-title">Produce</div>`;
+    produces.forEach(n => html += `<div class="item" style="border-color:#22d3ee">${n.name}</div>`);
+  }
+
+  if (usedIn.length) {
+    html += `<div class="section-title">Usado como coste en</div>`;
+    usedIn.forEach(n => html += `<div class="item" style="border-color:#fb923c">${n.name}</div>`);
+  }
+
+  if (prereqFor.length) {
+    html += `<div class="section-title">Prerrequisito para</div>`;
+    prereqFor.forEach(n => html += `<div class="item" style="border-color:#f59e0b">${n.name}</div>`);
+  }
+
+  if (d.type === "raw") {
+    html += `<div class="section-title">Fuente</div><div class="item" style="border-color:${groupColors[d.group]||'#888'}">${d.group}</div>`;
+  }
+
+  panel.innerHTML = html;
+}
+</script>
+</body>
+</html>
