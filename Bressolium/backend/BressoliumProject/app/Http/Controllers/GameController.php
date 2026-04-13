@@ -1,14 +1,34 @@
 <?php
+/**
+ * @module GameController
+ * @description Controlador para gestionar la creación y unión a equipos.
+ * Delega la lógica de negocio en GameService.
+ */
 
 namespace App\Http\Controllers;
 
-use App\Models\Game;
-use App\Models\Round;
+use App\Services\GameService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Exception;
 
 class GameController extends Controller
 {
+    protected $gameService;
+
+    /**
+     * @param GameService $gameService
+     */
+    public function __construct(GameService $gameService)
+    {
+        $this->gameService = $gameService;
+    }
+
+    /**
+     * Crea una nueva partida/equipo.
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function create(Request $request)
     {
         $request->validate([
@@ -16,34 +36,12 @@ class GameController extends Controller
         ]);
 
         try {
-            DB::beginTransaction();
-
-            $game = Game::create([
-                'name' => $request->team_name,
-                'status' => 'WAITING'
-            ]);
-
-            // Link user to game
-            $game->users()->attach($request->user()->id, ['is_afk' => false]);
-
-            // Create Round 1
-            $round = Round::create([
-                'game_id' => $game->id,
-                'number' => 1,
-                'start_date' => now(),
-            ]);
-
-            // Link user to round
-            $round->users()->attach($request->user()->id, ['actions_spent' => 0]);
-
-            DB::commit();
-
+            $game = $this->gameService->createGame($request->team_name, $request->user()->id);
             return response()->json([
                 'success' => true,
                 'data' => $game
             ], 200);
-        } catch (\Exception $e) {
-            DB::rollBack();
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage()
@@ -51,94 +49,53 @@ class GameController extends Controller
         }
     }
 
+    /**
+     * Une al usuario a un equipo existente por su nombre.
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function join(Request $request)
     {
         $request->validate([
             'team_name' => 'required|string'
         ]);
 
-        $game = Game::where('name', $request->team_name)->first();
-
-        if (!$game) {
-            return response()->json([
-                'success' => false,
-                'error' => 'Game not found'
-            ], 404);
-        }
-
-        if ($game->users()->count() >= 5) {
-            return response()->json([
-                 'success' => false,
-                 'error' => 'Game is full'
-            ], 400);
-        }
-
         try {
-            DB::beginTransaction();
-
-            if (!$game->users()->where('user_id', $request->user()->id)->exists()) {
-                $game->users()->attach($request->user()->id, ['is_afk' => false]);
-                
-                // Add to the active round if exists
-                $latestRound = $game->rounds()->orderBy('number', 'desc')->first();
-                if ($latestRound) {
-                    $latestRound->users()->attach($request->user()->id, ['actions_spent' => 0]);
-                }
-            }
-
-            DB::commit();
-
+            $game = $this->gameService->joinGame($request->team_name, $request->user()->id);
             return response()->json([
                 'success' => true,
                 'data' => $game
             ], 200);
-        } catch (\Exception $e) {
-            DB::rollBack();
+        } catch (Exception $e) {
+            $status = ($e->getMessage() === 'Game not found') ? 404 : (($e->getMessage() === 'Game is full') ? 400 : 500);
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage()
-            ], 500);
+            ], $status);
         }
     }
 
+    /**
+     * Une al usuario a una partida aleatoria disponible.
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function joinRandom(Request $request)
     {
-        // Find a game with fewer than 5 members
-        $game = Game::withCount('users')
-            ->having('users_count', '<', 5)
-            ->first();
-
-        if (!$game) {
-            return response()->json([
-                'success' => false,
-                'error' => 'No games available'
-            ], 404);
-        }
-
         try {
-            DB::beginTransaction();
-
-            if (!$game->users()->where('user_id', $request->user()->id)->exists()) {
-                $game->users()->attach($request->user()->id, ['is_afk' => false]);
-                
-                $latestRound = $game->rounds()->orderBy('number', 'desc')->first();
-                if ($latestRound) {
-                    $latestRound->users()->attach($request->user()->id, ['actions_spent' => 0]);
-                }
-            }
-
-            DB::commit();
-
+            $game = $this->gameService->joinRandomGame($request->user()->id);
             return response()->json([
                 'success' => true,
                 'data' => $game
             ], 200);
-        } catch (\Exception $e) {
-            DB::rollBack();
+        } catch (Exception $e) {
+            $status = ($e->getMessage() === 'No games available') ? 404 : 500;
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage()
-            ], 500);
+            ], $status);
         }
     }
 }
