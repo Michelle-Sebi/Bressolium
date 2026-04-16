@@ -50,7 +50,7 @@ Los inventos construidos desbloquean nuevas tecnologías dentro de un árbol (ag
 * **Hacha:** +25% producción en Bosque.
 * **Energías Renovables:** +30% producción global.
 
-### Recursos (44 tipos)
+### Recursos (42 tipos)
 Están divididos en capas de progresión:
 * **Capa Base/Intermedia:** Roble, Hierro, Carbón, Lana, etc.
 * **Capa Avanzada (Nv 5):** Silicio, Hidrógeno, Oro, Látex, etc., generados por casillas especializadas (ej. Pozo de Goma, Extractor de Gases).
