@@ -124,11 +124,10 @@ const NODES = [
   {id:"silex",          name:"Sílex",           type:"raw", tier:0, group:"Cantera"},
   {id:"granito",        name:"Granito",         type:"raw", tier:0, group:"Cantera"},
   {id:"obsidiana",      name:"Obsidiana",       type:"raw", tier:0, group:"Cantera"},
-  // Río (nv1:agua | nv2:+cana-comun | nv3:+tierras-fertiles | nv4:+peces)
+  // Río (nv1:agua | nv2:+cana-comun | nv3:+tierras-fertiles | nv4: sin nuevo recurso)
   {id:"agua",           name:"Agua",            type:"raw", tier:0, group:"Río"},
   {id:"cana-comun",     name:"Caña Común",      type:"raw", tier:0, group:"Río"},
   {id:"tierras-fertiles",name:"Tierras Fértiles",type:"raw",tier:0, group:"Río"},
-  {id:"peces",          name:"Peces",           type:"raw", tier:0, group:"Río"},
   // Prado (nv1:lino | nv2:+yute | nv3:+canamo | nv4:+lana)
   {id:"lino",           name:"Lino",            type:"raw", tier:0, group:"Prado"},
   {id:"yute",           name:"Yute",            type:"raw", tier:0, group:"Prado"},
@@ -270,7 +269,7 @@ const NODES = [
   {id:"estacion-espacial",name:"Estación Espacial",type:"invention", tier:9,
     costs:{silicio:20,hidrogeno:15}},
   // Victory
-  {id:"nave-asentamiento",name:"Nave Interestelar", type:"victory", tier:10,
+  {id:"nave-asentamiento",name:"Nave de Asentamiento Interestelar", type:"victory", tier:10,
     costs:{silicio:400,hidrogeno:600,agua:300,"mat-aisl-nat":200}},
 ];
 
@@ -345,21 +344,21 @@ const RAW_EDGES = [
   ["internet","inteligencia-art","prereq"],
   ["computacion","inteligencia-art","prereq"],
   ["electricidad","energias-renovables","prereq"],
-  ["acero","energias-renovables","prereq"],
+  ["acero","energias-renovables","prereq-inv"],
   ["microscopio","nanotecnologia","prereq"],
   ["laser","nanotecnologia","prereq"],
   ["computacion","gps","prereq"],
   ["nanotecnologia","edicion-genetica","prereq"],
   ["microscopio","edicion-genetica","prereq"],
   ["inteligencia-art","robotica","prereq"],
-  ["acero","robotica","prereq"],
+  ["acero","robotica","prereq-inv"],
   ["edicion-genetica","biotecnologia","prereq"],
   ["penicilina","biotecnologia","prereq"],
   ["robotica","sistemas-autonomos","prereq"],
   ["inteligencia-art","sistemas-autonomos","prereq"],
-  ["telescopio","tecnologia-espacial","prereq"],
-  ["estacion-espacial","tecnologia-espacial","prereq"],
-  ["satelite","tecnologia-espacial","prereq"],
+  ["telescopio","tecnologia-espacial","prereq-inv"],
+  ["estacion-espacial","tecnologia-espacial","prereq-inv"],
+  ["satelite","tecnologia-espacial","prereq-inv"],
   ["gps","tecnologia-espacial","prereq"],
   ["tecnologia-espacial","terraformacion","prereq"],
   ["biotecnologia","terraformacion","prereq"],
@@ -388,7 +387,6 @@ const RAW_EDGES = [
   ["escritura","imprenta","enables"],
   ["imprenta","fotografia","enables"],
   ["fotografia","telescopio","enables"],
-  ["telescopio","tecnologia-espacial","enables"],
   ["electricidad","laser","enables"],
   ["electricidad","fibra-optica","enables"],
   ["computacion","telefono-movil","enables"],
@@ -563,7 +561,7 @@ const TILE_TREE = [
       { lvl: 4, resources: ["roble ×9", "pino ×9", "carbón-natural ×9", "pieles ×9"], tech: "Ganadería" },
     ],
     lvl5: { name: "Pozo de Goma y Resina", tech: "Química", inv: null,
-            resources: ["ámbar ×8","látex ×8","resinas-inflamables ×8","mat. aislantes ×4"], color: "#a16207" }
+            resources: ["látex ×8","resinas-inflamables ×8","mat. aislantes ×4"], color: "#a16207" }
   },
   {
     id: "t-cantera", name: "Cantera", color: "#78716c", x: 1,
@@ -582,7 +580,7 @@ const TILE_TREE = [
       { lvl: 1, resources: ["agua ×5"] },
       { lvl: 2, resources: ["agua ×8", "caña-común ×8"] },
       { lvl: 3, resources: ["agua ×8", "caña-común ×8", "tierras-fértiles ×8"] },
-      { lvl: 4, resources: ["agua ×9", "caña-común ×9", "tierras-fértiles ×9", "peces ×9"], tech: "Agricultura" },
+      { lvl: 4, resources: ["agua ×9", "caña-común ×9", "tierras-fértiles ×9"], tech: "Agricultura" },
     ],
     lvl5: { name: "Extractor de Gases", tech: "Química", inv: null,
             resources: ["hidrógeno ×10","gases-naturales ×8"], color: "#0e7490" }
@@ -595,7 +593,7 @@ const TILE_TREE = [
       { lvl: 3, resources: ["lino ×8", "yute ×8", "cáñamo ×8"] },
       { lvl: 4, resources: ["lino ×9", "yute ×9", "cáñamo ×9", "lana ×9"], tech: "Ganadería" },
     ],
-    lvl5: { name: "Granja Organizada", tech: "Agricultura", inv: "Arado",
+    lvl5: { name: "Granja Organizada", tech: "Agricultura + Tejido + Conservación", inv: "Arado",
             resources: ["tierras-fértiles ×8"], color: "#166534" }
   },
   {
@@ -606,7 +604,7 @@ const TILE_TREE = [
       { lvl: 3, resources: ["cobre ×10", "hierro ×10", "estaño ×10"], tech: "Metalurgia y Aleaciones" },
       { lvl: 4, resources: ["cobre ×12", "hierro ×12", "estaño ×12", "grafito ×12"], tech: "Metalurgia y Aleaciones" },
     ],
-    lvl5: { name: "Mina de Minerales", tech: "Metalurgia y Aleaciones", inv: null,
+    lvl5: { name: "Mina de Minerales", tech: "Metalurgia y Aleaciones", inv: "Brújula",
             resources: ["oro ×8","mat. magnéticos ×8"], color: "#7c3aed" }
   },
 ];

@@ -37,7 +37,7 @@ Cada casilla sigue una progresión estricta donde el nivel determina la cantidad
 | **2** | `roble`, `pino` | ×8 cada | — | — |
 | **3** | `roble`, `pino`, `carbon-natural` | ×8 cada | — | — |
 | **4** | `roble`, `pino`, `carbon-natural`, `pieles` | ×9 cada | **Ganadería** | — |
-| **5** | `ambar`, `latex`, `resinas-inflamables` | ×8 cada; `mat-aisl-nat` | ×4 | **Química** | — |
+| **5** | `latex`, `resinas-inflamables` | ×8 cada; `mat-aisl-nat` | ×4 | **Química** | — |
 | | **Pozo de Goma y Resina** | — | — | — |
 
 **Bonificadores disponibles**:
@@ -47,7 +47,6 @@ Cada casilla sigue una progresión estricta donde el nivel determina la cantidad
 **Notas de diseño**:
 - Nivel 4 desbloquea `pieles` (requisito: Ganadería), usado en invento Carro
 - Nivel 5 especializado en materiales orgánicos avanzados:
-  - `ambar`: Brújula
   - `latex`: Penicilina
   - `resinas-inflamables`: Batería
   - `mat-aisl-nat`: Fibra Óptica
@@ -78,7 +77,7 @@ Cada casilla sigue una progresión estricta donde el nivel determina la cantidad
   - `arena-de-silice`: ingrediente en Vidrio y Microscopio
   - `arena-de-cuarzo`: óptica (Telescopio, Láser)
   - `cristales-nat`: Láser
-  - `silicio`: Láser, Fibra Óptica, Teléfono Móvil, Satélite, Estación Espacial, Nave
+  - `silicio`: Láser, Fibra Óptica, Teléfono Móvil, Satélite, Estación Espacial, Nave de Asentamiento Interestelar
   - `min-semi`: Teléfono Móvil
 
 ---
@@ -92,7 +91,7 @@ Cada casilla sigue una progresión estricta donde el nivel determina la cantidad
 | **1** | `agua` | ×5 | — | — |
 | **2** | `agua`, `cana-comun` | ×8 cada | — | — |
 | **3** | `agua`, `cana-comun`, `tierras-fertiles` | ×8 cada | — | — |
-| **4** | `agua`, `cana-comun`, `tierras-fertiles`, `peces` | ×9 cada | **Agricultura** | — |
+| **4** | `agua`, `cana-comun`, `tierras-fertiles` | ×9 cada | **Agricultura** | — |
 | **5** | `hidrogeno` | ×10; `gases-naturales` | ×8 | **Química** | — |
 | | **Extractor de Gases** | — | — | — |
 
@@ -101,12 +100,12 @@ Cada casilla sigue una progresión estricta donde el nivel determina la cantidad
 - Energías Renovables: +30% producción (global)
 
 **Notas de diseño**:
-- Nivel 2 añade `cana-comun` (usado en Refugios y Salazón)
+- Nivel 2 añade `cana-comun` (usado en Refugios y Papel)
 - Nivel 3 añade `tierras-fertiles` (usado en Penicilina)
-- Nivel 4 requiere Agricultura; añade `peces` (×12, usado en Salazón)
+- Nivel 4 requiere Agricultura
 - Nivel 5 especializado (solo Química, sin invento requisito):
-  - `hidrogeno`: Estación Espacial, Nave
-  - `gases-naturales`: Satélite, Nave
+  - `hidrogeno`: Estación Espacial, Nave de Asentamiento Interestelar
+  - `gases-naturales`: Satélite, Nave de Asentamiento Interestelar
 
 ---
 
@@ -175,7 +174,7 @@ Cada casilla sigue una progresión estricta donde el nivel determina la cantidad
 | 2 | roble×8 + pino×8 | — | — | 16 |
 | 3 | roble×8 + pino×8 + carbon-natural×8 | — | — | 24 |
 | 4 | roble×9 + pino×9 + carbon-natural×9 + pieles×9 | Ganadería | — | 36 |
-| 5 | ambar×8 + latex×8 + resinas-inflamables×8 + mat-aisl-nat×4 | Química | — | 28 |
+| 5 | latex×8 + resinas-inflamables×8 + mat-aisl-nat×4 | Química | — | 20 |
 
 ### Cantera
 
@@ -194,7 +193,7 @@ Cada casilla sigue una progresión estricta donde el nivel determina la cantidad
 | 1 | agua×5 | — | — | 5 |
 | 2 | agua×8 + cana-comun×8 | — | — | 16 |
 | 3 | agua×8 + cana-comun×8 + tierras-fertiles×8 | — | — | 24 |
-| 4 | agua×9 + cana-comun×9 + tierras-fertiles×9 + peces×9 | Agricultura | — | 36 |
+| 4 | agua×9 + cana-comun×9 + tierras-fertiles×9 | Agricultura | — | 27 |
 | 5 | hidrogeno×10 + gases-naturales×8 | Química | — | 18 |
 
 ### Prado
@@ -225,9 +224,9 @@ Cada casilla tipo tiene una especialización única en Nivel 5, produciendo recu
 
 | Casilla Tipo | Especialización (Nv5) | Requisito | Recursos (×8 cada) | Uso Principal |
 |---|---|---|---|---|
-| **Bosque** | Pozo de Goma y Resina | Química | Ámbar, Látex, Resinas Inflamables, Mat. Aislantes | Orgánicos avanzados: Brújula, Penicilina, Batería, Fibra Óptica |
+| **Bosque** | Pozo de Goma y Resina | Química | Látex, Resinas Inflamables, Mat. Aislantes | Orgánicos avanzados: Penicilina, Batería, Fibra Óptica |
 | **Cantera** | Cantera de Sílice | Herramientas de Piedra + Hacha | Arena Sílice, Arena Cuarzo, Cristales Nat., Silicio, Min. Semi. | Vidrio, óptica, semiconductores, tecnología espacial |
-| **Río** | Extractor de Gases | Química | Hidrógeno, Gases Naturales | Satélite, Estación Espacial, Nave |
+| **Río** | Extractor de Gases | Química | Hidrógeno, Gases Naturales | Satélite, Estación Espacial, Nave de Asentamiento Interestelar |
 | **Prado** | Granja Organizada | Agricultura + Tejido + Conservación de Alimentos + Arado | Tierras Fértiles | Regenera recurso para Penicilina |
 | **Mina** | Mina de Minerales | Metalurgia y Aleaciones + Brújula | Oro, Mat. Magnéticos | Moneda, Brújula, Teléfono Móvil |
 
@@ -237,7 +236,7 @@ Cada casilla tipo tiene una especialización única en Nivel 5, produciendo recu
 
 ### Validación: Cada Recurso Tiene Al Menos Un Uso
 
-Todos los 44 recursos en el juego son usados en al menos un invento o tecnología. A continuación se listan por categoría:
+Todos los 42 recursos en el juego son usados en al menos un invento o tecnología. A continuación se listan por categoría:
 
 #### Capa Base (Recursos Nivel 1-2)
 
@@ -248,7 +247,7 @@ Todos los 44 recursos en el juego son usados en al menos un invento o tecnologí
 | `silex` | Cantera Nv1-4 | Lanza, Hacha, Arcos, Rueda |
 | `granito` | Cantera Nv2-4 | Molino, Acueducto |
 | `agua` | Río Nv1-4 | Cerámica, Penicilina, Acueducto, Papel |
-| `cana-comun` | Río Nv2-4 | Refugios, Salazón, Papel |
+| `cana-comun` | Río Nv2-4 | Refugios, Papel |
 | `lino` | Prado Nv1-4 | Cuerda, Tela |
 | `yute` | Prado Nv2-4 | Tela |
 | `cobre` | Mina Nv1-4 | Moneda, Brújula, Reloj, Bombilla |
@@ -261,9 +260,7 @@ Todos los 44 recursos en el juego son usados en al menos un invento o tecnologí
 | `carbon-natural` | Bosque Nv3-4 | Acero |
 | `pieles` | Bosque Nv4 | Carro |
 | `obsidiana` | Cantera Nv3-4 | Cuchillo |
-| `caolinita` | Cantera Nv4 | Cerámica |
 | `tierras-fertiles` | Río Nv3-4, Prado Nv5 | Penicilina |
-| `peces` | Río Nv4 | Salazón |
 | `canamo` | Prado Nv3-4 | Cuerda, Barco |
 | `lana` | Prado Nv4 | Tela |
 | `estano` | Mina Nv3-4 | Batería |
@@ -273,17 +270,16 @@ Todos los 44 recursos en el juego son usados en al menos un invento o tecnologí
 
 | Recurso | Producido en | Usado en Inventos |
 |---|---|---|
-| `ambar` | Bosque Nv5 | Brújula |
 | `latex` | Bosque Nv5 | Penicilina |
 | `resinas-inflamables` | Bosque Nv5 | Batería |
 | `mat-aisl-nat` | Bosque Nv5 | Fibra Óptica |
 | `arena-de-silice` | Cantera Nv5 | Vidrio, Microscopio |
 | `arena-de-cuarzo` | Cantera Nv5 | Telescopio |
 | `cristales-nat` | Cantera Nv5 | Láser |
-| `silicio` | Cantera Nv5 | Láser, Fibra Óptica, Teléfono Móvil, Satélite, Estación Espacial, Nave |
+| `silicio` | Cantera Nv5 | Láser, Fibra Óptica, Teléfono Móvil, Satélite, Estación Espacial, Nave de Asentamiento Interestelar |
 | `min-semi` | Cantera Nv5 | Teléfono Móvil |
-| `hidrogeno` | Río Nv5 | Estación Espacial, Nave |
-| `gases-naturales` | Río Nv5 | Satélite, Nave |
+| `hidrogeno` | Río Nv5 | Estación Espacial, Nave de Asentamiento Interestelar |
+| `gases-naturales` | Río Nv5 | Satélite, Nave de Asentamiento Interestelar |
 | `tierras-fertiles` | Río Nv3-4, Prado Nv5 | Penicilina |
 | `oro` | Mina Nv5 | Moneda |
 | `mat-mag-nat` | Mina Nv5 | Brújula, Teléfono Móvil |
@@ -300,7 +296,7 @@ Durante el diseño del juego se eliminaron recursos para optimizar la progresió
 | `totora` | Río Nv2 | Recurso muy específico, sin uso claro | Eliminado; `cana-comun` más versátil |
 | `carrizo` | Río Nv4 | Recurso muy específico, sin uso claro | Eliminado; `cana-comun` ya cubierto |
 | `tendones` | Prado Nv4 | Huérfano sin invento claro | Movido a sub-producto de Ganadería |
-| `sal` | Mina Nv4 | Huérfano; Salazón usa `cana-comun` | Eliminado; `cana-comun` más lógico |
+| `sal` | Mina Nv4 | Huérfano sin invento asociado | Eliminado |
 | `plomo` | Mina Nv5 | Recurso sin uso definitivo en cadena tech | Eliminado; no hay invento asociado |
 | `lantano` / `cerio` | Mina Nv5 | Sin uso en inventos | Eliminados |
 | `cuarzo` (independiente) | Cantera Nv3 | Absorbido en recurso compuesto | Transformado a `arena-de-cuarzo` (Nv5 Cantera) |
@@ -333,10 +329,10 @@ PUEBLO = 'pueblo'  # casilla especial (sin evolución)
 - `roble`, `pino`, `silex`, `granito`, `agua`, `cana-comun`, `lino`, `yute`, `cobre`, `hierro`
 
 **Capa Intermedia**:
-- `carbon-natural`, `pieles`, `obsidiana`, `tierras-fertiles`, `peces`, `canamo`, `lana`, `estano`, `grafito`
+- `carbon-natural`, `pieles`, `obsidiana`, `tierras-fertiles`, `canamo`, `lana`, `estano`, `grafito`
 
 **Capa Avanzada (Nv5)**:
-- `ambar`, `latex`, `resinas-inflamables`, `mat-aisl-nat` (Bosque)
+- `latex`, `resinas-inflamables`, `mat-aisl-nat` (Bosque)
 - `arena-de-silice`, `arena-de-cuarzo`, `cristales-nat`, `silicio`, `min-semi` (Cantera)
 - `hidrogeno`, `gases-naturales` (Río)
 - `tierras-fertiles` extra (Prado)

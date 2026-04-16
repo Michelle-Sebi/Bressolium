@@ -82,7 +82,7 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Área**: [BACKEND]
 - **Asignado a**: Bárbara
 - **Bloqueado por**: Tarea 21
-- **Descripción**: Generación algorítmica de la matriz de tablero (10x10) aleatoria al crear equipo. Endpoint `GET /api/board`. (Implementar usando arquitectura Controller -> Service -> Repository).
+- **Descripción**: Generación algorítmica de la matriz de tablero (15x15) aleatoria al crear equipo. Endpoint `GET /api/board`. (Implementar usando arquitectura Controller -> Service -> Repository).
 
 ### Tarea 8
 - **Título**: `[Feat] Individual Actions API (Explore / Upgrade)`

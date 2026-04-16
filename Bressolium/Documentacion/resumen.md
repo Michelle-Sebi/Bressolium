@@ -3,7 +3,7 @@
 Se trata de un juego estratégico cooperativo en el que varios jugadores (entre uno y cinco) controlan juntos el desarrollo de una civilización.
 La interfaz principal es un panel compartido donde se ven los recursos globales (como materiales, inventos y tecnologías). 
 
-El tablero es fijo y está compuesto por casillas. Se compone de (numero a decidir) casillas. Cada casilla genera un tipo de material asignado de forma aleatoria al principio de la partida. Cada jugador comienza la partida en una casilla asignada.
+El tablero es fijo y está compuesto por casillas. Se compone de 225 casillas (matriz de 15×15). Cada casilla genera un tipo de material asignado de forma aleatoria al principio de la partida. Cada jugador comienza la partida en una casilla asignada.
 
 El juego se desarrolla de forma cíclica en unidades llamadas “Jornadas”. Cada jornada comprende todos los turnos individuales más un turno del equipo, en el que se ejecutan los resultados de las votaciones individuales, consumiéndose los recursos invertidos en la ejecución de las votaciones. Al inicio de la jornada siguiente, se generan los recursos correspondientes a las casillas descubiertas y evolucionadas así como las investigaciones tecnológicas y las creaciones de inventos.
 

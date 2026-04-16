@@ -61,7 +61,6 @@
 - neodimio
 - lantano
 - cerio
-- ambar
 - goma-arabiga
 - latex
 - resinas inflamables

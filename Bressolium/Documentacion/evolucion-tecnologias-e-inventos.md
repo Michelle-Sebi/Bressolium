@@ -78,7 +78,7 @@ Las tecnologías forman cadenas de dependencia. A continuación se listan todas 
 | `edicion-genetica` | Edición Genética | Microscopio | Nanotecnología | Tech: Biotecnología | +20% Granja |
 | `biotecnologia` | Biotecnología | Penicilina | Edición Genética | Tech: Terraformación | -30% eventos |
 | `sistemas-autonomos` | Sistemas Autónomos | — | Robótica, IA | Tech: Terraformación | -15% coste acciones |
-| `tecnologia-espacial` | Tecnología Espacial | Telescopio, Estación Espacial | Satélite, GPS | Invento: Nave de Asentamiento | +0% |
+| `tecnologia-espacial` | Tecnología Espacial | Telescopio, Estación Espacial | Satélite, GPS | Invento: Nave de Asentamiento Interestelar | +0% |
 | `terraformacion` | Terraformación | — | Tecnología Espacial, Biotecnología, Sistemas Autónomos | Invento: Nave de Asentamiento Interestelar | +0% |
 
 ---
@@ -109,7 +109,7 @@ Los inventos son construcciones concretas que consumen recursos específicos. Se
 | `ceramica-inv` | Cerámica | Control del Fuego | — | granito×10, agua×5 | Tech: Cerámica y Alfarería | — |
 | `barco` | Barco | Agricultura | `cuerda` | roble×20, pino×15, canamo×8 | Invento: Brújula | — |
 | `molino` | Molino | Agricultura | `carro` | granito×15, roble×10 | — | +20% Granja |
-| `acueducto` | Acueducto | Agricultura | — | granito×20, agua×10 | Tech: Calefacción y Refrigeración | +30% Río |
+| `acueducto` | Acueducto | Agricultura | — | granito×20, agua×10 | — | +30% Río |
 | `arado` | Arado | Agricultura | — | roble×10, hierro×5 | Nv5 Prado | — |
 
 ### Edad de Bronce (Metalurgia)
@@ -191,7 +191,6 @@ Para ganar el juego (construir Nave de Asentamiento Interestelar) se debe seguir
    - Desbloquea: Nv5 Prado (junto con Agricultura, Conservación de Alimentos y Arado)
 
 6. **Conservación de Alimentos** (requiere: Acueducto + Tech Fermentación)
-   - Invento: Salazón → usa peces (Río Nv4)
    - Desbloquea: Nv5 Prado (junto con Agricultura, Tejido y Arado)
 
 7. **Cerámica y Alfarería** (requiere: Control del Fuego + Cerámica invento)
@@ -281,7 +280,7 @@ Referencia rápida. Columnas separadas para prerequisitos (no se consumen) y cos
 | Cerámica | Control del Fuego | — | granito×10, agua×5 | Tech: Cerámica y Alfarería |
 | Barco | Agricultura | `cuerda` | roble×20, pino×15, canamo×8 | Invento: Brújula |
 | Molino | Agricultura | `carro` | granito×15, roble×10 | — |
-| Acueducto | Agricultura | — | granito×20, agua×10 | Tech: Calefacción y Refrigeración |
+| Acueducto | Agricultura | — | granito×20, agua×10 | — |
 | Arado | Agricultura | — | roble×10, hierro×5 | Nv5 Prado |
 | Vidrio | Cerámica y Alfarería | — | arena-de-silice×15, arena-de-cuarzo×10 | Tech: Química |
 | Acero | Metalurgia y Aleaciones | — | hierro×20, carbon-natural×15, grafito×5 | Tech: Escritura, Química |
@@ -301,7 +300,7 @@ Referencia rápida. Columnas separadas para prerequisitos (no se consumen) y cos
 | Avión | Energías Renovables | `cuerda`, `acero` | carbon-natural×20, hierro×15 | Exploración libre |
 | Satélite | Energías Renovables + GPS | `acero` | silicio×15, gases-naturales×10 | Tech: Tecnología Espacial |
 | Estación Espacial | Energías Renovables | `acero` | silicio×20, hidrogeno×15 | Tech: Tecnología Espacial |
-| **Nave de Asentamiento** | **Terraformación** | **`estacion-espacial`, `acero`, `vidrio`** | **silicio×400, hidrogeno×600, agua×300, mat-aisl-nat×200** | **FIN DEL JUEGO** |
+| **Nave de Asentamiento Interestelar** | **Terraformación** | **`estacion-espacial`, `acero`, `vidrio`** | **silicio×400, hidrogeno×600, agua×300, mat-aisl-nat×200** | **FIN DEL JUEGO** |
 
 ---
 
