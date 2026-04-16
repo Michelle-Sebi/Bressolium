@@ -34,14 +34,14 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Asignado a**: Michelle
 - **Descripción**: Endpoints para crear equipo y generación automática de la primera ronda.
 
-### Tarea 20
+### Tarea 20 [TERMINADA]
 - **Título**: `[Refactor] Mover lógica de Auth y Teams a Servicios y Repositorios`
 - **Estimación**: S
 - **Área**: [BACKEND]
 - **Asignado a**: Bárbara
 - **Descripción**: Extraer la lógica escrita en los controladores creados en las Tareas 2 y 4 para adaptarla al patrón Controller -> Service -> Repository. Los tests no deberían romperse.
 
-### Tarea 5
+### Tarea 5 [TERMINADA]
 - **Título**: `[Feat] Game Lobby & Team Manager UI`
 - **Estimación**: M
 - **Área**: [FRONTEND]
@@ -68,19 +68,27 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Asignado a**: Michelle
 - **Descripción**: Migraciones para tiles, tile_types y producción de materiales inicial.
 
+### Tarea 21
+- **Título**: `[Refactor] DB Migration V5a: Tile Schema Correction`
+- **Estimación**: M
+- **Área**: [BASE DE DATOS]
+- **Asignado a**: Michelle
+- **Bloqueado por**: Tarea 6
+- **Descripción**: Corregir el schema de casillas para alinearlo con el diseño de 5 niveles. Añadir columna `base_type` (enum: bosque, cantera, rio, prado, veta, pueblo) a `tile_types`: es la clave para identificar la familia del terreno con independencia del nivel o del nombre visible. El campo `name` en `tile_types` almacena el nombre de presentación, que en nivel 5 es el nombre especializado (ej: el registro bosque-lv5 tiene `base_type=bosque` y `name="Pozo de Goma y Resina"`). Añadir columnas `tech_required` e `invention_required` a `material_tile_type`. Añadir `explored_by_player_id` y `explored_at` a `tiles`. Añadir `tier` y `group` a `materials`. Añadir el tipo `pueblo` al catálogo. Los tests existentes no deben romperse (cambios aditivos).
+
 ### Tarea 7
 - **Título**: `[Feat] Board Generator and API Controller`
 - **Estimación**: L
 - **Área**: [BACKEND]
-- **Asignado a**: Michelle
-- **Bloqueado por**: Tarea 6
+- **Asignado a**: Bárbara
+- **Bloqueado por**: Tarea 21
 - **Descripción**: Generación algorítmica de la matriz de tablero (10x10) aleatoria al crear equipo. Endpoint `GET /api/board`. (Implementar usando arquitectura Controller -> Service -> Repository).
 
 ### Tarea 8
 - **Título**: `[Feat] Individual Actions API (Explore / Upgrade)`
 - **Estimación**: L
 - **Área**: [BACKEND]
-- **Asignado a**: Michelle
+- **Asignado a**: Bárbara
 - **Bloqueado por**: Tarea 7
 - **Descripción**: Endpoints POST para realizar jugadas. Validación de acciones diarias en `round_user` y costes de materiales en `game_material`. (Implementar usando arquitectura Controller -> Service -> Repository).
 
@@ -89,7 +97,7 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Estimación**: XL
 - **Área**: [FRONTEND]
 - **Asignado a**: Michelle
-- **Bloqueado por**: Tarea 7
+- **Bloqueado por**: Tarea 7, Tarea 23
 - **HUs**: 2.1, 2.2, 2.6
 - **Descripción**: Componente central de mapa (CSS Grid). Renderizado de casillas descubiertas y gestión de "niebla de guerra". Conexión con API de acciones.
 
@@ -134,7 +142,7 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Título**: `[Feat] Schedule / Cron Round Close and Round Jump`
 - **Estimación**: XL
 - **Área**: [BACKEND]
-- **Asignado a**: Bárbara
+- **Asignado a**: Michelle
 - **Bloqueado por**: Tarea 11
 - **Descripción**: Job de Laravel para procesar el salto de turno: resuelve ganador de votos, aplica costes/recompensas, suma producción y crea nueva Round.
 
@@ -148,6 +156,30 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Área**: [BASE DE DATOS]
 - **Asignado a**: Bárbara
 - **Descripción**: Tablas de árbol tecnológico (technologies, inventions, recipes) y tablas de progreso por partida.
+
+### Tarea 22
+- **Título**: `[Refactor] DB Migration V5b: Tech Tree Normalization`
+- **Estimación**: M
+- **Área**: [BASE DE DATOS]
+- **Asignado a**: Bárbara
+- **Bloqueado por**: Tarea 14
+- **Descripción**: Normalizar el schema de tecnologías e inventos separando prerequisitos de costes. Crear `invention_prerequisites(invention_id, prereq_type ENUM[invention|technology], prereq_id)` y `technology_prerequisites(technology_id, prereq_type, prereq_id)`. Refactorizar `recipes` hacia `invention_costs(invention_id, resource_id, quantity)` donde los costes son siempre recursos de casilla, nunca invention_ids. Crear `technology_bonuses(technology_id, bonus_type, bonus_value, bonus_target)` e `invention_bonuses`. Crear `technology_unlocks` e `invention_unlocks` con `unlock_type ENUM[technology|invention|tile_level]`. Los tests existentes no deben romperse (cambios aditivos).
+
+### Tarea 23
+- **Título**: `[Feat] Catalog Seeders: Complete Game Data`
+- **Estimación**: L
+- **Área**: [BASE DE DATOS]
+- **Asignado a**: Michelle
+- **Bloqueado por**: Tarea 21, Tarea 22
+- **Descripción**: Poblar el catálogo completo del juego con seeders. Incluye: `ResourcesSeeder` (44 recursos con tier y group), `TileLevelResourcesSeeder` (5 tipos × 5 niveles con cantidades y requisitos de tech e invento), `TechnologiesSeeder` (31 tecnologías con prerequisitos, desbloqueos y bonificadores), `InventionsSeeder` (34 inventos con prerequisitos, costes, bonificadores y desbloqueos). Desbloquea la implementación verificable de las Tareas 7, 8, 11 y 13.
+
+### Tarea 24
+- **Título**: `[Chore] Update ER Diagram to V5`
+- **Estimación**: S
+- **Área**: [DOCUMENTACIÓN]
+- **Asignado a**: Michelle
+- **Bloqueado por**: Tarea 21, Tarea 22
+- **Descripción**: Actualizar el diagrama ER_v4.html a V5 reflejando todos los cambios de schema introducidos en las Tareas 21 y 22: nuevas tablas `invention_prerequisites`, `technology_prerequisites`, `invention_costs`, `technology_bonuses`, `invention_bonuses`, `technology_unlocks`, `invention_unlocks`, columna `base_type` en `tile_types`, y atributos `tier`, `group` en `materials`.
 
 ### Tarea 19
 - **Título**: `[Feat] Technology Tree & Progress Archive`
