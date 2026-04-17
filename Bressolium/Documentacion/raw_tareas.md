@@ -74,7 +74,7 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Área**: [BASE DE DATOS]
 - **Asignado a**: Michelle
 - **Bloqueado por**: Tarea 6
-- **Descripción**: Corregir el schema de casillas para alinearlo con el diseño de 5 niveles. Añadir columna `base_type` (enum: bosque, cantera, rio, prado, veta, pueblo) a `tile_types`: es la clave para identificar la familia del terreno con independencia del nivel o del nombre visible. El campo `name` en `tile_types` almacena el nombre de presentación, que en nivel 5 es el nombre especializado (ej: el registro bosque-lv5 tiene `base_type=bosque` y `name="Pozo de Goma y Resina"`). Añadir columnas `tech_required` e `invention_required` a `material_tile_type`. Añadir `explored_by_player_id` y `explored_at` a `tiles`. Añadir `tier` y `group` a `materials`. Añadir el tipo `pueblo` al catálogo. Los tests existentes no deben romperse (cambios aditivos).
+- **Descripción**: Corregir el schema de casillas para alinearlo con el diseño de 5 niveles. Añadir columna `base_type` (enum: bosque, cantera, rio, prado, mina, pueblo) a `tile_types`: es la clave para identificar la familia del terreno con independencia del nivel o del nombre visible. El campo `name` en `tile_types` almacena el nombre de presentación, que en nivel 5 es el nombre especializado (ej: el registro bosque-lv5 tiene `base_type=bosque` y `name="Pozo de Goma y Resina"`). Añadir columnas `tech_required` e `invention_required` a `material_tile_type`. Añadir `explored_by_player_id` y `explored_at` a `tiles`. Añadir `tier` y `group` a `materials`. Añadir el tipo `pueblo` al catálogo. Los tests existentes no deben romperse (cambios aditivos).
 
 ### Tarea 7
 - **Título**: `[Feat] Board Generator and API Controller`
