@@ -12,6 +12,8 @@ class Material extends Model
 
     protected $fillable = [
         'name',
+        'tier',
+        'group',
     ];
 
     public function recipes(): \Illuminate\Database\Eloquent\Relations\HasMany
