@@ -9,6 +9,7 @@ namespace App\Services;
 use App\Repositories\GameRepository;
 use App\Repositories\RoundRepository;
 use App\Models\Game;
+use App\Services\BoardGeneratorService;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
@@ -16,11 +17,16 @@ class GameService
 {
     protected $gameRepository;
     protected $roundRepository;
+    protected $boardGenerator;
 
-    public function __construct(GameRepository $gameRepository, RoundRepository $roundRepository)
-    {
+    public function __construct(
+        GameRepository $gameRepository,
+        RoundRepository $roundRepository,
+        BoardGeneratorService $boardGenerator
+    ) {
         $this->gameRepository = $gameRepository;
         $this->roundRepository = $roundRepository;
+        $this->boardGenerator = $boardGenerator;
     }
 
     /**
@@ -51,6 +57,9 @@ class GameService
 
             // Vincular usuario a la ronda
             $round->users()->attach($userId, ['actions_spent' => 0]);
+
+            // Generar tablero 15×15
+            $this->boardGenerator->generate($game->id);
 
             return $game;
         });

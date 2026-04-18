@@ -17,4 +17,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/game/join-random', [\App\Http\Controllers\GameController::class, 'joinRandom']);
     Route::get('/game/my', [\App\Http\Controllers\GameController::class, 'myGames']);
     Route::get('/game/all', [\App\Http\Controllers\GameController::class, 'allGames']);
+
+    Route::get('/board/{gameId}', [\App\Http\Controllers\BoardController::class, 'show']);
 });
