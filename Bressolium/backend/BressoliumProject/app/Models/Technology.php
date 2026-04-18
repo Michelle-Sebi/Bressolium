@@ -36,4 +36,28 @@ class Technology extends Model
                     ->withPivot('is_active')
                     ->withTimestamps();
     }
+
+    /**
+     * Prerequisitos necesarios para desbloquear esta tecnología.
+     */
+    public function technologyPrerequisites(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TechnologyPrerequisite::class);
+    }
+
+    /**
+     * Bonificadores que otorga esta tecnología al equipo.
+     */
+    public function technologyBonuses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TechnologyBonus::class);
+    }
+
+    /**
+     * Desbloqueos (tecnologías, inventos o niveles de casilla) que activa esta tecnología.
+     */
+    public function technologyUnlocks(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TechnologyUnlock::class);
+    }
 }
