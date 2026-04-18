@@ -31,4 +31,36 @@ class Invention extends Model
                     ->withPivot('is_active')
                     ->withTimestamps();
     }
+
+    /**
+     * Prerequisitos necesarios para poder construir este invento.
+     */
+    public function inventionPrerequisites(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(InventionPrerequisite::class);
+    }
+
+    /**
+     * Costes en materiales (recursos) que se consumen al construir este invento.
+     */
+    public function inventionCosts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(InventionCost::class);
+    }
+
+    /**
+     * Bonificadores que activa este invento para el equipo.
+     */
+    public function inventionBonuses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(InventionBonus::class);
+    }
+
+    /**
+     * Desbloqueos (tecnologías, inventos o niveles de casilla) que activa este invento.
+     */
+    public function inventionUnlocks(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(InventionUnlock::class);
+    }
 }

@@ -44,9 +44,14 @@ test('existen las tablas de bonificadores para tecnologías e inventos', functio
         ->and(Schema::hasTable('invention_bonuses'))->toBeTrue();
 });
 
-test('technology_bonuses tiene las columnas de tipo, valor y objetivo del bonificador', function () {
+test('las tablas de bonificadores tienen las columnas de relacion, tipo, valor y objetivo', function () {
     expect(Schema::hasColumns('technology_bonuses', [
         'technology_id',
+        'bonus_type',
+        'bonus_value',
+        'bonus_target',
+    ]))->toBeTrue()->and(Schema::hasColumns('invention_bonuses', [
+        'invention_id',
         'bonus_type',
         'bonus_value',
         'bonus_target',
@@ -58,9 +63,9 @@ test('existen las tablas de desbloqueos para tecnologías e inventos', function 
         ->and(Schema::hasTable('invention_unlocks'))->toBeTrue();
 });
 
-test('technology_unlocks y invention_unlocks tienen el campo unlock_type', function () {
-    expect(Schema::hasColumn('technology_unlocks', 'unlock_type'))->toBeTrue()
-        ->and(Schema::hasColumn('invention_unlocks', 'unlock_type'))->toBeTrue();
+test('technology_unlocks y invention_unlocks tienen las columnas correctas', function () {
+    expect(Schema::hasColumns('technology_unlocks', ['technology_id', 'unlock_type', 'unlock_id']))->toBeTrue()
+        ->and(Schema::hasColumns('invention_unlocks', ['invention_id', 'unlock_type', 'unlock_id']))->toBeTrue();
 });
 
 test('un invento puede tener otro invento como prerequisito (no se consume)', function () {
@@ -137,6 +142,53 @@ test('una tecnología puede registrar desbloqueos de tipo technology, invention 
     ]);
 
     expect($tech->technologyUnlocks)->toHaveCount(3);
+});
+
+test('una tecnología puede tener una tecnología como prerequisito', function () {
+    $tech1 = Technology::create(['name' => 'Fuego']);
+    $tech2 = Technology::create(['name' => 'Cocina']);
+
+    $tech2->technologyPrerequisites()->create([
+        'prereq_type' => 'technology',
+        'prereq_id'   => $tech1->id,
+    ]);
+
+    expect($tech2->technologyPrerequisites)->toHaveCount(1)
+        ->and($tech2->technologyPrerequisites->first()->prereq_type)->toBe('technology')
+        ->and($tech2->technologyPrerequisites->first()->prereq_id)->toBe($tech1->id);
+});
+
+test('se pueden registrar bonificadores estructurales para tecnologías e inventos', function () {
+    $tech = Technology::create(['name' => 'Rueda']);
+    $inv  = Invention::create(['name' => 'Carreta']);
+
+    $tech->technologyBonuses()->create([
+        'bonus_type'   => 'production_multiplier',
+        'bonus_value'  => 1.5,
+        'bonus_target' => 'farm',
+    ]);
+
+    $inv->inventionBonuses()->create([
+        'bonus_type'   => 'action_cost_reduction',
+        'bonus_value'  => 1,
+        'bonus_target' => 'explore',
+    ]);
+
+    expect($tech->technologyBonuses)->toHaveCount(1)
+        ->and($tech->technologyBonuses->first()->bonus_type)->toBe('production_multiplier')
+        ->and($inv->inventionBonuses)->toHaveCount(1)
+        ->and($inv->inventionBonuses->first()->bonus_target)->toBe('explore');
+});
+
+test('un invento puede registrar desbloqueos de forma idéntica a las tecnologías', function () {
+    $inv = Invention::create(['name' => 'Prensa de Uvas']);
+
+    $inv->inventionUnlocks()->createMany([
+        ['unlock_type' => 'technology', 'unlock_id' => null],
+        ['unlock_type' => 'tile_level', 'unlock_id' => null],
+    ]);
+
+    expect($inv->inventionUnlocks)->toHaveCount(2);
 });
 
 test('los tests de T14 no se rompen: recipes sigue existiendo tras la migración V5b', function () {
