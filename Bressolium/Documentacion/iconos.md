@@ -4,9 +4,7 @@
 
 - roble  
 - pino
-- cedro
-- carbon
-- huesos
+- carbon natural
 - pieles
 
 ### CANTERA
@@ -14,26 +12,19 @@
 - Sílex
 - obsidiana
 - granito
-- cuarzo
-- caolinita
 
 ### RÍO
 
 - agua
-- caña
-- totora
+- caña común
 - tierras fertiles
-- carrizo
-- peces
 
 ### PRADO
 
 - lino
 - yute
 - cañamo
-- pieles
 - lana
-- tendones
 
 ### MINA
 
@@ -41,7 +32,6 @@
 - hierro
 - estaño
 - grafito
-- sal
 
 ### CASILLAS AVANZADAS
 
@@ -50,33 +40,18 @@
 - Mina de minerales
 - Pozo de goma y resina
 - Extractor de gases
-- algodon
-- aceites vegetales
 - arena de silice
-- arena de cuarso
-- plata
-- oro
-- plomo
-- uranio
-- neodimio
-- lantano
-- cerio
-- goma-arabiga
+- arena de cuarzo
 - latex
 - resinas inflamables
 - hidrogeno
-- oxigeno
-- nitrogeno
 - gases-naturales
 - silicio
 - minerales-semiconductores
 - cristales-naturales
-- carbono
-- fosforo
-- azufre
 - materiales magneticos
-- neodimio procesado
-- materiales aislantes naturales procesados
+- materiales aislantes naturales
+- oro
 
 ### TECNOLOGÍAS
 
@@ -88,7 +63,6 @@
 - agricultura
 - fermentacion
 - metalurgia y aleaciones
-- calefaccion y refrigeracion
 - Conservacion de alimentos
 - Escritura
 - Quimica
@@ -101,10 +75,7 @@
 - Inteligencia Artificial
 - energias renovables
 - robotica
-- realidad virtual y aumentada
-- impresion 3d
 - nanotecnologia
-- computacion cuantica
 - edicion genetica
 - biotecnologia
 - sistemas autonomos
@@ -118,7 +89,7 @@
 - Hacha
 - arcos
 - trampa
-- refigio
+- refugio
 - rueda
 - carro
 - tela
@@ -133,7 +104,7 @@
 - microscopio
 - Penicilina
 - Brujula
-- REloj
+- Reloj
 - Telescopio
 - Bombilla
 - Bateria
