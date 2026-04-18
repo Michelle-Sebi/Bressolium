@@ -174,7 +174,7 @@ A continuación se desglosan las tareas técnicas correspondientes a las Histori
 - **Descripción**: Poblar el catálogo completo del juego con seeders. Incluye: `ResourcesSeeder` (44 recursos con tier y group), `TileLevelResourcesSeeder` (5 tipos × 5 niveles con cantidades y requisitos de tech e invento), `TechnologiesSeeder` (31 tecnologías con prerequisitos, desbloqueos y bonificadores), `InventionsSeeder` (34 inventos con prerequisitos, costes, bonificadores y desbloqueos). Desbloquea la implementación verificable de las Tareas 7, 8, 11 y 13.
 
 ### Tarea 24
-- **Título**: `[Chore] Update ER Diagram to V5`
+- **Título**: `[Docs] Update ER Diagram to V5`
 - **Estimación**: S
 - **Área**: [DOCUMENTACIÓN]
 - **Asignado a**: Michelle

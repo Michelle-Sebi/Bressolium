@@ -10,7 +10,9 @@
 
 function diagramPath(): string
 {
-    return base_path('../../Documentacion/diagramas/ER_v4.html');
+    // El diagrama se mantiene en Documentacion/ para navegación, pero se copia
+    // en resources/docs/ para que sea accesible desde el contenedor de Sail.
+    return base_path('resources/docs/ER_v4.html');
 }
 
 test('el diagrama ER existe en la ruta de documentación', function () {
