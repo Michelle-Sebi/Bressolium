@@ -33,7 +33,7 @@ test('materials tiene columnas tier y group para clasificar recursos en el árbo
 });
 
 test('base_type acepta los cinco biomas y el tipo pueblo especial', function () {
-    $biomas = ['bosque', 'cantera', 'rio', 'prado', 'veta', 'pueblo'];
+    $biomas = ['bosque', 'cantera', 'rio', 'prado', 'mina', 'pueblo'];
 
     foreach ($biomas as $bioma) {
         $tileType = TileType::create([
@@ -83,9 +83,9 @@ test('explored_by_player_id acepta FK a users cuando la casilla es explorada', f
 });
 
 test('material almacena tier y group según la capa del catálogo', function () {
-    $base    = Material::create(['name' => 'Roble',   'tier' => 0, 'group' => 'Bosque']);
-    $medio   = Material::create(['name' => 'Carbon',  'tier' => 1, 'group' => 'Bosque']);
-    $avanzado = Material::create(['name' => 'Látex',  'tier' => 2, 'group' => 'Bosque']);
+    Material::create(['name' => 'Roble',  'tier' => 0, 'group' => 'Bosque']);
+    Material::create(['name' => 'Carbon', 'tier' => 1, 'group' => 'Bosque']);
+    Material::create(['name' => 'Látex',  'tier' => 2, 'group' => 'Bosque']);
 
     $this->assertDatabaseHas('materials', ['name' => 'Roble',  'tier' => 0, 'group' => 'Bosque']);
     $this->assertDatabaseHas('materials', ['name' => 'Carbon', 'tier' => 1, 'group' => 'Bosque']);

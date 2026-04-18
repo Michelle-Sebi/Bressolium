@@ -79,13 +79,13 @@ test('TileLevelResourcesSeeder genera los 5 tipos de casilla base en nivel 1', f
     $this->assertDatabaseHas('tile_types', ['base_type' => 'cantera', 'level' => 1]);
     $this->assertDatabaseHas('tile_types', ['base_type' => 'rio',     'level' => 1]);
     $this->assertDatabaseHas('tile_types', ['base_type' => 'prado',   'level' => 1]);
-    $this->assertDatabaseHas('tile_types', ['base_type' => 'veta',    'level' => 1]);
+    $this->assertDatabaseHas('tile_types', ['base_type' => 'mina',    'level' => 1]);
 });
 
 test('TileLevelResourcesSeeder genera los 5 niveles para cada tipo de casilla', function () {
     Artisan::call('db:seed', ['--class' => 'TileLevelResourcesSeeder']);
 
-    foreach (['bosque', 'cantera', 'rio', 'prado', 'veta'] as $tipo) {
+    foreach (['bosque', 'cantera', 'rio', 'prado', 'mina'] as $tipo) {
         for ($level = 1; $level <= 5; $level++) {
             $this->assertDatabaseHas('tile_types', ['base_type' => $tipo, 'level' => $level]);
         }
@@ -99,7 +99,7 @@ test('TileLevelResourcesSeeder asigna el nombre especializado a las casillas de 
     $this->assertDatabaseHas('tile_types', ['base_type' => 'cantera', 'level' => 5, 'name' => 'Cantera de Sílice']);
     $this->assertDatabaseHas('tile_types', ['base_type' => 'rio',     'level' => 5, 'name' => 'Extractor de Gases']);
     $this->assertDatabaseHas('tile_types', ['base_type' => 'prado',   'level' => 5, 'name' => 'Granja Organizada']);
-    $this->assertDatabaseHas('tile_types', ['base_type' => 'veta',    'level' => 5, 'name' => 'Mina de Minerales']);
+    $this->assertDatabaseHas('tile_types', ['base_type' => 'mina',    'level' => 5, 'name' => 'Mina de Minerales']);
 });
 
 test('TileLevelResourcesSeeder incluye la casilla especial pueblo', function () {

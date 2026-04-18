@@ -133,11 +133,11 @@ const NODES = [
   {id:"yute",           name:"Yute",            type:"raw", tier:0, group:"Prado"},
   {id:"canamo",         name:"Cáñamo",          type:"raw", tier:0, group:"Prado"},
   {id:"lana",           name:"Lana",            type:"raw", tier:0, group:"Prado"},
-  // Veta (nv1:cobre | nv2:+hierro | nv3:+estano | nv4:+grafito)
-  {id:"cobre",          name:"Cobre",           type:"raw", tier:0, group:"Veta"},
-  {id:"hierro",         name:"Hierro",          type:"raw", tier:0, group:"Veta"},
-  {id:"estano",         name:"Estaño",          type:"raw", tier:0, group:"Veta"},
-  {id:"grafito",        name:"Grafito",         type:"raw", tier:0, group:"Veta"},
+  // Mina (nv1:cobre | nv2:+hierro | nv3:+estano | nv4:+grafito)
+  {id:"cobre",          name:"Cobre",           type:"raw", tier:0, group:"Mina"},
+  {id:"hierro",         name:"Hierro",          type:"raw", tier:0, group:"Mina"},
+  {id:"estano",         name:"Estaño",          type:"raw", tier:0, group:"Mina"},
+  {id:"grafito",        name:"Grafito",         type:"raw", tier:0, group:"Mina"},
 
   // ── ADVANCED TILES (nivel 5 de cada casilla básica)
   {id:"pozo-goma",       name:"Pozo de Goma y Resina", type:"tile", tier:5},
@@ -160,7 +160,7 @@ const NODES = [
   // Río nv5
   {id:"hidrogeno",           name:"Hidrógeno",          type:"advanced", tier:5},
   {id:"gases-naturales",     name:"Gases Naturales",    type:"advanced", tier:5},
-  // Veta nv5
+  // Mina nv5
   {id:"oro",                 name:"Oro",                type:"advanced", tier:5},
   {id:"mat-mag-nat",         name:"Mat. Magnéticos",    type:"advanced", tier:5},
 
@@ -597,7 +597,7 @@ const TILE_TREE = [
             resources: ["tierras-fértiles ×8"], color: "#166534" }
   },
   {
-    id: "t-veta", name: "Veta de Roca", color: "#92400e", x: 4,
+    id: "t-mina", name: "Mina", color: "#92400e", x: 4,
     levels: [
       { lvl: 1, resources: ["cobre ×5"] },
       { lvl: 2, resources: ["cobre ×8", "hierro ×8"], tech: "Herramientas de Piedra" },
@@ -637,8 +637,8 @@ const MARGIN_X = 160;
 const tierX = tier => MARGIN_X + (tier / (TIERS - 1)) * (CANVAS_W - MARGIN_X * 2);
 
 // Group raw nodes by group, spread vertically within group
-const groups = ["Bosque","Cantera","Río","Prado","Veta"];
-const groupColors = {Bosque:"#15803d",Cantera:"#78716c",Río:"#0284c7",Prado:"#65a30d",Veta:"#92400e"};
+const groups = ["Bosque","Cantera","Río","Prado","Mina"];
+const groupColors = {Bosque:"#15803d",Cantera:"#78716c",Río:"#0284c7",Prado:"#65a30d",Mina:"#92400e"};
 const rawByGroup = {};
 groups.forEach((g, gi) => {
   rawByGroup[g] = NODES.filter(n => n.type === "raw" && n.group === g);

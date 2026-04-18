@@ -16,7 +16,9 @@ class Tile extends Model
         'assigned_player',
         'coord_x',
         'coord_y',
-        'explored'
+        'explored',
+        'explored_by_player_id',
+        'explored_at',
     ];
 
     public function game()
@@ -32,5 +34,10 @@ class Tile extends Model
     public function user()
     {
         return $this->belongsTo(User::class , 'assigned_player');
+    }
+
+    public function exploredBy()
+    {
+        return $this->belongsTo(User::class, 'explored_by_player_id');
     }
 }
