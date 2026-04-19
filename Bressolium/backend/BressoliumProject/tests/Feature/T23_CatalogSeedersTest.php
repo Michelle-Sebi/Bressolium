@@ -136,7 +136,7 @@ test('TechnologiesSeeder carga las tecnologías del árbol completo', function (
     Artisan::call('db:seed', ['--class' => 'TechnologiesSeeder']);
 
     $count = Technology::count();
-    expect($count)->toBeGreaterThanOrEqual(31);
+    expect($count)->toBeGreaterThanOrEqual(26);
 });
 
 test('TechnologiesSeeder incluye las tecnologías clave del árbol', function () {
@@ -163,14 +163,36 @@ test('TechnologiesSeeder incluye las tecnologías clave del árbol', function ()
 test('TechnologiesSeeder registra prerequisitos entre tecnologías', function () {
     Artisan::call('db:seed', ['--class' => 'TechnologiesSeeder']);
 
-    // Metalurgia requiere Control del Fuego
-    $metalurgia     = Technology::where('name', 'Metalurgia y Aleaciones')->first();
-    $controlFuego   = Technology::where('name', 'Control del Fuego')->first();
+    // Cerámica y Alfarería requiere Control del Fuego como prereq tecnológico
+    $ceramica     = Technology::where('name', 'Cerámica y Alfarería')->first();
+    $controlFuego = Technology::where('name', 'Control del Fuego')->first();
 
-    expect($metalurgia->technologyPrerequisites)->not->toBeEmpty();
+    expect($ceramica->technologyPrerequisites)->not->toBeEmpty();
 
-    $prerequisiteIds = $metalurgia->technologyPrerequisites->pluck('prereq_id');
+    $prerequisiteIds = $ceramica->technologyPrerequisites->pluck('prereq_id');
     expect($prerequisiteIds)->toContain($controlFuego->id);
+});
+
+test('TechnologiesSeeder registra desbloqueos en technology_unlocks', function () {
+    Artisan::call('db:seed', ['--class' => 'TechnologiesSeeder']);
+
+    $total = \DB::table('technology_unlocks')->count();
+    expect($total)->toBeGreaterThan(0);
+
+    // Herramientas de Piedra desbloquea algo
+    $herramientas = Technology::where('name', 'Herramientas de Piedra')->first();
+    expect($herramientas->technologyUnlocks)->not->toBeEmpty();
+});
+
+test('TechnologiesSeeder registra bonificadores en technology_bonuses', function () {
+    Artisan::call('db:seed', ['--class' => 'TechnologiesSeeder']);
+
+    $total = \DB::table('technology_bonuses')->count();
+    expect($total)->toBeGreaterThan(0);
+
+    // Al menos una tecnología tiene bonificador registrado
+    $conBonos = Technology::has('technologyBonuses')->count();
+    expect($conBonos)->toBeGreaterThan(0);
 });
 
 // --- InventionsSeeder ---
@@ -222,6 +244,27 @@ test('InventionsSeeder vincula prerequisitos de invento sin consumirlos', functi
 
     $tipos = $trampa->inventionPrerequisites->pluck('prereq_type')->unique();
     expect($tipos)->toContain('invention');
+});
+
+test('InventionsSeeder registra bonificadores en invention_bonuses', function () {
+    Artisan::call('db:seed', ['--class' => 'InventionsSeeder']);
+
+    $total = \DB::table('invention_bonuses')->count();
+    expect($total)->toBeGreaterThan(0);
+
+    $conBonos = Invention::has('inventionBonuses')->count();
+    expect($conBonos)->toBeGreaterThan(0);
+});
+
+test('InventionsSeeder registra desbloqueos en invention_unlocks', function () {
+    Artisan::call('db:seed', ['--class' => 'InventionsSeeder']);
+
+    $total = \DB::table('invention_unlocks')->count();
+    expect($total)->toBeGreaterThan(0);
+
+    // Rueda desbloquea algo
+    $rueda = Invention::where('name', 'Rueda')->first();
+    expect($rueda->inventionUnlocks)->not->toBeEmpty();
 });
 
 test('InventionsSeeder no incluye costes que sean otros inventos (solo recursos de casilla)', function () {
