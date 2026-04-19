@@ -19,4 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/game/all', [\App\Http\Controllers\GameController::class, 'allGames']);
 
     Route::get('/board/{gameId}', [\App\Http\Controllers\BoardController::class, 'show']);
+
+    Route::post('/tiles/{id}/explore', [\App\Http\Controllers\TileController::class, 'explore']);
+    Route::post('/tiles/{id}/upgrade', [\App\Http\Controllers\TileController::class, 'upgrade']);
 });
