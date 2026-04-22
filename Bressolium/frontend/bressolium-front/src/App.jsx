@@ -1,8 +1,8 @@
-import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './features/auth/Login';
 import Register from './features/auth/Register';
 import Dashboard from './features/dashboard/Dashboard';
+import BoardGrid  from './features/board/BoardGrid';
 
 import MainLayout from './components/layout/MainLayout';
 
@@ -17,7 +17,7 @@ function App() {
         {/* Rutas Protegidas bajo MainLayout */}
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          {/* Aquí irán las futuras rutas como /board */}
+          <Route path="/board" element={<BoardGrid />} />
         </Route>
       </Routes>
     </div>

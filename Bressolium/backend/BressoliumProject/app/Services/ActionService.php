@@ -31,7 +31,7 @@ class ActionService
         $this->tileRepo->markExplored($tile, $userId);
         $this->tileRepo->incrementActionsSpent($round, $userId);
 
-        $tile->refresh();
+        $tile->refresh()->load('type');
         return ['status' => 200, 'data' => $tile];
     }
 
@@ -68,7 +68,7 @@ class ActionService
         $this->tileRepo->upgradeTile($tile, $nextType);
         $this->tileRepo->incrementActionsSpent($round, $userId);
 
-        $tile->refresh();
+        $tile->refresh()->load('type');
         return ['status' => 200, 'data' => $tile];
     }
 }

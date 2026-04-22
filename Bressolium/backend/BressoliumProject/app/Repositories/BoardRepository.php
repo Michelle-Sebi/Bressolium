@@ -10,7 +10,11 @@ class BoardRepository
 {
     public function getTilesByGameId(string $gameId)
     {
-        return Tile::where('game_id', $gameId)->get();
+        return Tile::where('game_id', $gameId)
+            ->with('type')
+            ->orderBy('coord_x')
+            ->orderBy('coord_y')
+            ->get();
     }
 
     public function isUserInGame(string $gameId, string $userId): bool

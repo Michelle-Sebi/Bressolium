@@ -18,7 +18,10 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         $this->call([
-            TileTypesSeeder::class ,
+            ResourcesSeeder::class,
+            TileLevelResourcesSeeder::class,
+            TechnologiesSeeder::class,
+            InventionsSeeder::class,
         ]);
     }
 }
