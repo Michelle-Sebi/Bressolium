@@ -12,6 +12,7 @@ import { MemoryRouter } from 'react-router-dom';
 
 import BoardGrid from '../src/features/board/BoardGrid';
 import * as boardService from '../src/services/boardService';
+import InventoryPanel from '../src/features/inventory/InventoryPanel';
 
 vi.mock('react-redux', () => ({
     useSelector: vi.fn(),
@@ -243,6 +244,166 @@ describe('HU 2.6 — Acciones sobre casillas', () => {
 
         const ownTile = screen.getByTestId('tile-0-0');
         expect(ownTile).toHaveAttribute('data-owner', CURRENT_USER_ID);
+    });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TESTS PARA: TAREA 18 (Raw_Tareas)
+// Título: Material Inventory Side-Panel (SidePanel Izquierdo)
+// HUs: 2.4
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/**
+ * Genera una lista de materiales simulando el inventario de una partida.
+ * Los primeros `activeCount` tendrán quantity > 0; el resto quantity = 0.
+ * @param {{ activeCount?: number }} options
+ */
+function createMockMaterials({ activeCount = 0 } = {}) {
+    const catalog = [
+        { id: 'mat-01', name: 'roble',           group: 'bosque',  tier: 0 },
+        { id: 'mat-02', name: 'pino',            group: 'bosque',  tier: 0 },
+        { id: 'mat-03', name: 'carbon-natural',  group: 'bosque',  tier: 0 },
+        { id: 'mat-04', name: 'silex',           group: 'cantera', tier: 0 },
+        { id: 'mat-05', name: 'granito',         group: 'cantera', tier: 0 },
+        { id: 'mat-06', name: 'agua',            group: 'rio',     tier: 0 },
+        { id: 'mat-07', name: 'tierras-fertiles',group: 'rio',     tier: 0 },
+        { id: 'mat-08', name: 'lino',            group: 'prado',   tier: 0 },
+        { id: 'mat-09', name: 'lana',            group: 'prado',   tier: 0 },
+        { id: 'mat-10', name: 'hierro',          group: 'mina',    tier: 0 },
+        { id: 'mat-11', name: 'cobre',           group: 'mina',    tier: 0 },
+    ];
+    return catalog.map((mat, idx) => ({
+        ...mat,
+        quantity: idx < activeCount ? (idx + 1) * 3 : 0,
+    }));
+}
+
+function mockInventoryState({ materials = [], status = 'SUCCESS' } = {}) {
+    reactRedux.useSelector.mockImplementation((selectorFn) =>
+        selectorFn({
+            auth:      { user: { id: CURRENT_USER_ID, name: 'Michelle' } },
+            game:      { currentGame: { id: GAME_ID, name: 'Expedición Test' } },
+            board:     { tiles: [], status: 'SUCCESS', error: null },
+            inventory: { materials, status, error: null },
+        })
+    );
+}
+
+const renderInventoryPanel = () =>
+    render(
+        <MemoryRouter>
+            <InventoryPanel />
+        </MemoryRouter>
+    );
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HU 2.4 — Visualización de recursos en el panel lateral
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('HU 2.4 — Panel lateral de inventario de materiales', () => {
+
+    it('renderiza un ítem por cada material del catálogo', () => {
+        const materials = createMockMaterials();
+        mockInventoryState({ materials });
+        renderInventoryPanel();
+
+        const items = screen.getAllByTestId('material-item');
+        expect(items).toHaveLength(materials.length);
+    });
+
+    it('cada material es identificable por su nombre en el DOM', () => {
+        const materials = createMockMaterials();
+        mockInventoryState({ materials });
+        renderInventoryPanel();
+
+        expect(screen.getByTestId('material-item-roble')).toBeInTheDocument();
+        expect(screen.getByTestId('material-item-hierro')).toBeInTheDocument();
+    });
+
+    it('cada ítem renderiza un icono de imagen del material', () => {
+        const materials = createMockMaterials();
+        mockInventoryState({ materials });
+        renderInventoryPanel();
+
+        materials.forEach(mat => {
+            const icon = screen.getByTestId(`material-icon-${mat.name}`);
+            expect(icon.tagName).toBe('IMG');
+            expect(icon).toHaveAttribute('alt', mat.name);
+        });
+    });
+
+    it('materiales con quantity > 0 tienen la clase material--active', () => {
+        const materials = createMockMaterials({ activeCount: 3 });
+        mockInventoryState({ materials });
+        renderInventoryPanel();
+
+        const activeItems = materials.filter(m => m.quantity > 0);
+        activeItems.forEach(mat => {
+            expect(screen.getByTestId(`material-item-${mat.name}`)).toHaveClass('material--active');
+        });
+    });
+
+    it('materiales con quantity = 0 tienen la clase material--inactive', () => {
+        const materials = createMockMaterials({ activeCount: 0 });
+        mockInventoryState({ materials });
+        renderInventoryPanel();
+
+        materials.forEach(mat => {
+            expect(screen.getByTestId(`material-item-${mat.name}`)).toHaveClass('material--inactive');
+        });
+    });
+
+    it('mezcla correcta: active e inactive según quantity', () => {
+        const materials = createMockMaterials({ activeCount: 4 });
+        mockInventoryState({ materials });
+        renderInventoryPanel();
+
+        const allItems = screen.getAllByTestId('material-item');
+        const activeItems   = allItems.filter(el => el.classList.contains('material--active'));
+        const inactiveItems = allItems.filter(el => el.classList.contains('material--inactive'));
+
+        expect(activeItems).toHaveLength(4);
+        expect(inactiveItems).toHaveLength(materials.length - 4);
+    });
+
+    it('los materiales activos muestran un badge con la cantidad correcta', () => {
+        const materials = createMockMaterials({ activeCount: 2 });
+        mockInventoryState({ materials });
+        renderInventoryPanel();
+
+        const activeMaterials = materials.filter(m => m.quantity > 0);
+        activeMaterials.forEach(mat => {
+            const badge = screen.getByTestId(`material-badge-${mat.name}`);
+            expect(badge).toBeInTheDocument();
+            expect(badge).toHaveTextContent(String(mat.quantity));
+        });
+    });
+
+    it('los materiales inactivos no muestran badge de cantidad', () => {
+        const materials = createMockMaterials({ activeCount: 0 });
+        mockInventoryState({ materials });
+        renderInventoryPanel();
+
+        materials.forEach(mat => {
+            expect(screen.queryByTestId(`material-badge-${mat.name}`)).not.toBeInTheDocument();
+        });
+    });
+
+    it('muestra un indicador de carga mientras status es LOADING', () => {
+        mockInventoryState({ materials: [], status: 'LOADING' });
+        renderInventoryPanel();
+
+        expect(screen.getByTestId('inventory-loading')).toBeInTheDocument();
+    });
+
+    it('el panel no muestra ítems cuando el inventario está vacío', () => {
+        mockInventoryState({ materials: [] });
+        renderInventoryPanel();
+
+        expect(screen.queryAllByTestId('material-item')).toHaveLength(0);
     });
 
 });
