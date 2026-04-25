@@ -170,7 +170,7 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Bloqueado por**: Tarea 14
 - **Descripción**: Normalizar el schema de tecnologías e inventos separando prerequisitos de costes. Crear `invention_prerequisites(invention_id, prereq_type ENUM[invention|technology], prereq_id)` y `technology_prerequisites(technology_id, prereq_type, prereq_id)`. Refactorizar `recipes` hacia `invention_costs(invention_id, resource_id, quantity)` donde los costes son siempre recursos de casilla, nunca invention_ids. Crear `technology_bonuses(technology_id, bonus_type, bonus_value, bonus_target)` e `invention_bonuses`. Crear `technology_unlocks` e `invention_unlocks` con `unlock_type ENUM[technology|invention|tile_level]`. Los tests existentes no deben romperse (cambios aditivos).
 
-### Tarea 23
+### Tarea 23 [TERMINADA]
 - **Título**: `[Feat] Catalog Seeders: Complete Game Data`
 - **Estimación**: L
 - **Área**: [BASE DE DATOS]
@@ -178,13 +178,21 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Bloqueado por**: Tarea 21, Tarea 22
 - **Descripción**: Poblar el catálogo completo del juego con seeders. Incluye: `ResourcesSeeder` (44 recursos con tier y group), `TileLevelResourcesSeeder` (5 tipos × 5 niveles con cantidades y requisitos de tech e invento), `TechnologiesSeeder` (31 tecnologías con prerequisitos, desbloqueos y bonificadores), `InventionsSeeder` (34 inventos con prerequisitos, costes, bonificadores y desbloqueos). Desbloquea la implementación verificable de las Tareas 7, 8, 11 y 13.
 
-### Tarea 24
+### Tarea 24 [TERMINADA]
 - **Título**: `[Docs] Update ER Diagram to V5`
 - **Estimación**: S
 - **Área**: [DOCUMENTACIÓN]
 - **Asignado a**: Michelle
 - **Bloqueado por**: Tarea 21, Tarea 22
 - **Descripción**: Actualizar el diagrama ER_v4.html a V5 reflejando todos los cambios de schema introducidos en las Tareas 21 y 22: nuevas tablas `invention_prerequisites`, `technology_prerequisites`, `invention_costs`, `technology_bonuses`, `invention_bonuses`, `technology_unlocks`, `invention_unlocks`, columna `base_type` en `tile_types`, y atributos `tier`, `group` en `materials`.
+
+### Tarea 38
+- **Título**: `[Feat] Actualización de Seeders (Nuevos Items)`
+- **Estimación**: S
+- **Área**: [BASE DE DATOS]
+- **Asignado a**: Michelle
+- **Bloqueado por**: Tarea 23
+- **Descripción**: Modificar `ResourcesSeeder` y `TechnologiesSeeder` para reflejar la eliminación de Caolinita/Peces y la adición de los nuevos materiales/tecnologías según el documento `casillas.md` y `evolucion-tecnologias-e-inventos.md` actualizado en rondas anteriores de documentación (44 recursos y 31 tecnologías).
 
 ### Tarea 19 ⚙️
 - **Título**: `[Feat] Technology Tree & Progress Archive`

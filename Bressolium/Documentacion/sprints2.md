@@ -24,10 +24,12 @@ El criterio de ordenación dentro de cada sprint es: primero las tareas sin bloq
 - Tarea 5: `[Feat] Game Lobby & Team Manager UI` (Frontend - Bárbara) [Talla: M] [TERMINADA]
 - Tarea 21: `[Refactor] DB Migration V5a: Tile Schema Correction` (BD - Michelle) [Talla: M] [TERMINADA]
 - Tarea 22: `[Refactor] DB Migration V5b: Tech Tree Normalization` (BD - Bárbara) [Talla: M] [TERMINADA]
+- Tarea 24: `[Docs] Update ER Diagram to V5` (Documentación - Michelle) [Talla: S] [TERMINADA]
 - Tarea 7: `[Feat] Board Generator and API Controller` (Backend - Bárbara) [Talla: L] [TERMINADA]
 - Tarea 8: `[Feat] Individual Actions API (Explore / Upgrade)` (Backend - Bárbara) [Talla: L] [TERMINADA]
 - Tarea 9: `[Feat] Board Grid Component and Frontend Visualization` (Frontend - Michelle) [Talla: XL] [TERMINADA]
 - Tarea 18: `[Feat] Material Inventory Side-Panel` (Frontend - Michelle) [Talla: S] [TERMINADA]
+- Tarea 23: `[Feat] Catalog Seeders: Complete Game Data` (BD - Michelle) [Talla: L] [TERMINADA]
 
 ---
 
@@ -46,10 +48,9 @@ El criterio de ordenación dentro de cada sprint es: primero las tareas sin bloq
 - Tarea 30: `[Feat] Cliente HTTP Centralizado con Interceptores` (Frontend - Michelle) [Talla: S]
 
 **Sin bloqueantes pendientes — puede solaparse con lo anterior:**
-- Tarea 24: `[Docs] Update ER Diagram to V5` (Documentación - Michelle) [Talla: S]
-- Tarea 23: `[Feat] Catalog Seeders: Complete Game Data` (BD - Michelle) [Talla: L]
+- Tarea 38: `[Feat] Actualización de Seeders (Nuevos Items)` (BD - Michelle) [Talla: S]
 
-> ⚠️ T23 es larga e independiente. Michelle puede arrancarla en paralelo con T26/T28 y continuarla durante el sprint.
+> ⚠️ Tarea 38 adapta los seeders a los últimos cambios de diseño (eliminación de Caolinita/Peces). T23 ya dejó la estructura lista.
 
 ---
 
@@ -114,8 +115,8 @@ El criterio de ordenación dentro de cada sprint es: primero las tareas sin bloq
 
 ```
 T21✅ ──┐
-T22✅ ──┼──► T23
-         └──► T24
+T22✅ ──┼──► T23✅
+         └──► T24✅
 
 T8✅ ────────────────────► T10 ──► T11 ──► T12
                             ▲              │
@@ -126,7 +127,7 @@ T28 ──┘
   │
   └──► T29
 
-T23 ──► T19
+T23✅ ──► T38 ──► T19
 T30 ──┬──► T12
       ├──► T19
       └──► T31 ──► T32
@@ -144,7 +145,7 @@ T9✅, T18✅ (ya completadas — T30 y T31 adaptarán su código al cliente cen
 | Sprint | Bárbara | Michelle |
 |---|---|---|
 | S1 ✅ | T1(S), T14(M) | T2(M), T4(M), T6(S) |
-| S2 ✅ | T3(L), T20(S), T5(M), T22(M), T7(L), T8(L) | T17(S), T21(M), T9(XL), T18(S) |
-| S3 | T25(M), T27(M) | T26(M), T28(S), T36(XS), T30(S), T24(S), T23(L) |
+| S2 ✅ | T3(L), T20(S), T5(M), T22(M), T7(L), T8(L) | T17(S), T21(M), T24(S), T9(XL), T18(S), T23(L) |
+| S3 | T25(M), T27(M) | T26(M), T28(S), T36(XS), T30(S), T38(S) |
 | S4 | T29(L), T31(M), T33(M), T10(M), T11(M), T12(L) | T19(M), T13(XL) |
 | S5 | T37(S), T35(S) | T15(S), T16(S), T32(L), T34(L) |
