@@ -106,7 +106,7 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **HUs**: 2.1, 2.2, 2.6
 - **Descripción**: Componente central de mapa (CSS Grid). Renderizado de casillas descubiertas y gestión de "niebla de guerra". Conexión con API de acciones.
 
-### Tarea 18
+### Tarea 18 [TERMINADA]
 - **Título**: `[Feat] Material Inventory Side-Panel (SidePanel Izquierdo)`
 - **Estimación**: S
 - **Área**: [FRONTEND]
@@ -191,7 +191,7 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Estimación**: M
 - **Área**: [FRONTEND]
 - **Asignado a**: Michelle
-- **Bloqueado por**: Tarea 30
+- **Bloqueado por**: Tarea 23, Tarea 30
 - **HUs**: 4.1
 - **Descripción**: Visualización (Modal o sección) del árbol tecnológico del equipo. Mostrar investigaciones completadas, disponibles (recursos suficientes) y bloqueadas (indicando qué falta). Representar los múltiples caminos posibles hacia la tecnología final para que el equipo pueda planificar su estrategia. Consumir la API a través del cliente HTTP centralizado (Tarea 30).
 
@@ -287,7 +287,7 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Título**: `[Feat] Tests E2E`
 - **Estimación**: L
 - **Área**: [TESTING]
-- **Asignado a**: Bárbara
+- **Asignado a**: Michelle
 - **Bloqueado por**: Tarea 33
 - **Descripción**: Configurar Playwright. Escribir pruebas de flujo completo que simulen el recorrido real del usuario a través del navegador: registro → login → crear partida → ver tablero → explorar casilla → ver inventario actualizado. Los tests E2E deben ejecutarse contra el entorno de desarrollo con Docker levantado.
 
@@ -338,7 +338,6 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 | T29 | Tests Unitarios Backend | L | Pendiente |
 | T31 | Hooks por Feature | M | Pendiente |
 | T33 | CI/CD Pipeline | M | Pendiente |
-| T34 | Tests E2E | L | Pendiente |
 | T35 | Docs Arquitectura | S | Pendiente |
 | T37 | Cache Service | S | Pendiente |
 
@@ -351,7 +350,7 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 | T21 | DB V5a Tile Schema Correction | M | ✅ Terminada |
 | T17 | Global TopBar & Session Navigation | S | ✅ Terminada |
 | T9 | Board Grid Component and Frontend Visualization | XL | ✅ Terminada |
-| T18 | Material Inventory Side-Panel | S | Pendiente |
+| T18 | Material Inventory Side-Panel | S | ✅ Terminada |
 | T13 ⚙️ | Schedule / Cron Round Close | XL | Pendiente |
 | T15 ⚙️ | End of Game (Terraforming) | S | Pendiente |
 | T16 ⚙️ | Abandonment Management | S | Pendiente |
@@ -362,4 +361,5 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 | T28 | Excepciones Personalizadas y Handler | S | Pendiente |
 | T30 | Cliente HTTP Centralizado | S | Pendiente |
 | T32 | Tests de Frontend | L | Pendiente |
+| T34 | Tests E2E | L | Pendiente |
 | T36 | Rate Limiting y Versionado API | XS | Pendiente |

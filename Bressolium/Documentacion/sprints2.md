@@ -1,6 +1,6 @@
 # Planificación de Sprints v2 - Bressolium
 
-Basado en `nuevas_tareas.md`. Se añade un Sprint 3b de arquitectura obligatoria y un Sprint 5 de calidad y cierre, resultado de incorporar los requisitos de la guía del módulo.
+Basado en `nuevas_tareas.md`. Se añade un Sprint 3 de arquitectura obligatoria y un Sprint 5 de calidad y cierre, resultado de incorporar los requisitos de la guía del módulo.
 
 El criterio de ordenación dentro de cada sprint es: primero las tareas sin bloqueantes, luego las que dependen de ellas. Las tareas que pueden hacerse en paralelo entre las dos desarrolladoras se indican en el mismo bloque.
 
@@ -27,6 +27,7 @@ El criterio de ordenación dentro de cada sprint es: primero las tareas sin bloq
 - Tarea 7: `[Feat] Board Generator and API Controller` (Backend - Bárbara) [Talla: L] [TERMINADA]
 - Tarea 8: `[Feat] Individual Actions API (Explore / Upgrade)` (Backend - Bárbara) [Talla: L] [TERMINADA]
 - Tarea 9: `[Feat] Board Grid Component and Frontend Visualization` (Frontend - Michelle) [Talla: XL] [TERMINADA]
+- Tarea 18: `[Feat] Material Inventory Side-Panel` (Frontend - Michelle) [Talla: S] [TERMINADA]
 
 ---
 
@@ -48,17 +49,13 @@ El criterio de ordenación dentro de cada sprint es: primero las tareas sin bloq
 - Tarea 24: `[Docs] Update ER Diagram to V5` (Documentación - Michelle) [Talla: S]
 - Tarea 23: `[Feat] Catalog Seeders: Complete Game Data` (BD - Michelle) [Talla: L]
 
-> ⚠️ T23 es larga e independiente. Michelle puede arrancarla en paralelo con T26/T28 y continuarla durante el sprint. T9 y T18 no pueden empezar hasta que T23 y T30 estén terminadas — si T23 se alarga, T9 arranca al inicio del Sprint 4.
+> ⚠️ T23 es larga e independiente. Michelle puede arrancarla en paralelo con T26/T28 y continuarla durante el sprint.
 
 ---
 
 # 🗺️ Sprint 4: Gameplay Core — Tablero, Sync y Votaciones
 
 (Con la arquitectura lista y el catálogo poblado, se construye la experiencia de juego completa. Las tareas de backend y frontend pueden avanzar en paralelo.)
-
-**Arrancan en cuanto T30 esté lista:**
-- Tarea 18: `[Feat] Material Inventory Side-Panel` (Frontend - Michelle) [Talla: S]
-  - *Bloqueado por: T30*
 
 **Arrancan en cuanto T25–T28 estén listas:**
 - Tarea 29: `[Feat] Tests Unitarios de Backend` (Backend - Bárbara) [Talla: L]
@@ -76,7 +73,7 @@ El criterio de ordenación dentro de cada sprint es: primero las tareas sin bloq
 - Tarea 11: `[Feat] Progress Voting API` (Backend - Bárbara) [Talla: M]
   - *Bloqueado por: T10, T25, T26, T27, T28*
 - Tarea 19: `[Feat] Technology Tree & Progress Archive` (Frontend - Michelle) [Talla: M]
-  - *Bloqueado por: T30*
+  - *Bloqueado por: T23, T30*
 
 **Arranca cuando T11 esté lista:**
 - Tarea 12: `[Feat] Action & Decision Control Panel` (Frontend - Bárbara) [Talla: L]
@@ -108,7 +105,7 @@ El criterio de ordenación dentro de cada sprint es: primero las tareas sin bloq
 - Tarea 35: `[Docs] Documentación de Arquitectura` (Documentación - Bárbara) [Talla: S]
 
 **Arranca cuando T33 esté lista:**
-- Tarea 34: `[Feat] Tests E2E` (Testing - Bárbara) [Talla: L]
+- Tarea 34: `[Feat] Tests E2E` (Testing - Michelle) [Talla: L]
   - *Bloqueado por: T33*
 
 ---
@@ -129,15 +126,15 @@ T28 ──┘
   │
   └──► T29
 
-T30 ──► T18
-     ├──► T12
-     ├──► T19
-     └──► T31 ──► T32
+T23 ──► T19
+T30 ──┬──► T12
+      ├──► T19
+      └──► T31 ──► T32
 
 T33 ──► T34
 T25 ──► T37
 
-T9✅ (ya completada — T30 y T31 adaptarán su código al cliente centralizado y al hook)
+T9✅, T18✅ (ya completadas — T30 y T31 adaptarán su código al cliente centralizado y al hook)
 ```
 
 ---
@@ -147,7 +144,7 @@ T9✅ (ya completada — T30 y T31 adaptarán su código al cliente centralizado
 | Sprint | Bárbara | Michelle |
 |---|---|---|
 | S1 ✅ | T1(S), T14(M) | T2(M), T4(M), T6(S) |
-| S2 ✅ | T3(L), T20(S), T5(M), T22(M), T7(L), T8(L) | T17(S), T21(M), T9(XL) |
+| S2 ✅ | T3(L), T20(S), T5(M), T22(M), T7(L), T8(L) | T17(S), T21(M), T9(XL), T18(S) |
 | S3 | T25(M), T27(M) | T26(M), T28(S), T36(XS), T30(S), T24(S), T23(L) |
-| S4 | T29(L), T31(M), T33(M), T10(M), T11(M), T12(L) | T18(S), T19(M), T13(XL) |
-| S5 | T37(S), T35(S), T34(L) | T15(S), T16(S), T32(L) |
+| S4 | T29(L), T31(M), T33(M), T10(M), T11(M), T12(L) | T19(M), T13(XL) |
+| S5 | T37(S), T35(S) | T15(S), T16(S), T32(L), T34(L) |
