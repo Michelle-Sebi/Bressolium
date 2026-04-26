@@ -7,6 +7,9 @@
 
 namespace App\Http\Controllers;
 
+use App\DTOs\CreateGameDTO;
+use App\DTOs\JoinGameDTO;
+use App\Http\Resources\GameResource;
 use App\Services\GameService;
 use Illuminate\Http\Request;
 use Exception;
@@ -15,20 +18,11 @@ class GameController extends Controller
 {
     protected $gameService;
 
-    /**
-     * @param GameService $gameService
-     */
     public function __construct(GameService $gameService)
     {
         $this->gameService = $gameService;
     }
 
-    /**
-     * Crea una nueva partida/equipo.
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function create(Request $request)
     {
         $request->validate([
@@ -36,10 +30,14 @@ class GameController extends Controller
         ]);
 
         try {
-            $game = $this->gameService->createGame($request->team_name, $request->user()->id);
+            $dto = new CreateGameDTO(
+                teamName: $request->team_name,
+                userId: $request->user()->id,
+            );
+            $game = $this->gameService->createGame($dto);
             return response()->json([
                 'success' => true,
-                'data' => $game
+                'data' => (new GameResource($game))->toArray($request),
             ], 200);
         } catch (Exception $e) {
             return response()->json([
@@ -49,12 +47,6 @@ class GameController extends Controller
         }
     }
 
-    /**
-     * Une al usuario a un equipo existente por su nombre.
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function join(Request $request)
     {
         $request->validate([
@@ -62,10 +54,14 @@ class GameController extends Controller
         ]);
 
         try {
-            $game = $this->gameService->joinGame($request->team_name, $request->user()->id);
+            $dto = new JoinGameDTO(
+                teamName: $request->team_name,
+                userId: $request->user()->id,
+            );
+            $game = $this->gameService->joinGame($dto);
             return response()->json([
                 'success' => true,
-                'data' => $game
+                'data' => (new GameResource($game))->toArray($request),
             ], 200);
         } catch (Exception $e) {
             $status = ($e->getMessage() === 'Game not found') ? 404 : (($e->getMessage() === 'Game is full') ? 400 : 500);
@@ -76,16 +72,13 @@ class GameController extends Controller
         }
     }
 
-    /**
-     * Devuelve las partidas en las que participa el usuario autenticado.
-     */
     public function myGames(Request $request)
     {
         try {
             $games = $this->gameService->getMyGames($request->user()->id);
             return response()->json([
                 'success' => true,
-                'data' => $games
+                'data' => GameResource::collection($games)->toArray($request),
             ], 200);
         } catch (Exception $e) {
             return response()->json([
@@ -95,16 +88,13 @@ class GameController extends Controller
         }
     }
 
-    /**
-     * Devuelve todas las partidas disponibles para unirse.
-     */
     public function allGames()
     {
         try {
             $games = $this->gameService->getAllGames();
             return response()->json([
                 'success' => true,
-                'data' => $games
+                'data' => GameResource::collection($games)->toArray(request()),
             ], 200);
         } catch (Exception $e) {
             return response()->json([
@@ -114,19 +104,13 @@ class GameController extends Controller
         }
     }
 
-    /**
-     * Une al usuario a una partida aleatoria disponible.
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function joinRandom(Request $request)
     {
         try {
             $game = $this->gameService->joinRandomGame($request->user()->id);
             return response()->json([
                 'success' => true,
-                'data' => $game
+                'data' => (new GameResource($game))->toArray($request),
             ], 200);
         } catch (Exception $e) {
             $status = ($e->getMessage() === 'No games available') ? 404 : 500;

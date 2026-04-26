@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\TileResource;
 use App\Services\BoardService;
 use Exception;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class BoardController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data'    => $tiles,
+                'data'    => TileResource::collection($tiles)->toArray($request),
                 'error'   => null,
             ]);
         } catch (Exception $e) {

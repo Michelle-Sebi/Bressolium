@@ -31,8 +31,8 @@ class AuthService
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return [
-            'user' => $user->only(['id', 'name', 'email']),
-            'token' => $token
+            'user' => $user,
+            'token' => $token,
         ];
     }
 
@@ -55,8 +55,8 @@ class AuthService
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return [
-            'user' => $user->only(['id', 'name', 'email']),
-            'token' => $token
+            'user' => $user,
+            'token' => $token,
         ];
     }
 }

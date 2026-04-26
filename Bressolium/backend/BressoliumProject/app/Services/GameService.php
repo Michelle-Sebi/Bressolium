@@ -6,6 +6,8 @@
 
 namespace App\Services;
 
+use App\DTOs\CreateGameDTO;
+use App\DTOs\JoinGameDTO;
 use App\Repositories\Contracts\GameRepositoryInterface;
 use App\Repositories\Contracts\RoundRepositoryInterface;
 use App\Models\Game;
@@ -31,34 +33,27 @@ class GameService
 
     /**
      * Crea un equipo y su primera ronda inicial.
-     * 
-     * @param string $teamName
-     * @param string $userId
-     * @return Game
+     *
      * @throws Exception
      */
-    public function createGame(string $teamName, string $userId): Game
+    public function createGame(CreateGameDTO $dto): Game
     {
-        return DB::transaction(function () use ($teamName, $userId) {
+        return DB::transaction(function () use ($dto) {
             $game = $this->gameRepository->create([
-                'name' => $teamName,
+                'name' => $dto->teamName,
                 'status' => 'WAITING'
             ]);
 
-            // Vincular usuario al juego
-            $game->users()->attach($userId, ['is_afk' => false]);
+            $game->users()->attach($dto->userId, ['is_afk' => false]);
 
-            // Crear Ronda 1
             $round = $this->roundRepository->create([
                 'game_id' => $game->id,
                 'number' => 1,
                 'start_date' => now(),
             ]);
 
-            // Vincular usuario a la ronda
-            $round->users()->attach($userId, ['actions_spent' => 0]);
+            $round->users()->attach($dto->userId, ['actions_spent' => 0]);
 
-            // Generar tablero 15×15
             $this->boardGenerator->generate($game->id);
 
             return $game;
@@ -67,15 +62,12 @@ class GameService
 
     /**
      * Une a un usuario a un equipo por su nombre.
-     * 
-     * @param string $teamName
-     * @param string $userId
-     * @return Game
+     *
      * @throws Exception
      */
-    public function joinGame(string $teamName, string $userId): Game
+    public function joinGame(JoinGameDTO $dto): Game
     {
-        $game = $this->gameRepository->findByName($teamName);
+        $game = $this->gameRepository->findByName($dto->teamName);
 
         if (!$game) {
             throw new Exception('Game not found');
@@ -85,13 +77,13 @@ class GameService
             throw new Exception('Game is full');
         }
 
-        return DB::transaction(function () use ($game, $userId) {
-            if (!$game->users()->where('user_id', $userId)->exists()) {
-                $game->users()->attach($userId, ['is_afk' => false]);
-                
+        return DB::transaction(function () use ($game, $dto) {
+            if (!$game->users()->where('user_id', $dto->userId)->exists()) {
+                $game->users()->attach($dto->userId, ['is_afk' => false]);
+
                 $latestRound = $this->roundRepository->getLatestRoundForGame($game->id);
                 if ($latestRound) {
-                    $latestRound->users()->attach($userId, ['actions_spent' => 0]);
+                    $latestRound->users()->attach($dto->userId, ['actions_spent' => 0]);
                 }
             }
 
@@ -144,3 +136,4 @@ class GameService
         return $this->gameRepository->getAllAvailableGames();
     }
 }
+?>
