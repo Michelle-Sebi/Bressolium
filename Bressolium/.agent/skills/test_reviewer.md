@@ -17,7 +17,7 @@ Tu objetivo es garantizar que **los tests cubren toda la Definition of Done** de
    - Dependencias
    - Cada punto explícito del DoD
 
-2. **Localizar los tests**: busca el archivo `backend/BressoliumProject/tests/Feature/T{N}_*.php`.
+2. **Localizar los tests**: busca el archivo `backend/BressoliumProject/tests/Feature/T{N}_*.php` o en el directorio `frontend/tests` los tests correspondientes a la tarea:
    - Si no existe, créalo desde cero.
    - Si existe, léelo y haz inventario de qué cubre actualmente.
 
