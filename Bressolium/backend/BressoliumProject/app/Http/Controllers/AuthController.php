@@ -7,6 +7,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Services\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -50,7 +51,10 @@ class AuthController extends Controller
             $data = $this->authService->register($request->all());
             return response()->json([
                 'success' => true,
-                'data' => $data,
+                'data' => [
+                    'user'  => (new UserResource($data['user']))->toArray($request),
+                    'token' => $data['token'],
+                ],
                 'error' => null
             ], 200);
         } catch (Exception $e) {
@@ -64,7 +68,7 @@ class AuthController extends Controller
 
     /**
      * Procesa el inicio de sesión.
-     * 
+     *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -87,7 +91,10 @@ class AuthController extends Controller
             $data = $this->authService->login($request->email, $request->password);
             return response()->json([
                 'success' => true,
-                'data' => $data,
+                'data' => [
+                    'user'  => (new UserResource($data['user']))->toArray($request),
+                    'token' => $data['token'],
+                ],
                 'error' => null
             ], 200);
         } catch (Exception $e) {
