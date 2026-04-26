@@ -6,8 +6,8 @@
 
 namespace App\Services;
 
-use App\Repositories\GameRepository;
-use App\Repositories\RoundRepository;
+use App\Repositories\Contracts\GameRepositoryInterface;
+use App\Repositories\Contracts\RoundRepositoryInterface;
 use App\Models\Game;
 use App\Services\BoardGeneratorService;
 use Illuminate\Support\Facades\DB;
@@ -20,8 +20,8 @@ class GameService
     protected $boardGenerator;
 
     public function __construct(
-        GameRepository $gameRepository,
-        RoundRepository $roundRepository,
+        GameRepositoryInterface $gameRepository,
+        RoundRepositoryInterface $roundRepository,
         BoardGeneratorService $boardGenerator
     ) {
         $this->gameRepository = $gameRepository;
