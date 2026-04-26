@@ -6,12 +6,11 @@ use App\DTOs\ExploreActionDTO;
 use App\DTOs\UpgradeActionDTO;
 use App\Models\Game;
 use App\Models\Tile;
-use App\Repositories\TileRepository;
-use Illuminate\Http\JsonResponse;
+use App\Repositories\Contracts\TileRepositoryInterface;
 
 class ActionService
 {
-    public function __construct(private TileRepository $tileRepo) {}
+    public function __construct(private TileRepositoryInterface $tileRepo) {}
 
     public function explore(ExploreActionDTO $dto): array
     {

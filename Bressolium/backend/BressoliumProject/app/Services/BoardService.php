@@ -2,12 +2,12 @@
 
 namespace App\Services;
 
-use App\Repositories\BoardRepository;
+use App\Repositories\Contracts\BoardRepositoryInterface;
 use Exception;
 
 class BoardService
 {
-    public function __construct(private BoardRepository $boardRepository) {}
+    public function __construct(private BoardRepositoryInterface $boardRepository) {}
 
     public function getBoardForUser(string $gameId, string $userId)
     {
