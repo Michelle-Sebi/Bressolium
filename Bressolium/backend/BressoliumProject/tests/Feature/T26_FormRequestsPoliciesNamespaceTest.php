@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\CreateGameRequest;
@@ -74,7 +75,7 @@ test('UpgradeActionRequest extiende FormRequest', function () {
 // ─── Form Requests declaran reglas de validación correctas ────────────────────
 
 test('RegisterRequest declara reglas para name, email y password', function () {
-    $rules = app(RegisterRequest::class)->rules();
+    $rules = (new RegisterRequest())->rules();
 
     expect($rules)
         ->toHaveKey('name')
@@ -83,7 +84,7 @@ test('RegisterRequest declara reglas para name, email y password', function () {
 });
 
 test('LoginRequest declara reglas para email y password', function () {
-    $rules = app(LoginRequest::class)->rules();
+    $rules = (new LoginRequest())->rules();
 
     expect($rules)
         ->toHaveKey('email')
@@ -91,13 +92,13 @@ test('LoginRequest declara reglas para email y password', function () {
 });
 
 test('CreateGameRequest declara reglas para team_name', function () {
-    $rules = app(CreateGameRequest::class)->rules();
+    $rules = (new CreateGameRequest())->rules();
 
     expect($rules)->toHaveKey('team_name');
 });
 
 test('JoinGameRequest declara reglas para team_name', function () {
-    $rules = app(JoinGameRequest::class)->rules();
+    $rules = (new JoinGameRequest())->rules();
 
     expect($rules)->toHaveKey('team_name');
 });
@@ -196,64 +197,65 @@ test('TileController::upgrade acepta UpgradeActionRequest como primer parámetro
 
 // ─── Comportamiento: Form Request rechaza datos inválidos con 422 ─────────────
 
-uses(RefreshDatabase::class);
+describe('validaciones y autorización (requiere DB)', function () {
+    uses(RefreshDatabase::class);
+    test('POST /api/register sin name devuelve 422', function () {
+        $this->postJson('/api/register', [
+            'email'    => 'test@example.com',
+            'password' => 'secret123',
+        ])->assertStatus(422);
+    });
 
-test('POST /api/register sin name devuelve 422', function () {
-    $this->postJson('/api/register', [
-        'email'    => 'test@example.com',
-        'password' => 'secret123',
-    ])->assertStatus(422);
-});
+    test('POST /api/register con email inválido devuelve 422', function () {
+        $this->postJson('/api/register', [
+            'name'     => 'Test User',
+            'email'    => 'not-an-email',
+            'password' => 'secret123',
+        ])->assertStatus(422);
+    });
 
-test('POST /api/register con email inválido devuelve 422', function () {
-    $this->postJson('/api/register', [
-        'name'     => 'Test User',
-        'email'    => 'not-an-email',
-        'password' => 'secret123',
-    ])->assertStatus(422);
-});
+    test('POST /api/register con password menor de 8 caracteres devuelve 422', function () {
+        $this->postJson('/api/register', [
+            'name'     => 'Test User',
+            'email'    => 'test@example.com',
+            'password' => 'short',
+        ])->assertStatus(422);
+    });
 
-test('POST /api/register con password menor de 8 caracteres devuelve 422', function () {
-    $this->postJson('/api/register', [
-        'name'     => 'Test User',
-        'email'    => 'test@example.com',
-        'password' => 'short',
-    ])->assertStatus(422);
-});
+    test('POST /api/login sin campos devuelve 422', function () {
+        $this->postJson('/api/login', [])->assertStatus(422);
+    });
 
-test('POST /api/login sin campos devuelve 422', function () {
-    $this->postJson('/api/login', [])->assertStatus(422);
-});
+    test('POST /api/game/create sin team_name devuelve 422', function () {
+        $user  = \App\Models\User::factory()->create();
+        $token = $user->createToken('test')->plainTextToken;
 
-test('POST /api/game/create sin team_name devuelve 422', function () {
-    $user  = \App\Models\User::factory()->create();
-    $token = $user->createToken('test')->plainTextToken;
+        $this->withToken($token)
+            ->postJson('/api/game/create', [])
+            ->assertStatus(422);
+    });
 
-    $this->withToken($token)
-        ->postJson('/api/game/create', [])
-        ->assertStatus(422);
-});
+    test('POST /api/game/join sin team_name devuelve 422', function () {
+        $user  = \App\Models\User::factory()->create();
+        $token = $user->createToken('test')->plainTextToken;
 
-test('POST /api/game/join sin team_name devuelve 422', function () {
-    $user  = \App\Models\User::factory()->create();
-    $token = $user->createToken('test')->plainTextToken;
+        $this->withToken($token)
+            ->postJson('/api/game/join', [])
+            ->assertStatus(422);
+    });
 
-    $this->withToken($token)
-        ->postJson('/api/game/join', [])
-        ->assertStatus(422);
-});
+    // ─── Comportamiento: Policy deniega acceso a partida ajena ───────────────────
 
-// ─── Comportamiento: Policy deniega acceso a partida ajena ───────────────────
+    test('GET /api/board/{gameId} de partida ajena devuelve 403', function () {
+        $owner = \App\Models\User::factory()->create();
+        $other = \App\Models\User::factory()->create();
+        $token = $other->createToken('test')->plainTextToken;
 
-test('GET /api/board/{gameId} de partida ajena devuelve 403', function () {
-    $owner = \App\Models\User::factory()->create();
-    $other = \App\Models\User::factory()->create();
-    $token = $other->createToken('test')->plainTextToken;
+        $game = \App\Models\Game::factory()->create();
+        $game->users()->attach($owner->id);
 
-    $game = \App\Models\Game::factory()->create();
-    $game->users()->attach($owner->id);
-
-    $this->withToken($token)
-        ->getJson('/api/board/' . $game->id)
-        ->assertStatus(403);
+        $this->withToken($token)
+            ->getJson('/api/board/' . $game->id)
+            ->assertStatus(403);
+    });
 });
