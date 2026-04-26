@@ -15,6 +15,7 @@
 - Requieren consumir recursos del inventario global
 - Pueden desbloquear nuevas tecnologías
 - Pueden desbloquear nuevos inventos
+- **Pueden construirse múltiples veces**: cada partida lleva un contador `quantity` por invento. Los prerequisitos de otros inventos/techs pueden exigir una cantidad mínima (por defecto 1, pero puede ser N).
 
 ### Dos tipos de requisito — distinción crítica
 
@@ -30,8 +31,8 @@
 ### Relaciones de Dependencia
 
 Una tecnología o invento se puede construir/investigar cuando:
-1. **Prerequisitos de inventos cumplidos**: Se han construido todos los inventos prerequisitos (no se consumen)
-2. **Prerequisitos de tecnología**: Se han investigado todas las tecnologías prerequisitas (no se consumen)
+1. **Prerequisitos de inventos cumplidos**: Se han construido todos los inventos prerequisitos **en la cantidad exigida** (no se consumen). Por defecto basta con 1 unidad, pero un prereq puede pedir N.
+2. **Prerequisitos de tecnología**: Se han investigado todas las tecnologías prerequisitas (no se consumen). Las techs no tienen cantidad: se tienen o no se tienen.
 3. **Recursos disponibles**: El inventario global tiene suficientes materiales (se consumen al construir)
 
 ### Bonificadores
@@ -330,14 +331,16 @@ Usar formato slug en minúsculas con guiones:
 
 ### Tipos de Prerequisitos
 
-Hay **tres** tipos de prerequisito distintos, ninguno se consume:
+Hay **dos** tipos de prerequisito distintos, ninguno se consume:
 
 | Tipo | Tabla | Descripción |
 |---|---|---|
-| `invention` | `invention_prerequisites` | Necesitas haber construido ese invento antes |
+| `invention` | `invention_prerequisites` | Necesitas haber construido ese invento antes (en la cantidad indicada por `quantity`) |
 | `technology` | `technology_prerequisites` | Necesitas haber investigado esa tech antes |
 
 > **Importante**: `acero`, `vidrio` y `papel` son **solo prerequisitos** — necesitas haberlos construido antes, pero NO se consumen ni aparecen en `invention_costs`. Los costes son siempre recursos de casilla.
+
+> **Cantidad mínima**: cada prerequisito incluye una columna `quantity` con valor mínimo exigido (por defecto 1). Si una receta posterior necesita 2 hachas, se registra como `prereq_id='hacha', quantity=2`. La comparación se hace contra `game_inventions.quantity`.
 
 ```sql
 -- Prerequisitos de tecnologías (no se consumen)
@@ -346,6 +349,7 @@ CREATE TABLE technology_prerequisites (
   technology_id VARCHAR(50) NOT NULL,
   prereq_type ENUM('invention', 'technology') NOT NULL,
   prereq_id VARCHAR(50) NOT NULL,
+  quantity INT NOT NULL DEFAULT 1,  -- cantidad mínima exigida del prereq (sólo aplica a prereq_type='invention')
   UNIQUE(technology_id, prereq_type, prereq_id)
 );
 
@@ -355,47 +359,57 @@ CREATE TABLE invention_prerequisites (
   invention_id VARCHAR(50) NOT NULL,
   prereq_type ENUM('invention', 'technology') NOT NULL,
   prereq_id VARCHAR(50) NOT NULL,
+  quantity INT NOT NULL DEFAULT 1,  -- cantidad mínima exigida del prereq (sólo aplica a prereq_type='invention')
   UNIQUE(invention_id, prereq_type, prereq_id)
 );
 
--- Ejemplos
-INSERT INTO invention_prerequisites VALUES
-  -- trampa requiere haber construido cuchillo (no consume cuchillo)
-  (NULL, 'trampa',    'invention',  'cuchillo'),
-  -- arcos requiere haber construido lanza (no consume lanza)
-  (NULL, 'arcos',     'invention',  'lanza'),
-  -- barco requiere haber construido cuerda (no consume cuerda)
-  (NULL, 'barco',     'invention',  'cuerda'),
-  -- molino requiere haber construido carro (no consume carro)
-  (NULL, 'molino',    'invention',  'carro'),
-  -- brujula requiere haber construido barco (no consume barco)
-  (NULL, 'brujula',   'invention',  'barco'),
-  -- reloj requiere haber construido acero (acero no se consume, solo es prereq)
-  (NULL, 'reloj',     'invention',  'acero'),
-  -- imprenta requiere haber construido papel y acero
-  (NULL, 'imprenta',  'invention',  'papel'),
-  (NULL, 'imprenta',  'invention',  'acero'),
-  -- microscopio requiere haber construido vidrio y acero
-  (NULL, 'microscopio', 'invention', 'vidrio'),
-  (NULL, 'microscopio', 'invention', 'acero'),
-  -- telescopio requiere haber construido vidrio y acero
-  (NULL, 'telescopio', 'invention', 'vidrio'),
-  (NULL, 'telescopio', 'invention', 'acero'),
-  -- bombilla requiere haber construido vidrio
-  (NULL, 'bombilla',  'invention',  'vidrio'),
-  -- fibra-optica requiere haber construido vidrio
-  (NULL, 'fibra-optica', 'invention', 'vidrio'),
-  -- avion requiere haber construido cuerda y acero
-  (NULL, 'avion',     'invention',  'cuerda'),
-  (NULL, 'avion',     'invention',  'acero'),
-  -- satelite requiere haber construido acero
-  (NULL, 'satelite',  'invention',  'acero'),
-  -- estacion-espacial requiere haber construido acero
-  (NULL, 'estacion-espacial', 'invention', 'acero'),
-  -- nave requiere estacion-espacial, acero y vidrio construidos
-  (NULL, 'nave-asentamiento', 'invention', 'estacion-espacial'),
-  (NULL, 'nave-asentamiento', 'invention', 'acero'),
-  (NULL, 'nave-asentamiento', 'invention', 'vidrio');
+-- Contador de inventos construidos por partida (M:N con cantidad)
+CREATE TABLE game_inventions (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  game_id BIGINT NOT NULL,
+  invention_id VARCHAR(50) NOT NULL,
+  quantity INT NOT NULL DEFAULT 0,  -- nº de veces construido en esta partida
+  UNIQUE(game_id, invention_id)
+);
+
+-- Ejemplos (la mayoría con quantity=1; recetas que exigen N>1 se marcan explícitamente)
+INSERT INTO invention_prerequisites (invention_id, prereq_type, prereq_id, quantity) VALUES
+  -- trampa requiere 1 cuchillo construido
+  ('trampa',    'invention',  'cuchillo', 1),
+  -- arcos requiere 1 lanza construida
+  ('arcos',     'invention',  'lanza',    1),
+  -- barco requiere 1 cuerda construida
+  ('barco',     'invention',  'cuerda',   1),
+  -- molino requiere 1 carro construido
+  ('molino',    'invention',  'carro',    1),
+  -- brujula requiere 1 barco construido
+  ('brujula',   'invention',  'barco',    1),
+  -- reloj requiere 1 acero construido
+  ('reloj',     'invention',  'acero',    1),
+  -- imprenta requiere 1 papel y 1 acero
+  ('imprenta',  'invention',  'papel',    1),
+  ('imprenta',  'invention',  'acero',    1),
+  -- microscopio requiere 1 vidrio y 1 acero
+  ('microscopio', 'invention', 'vidrio',  1),
+  ('microscopio', 'invention', 'acero',   1),
+  -- telescopio requiere 1 vidrio y 1 acero
+  ('telescopio', 'invention', 'vidrio',   1),
+  ('telescopio', 'invention', 'acero',    1),
+  -- bombilla requiere 1 vidrio
+  ('bombilla',  'invention',  'vidrio',   1),
+  -- fibra-optica requiere 1 vidrio
+  ('fibra-optica', 'invention', 'vidrio', 1),
+  -- avion requiere 1 cuerda y 1 acero
+  ('avion',     'invention',  'cuerda',   1),
+  ('avion',     'invention',  'acero',    1),
+  -- satelite requiere 1 acero
+  ('satelite',  'invention',  'acero',    1),
+  -- estacion-espacial requiere 1 acero
+  ('estacion-espacial', 'invention', 'acero', 1),
+  -- nave requiere 1 estacion-espacial, pero 2 aceros y 2 vidrios
+  ('nave-asentamiento', 'invention', 'estacion-espacial', 1),
+  ('nave-asentamiento', 'invention', 'acero',  2),
+  ('nave-asentamiento', 'invention', 'vidrio', 2);
 ```
 
 ### Costes de Inventos (Recursos que se consumen)
@@ -478,12 +492,13 @@ En el código de aplicación, antes de permitir votación de invento/tech:
 
 ```pseudocode
 function canBuildInvention(invention, team):
-  // 1. Verificar prerequisitos de inventos (no se consumen, solo se comprueba que existen)
+  // 1. Verificar prerequisitos de inventos en cantidad suficiente (no se consumen)
   for each prereq in invention.prerequisites where prereq.type == 'invention':
-    if !team.hasBuiltInvention(prereq.id):
-      return false, "Falta construir primero: " + prereq.id
+    built = team.getInventionQuantity(prereq.id)  // 0 si no construido, N si construido N veces
+    if built < prereq.quantity:
+      return false, "Faltan " + (prereq.quantity - built) + "x " + prereq.id
 
-  // 2. Verificar prerequisitos de tecnología (no se consumen)
+  // 2. Verificar prerequisitos de tecnología (no se consumen, no tienen cantidad)
   for each prereq in invention.prerequisites where prereq.type == 'technology':
     if !team.hasResearchedTech(prereq.id):
       return false, "Falta investigar primero: " + prereq.id
@@ -499,24 +514,26 @@ function executeInventionBuild(invention, team):
   // 1. Restar recursos
   for each resource_cost in invention.costs:
     team.inventory[resource_cost.resource] -= resource_cost.quantity
-  
-  // 2. Registrar invento construido
-  team.addInvention(invention)
-  
-  // 3. Desbloquear consecuencias
-  for each unlock in invention.unlocks:
-    if unlock.type == 'technology':
-      team.addAvailableTechnology(unlock.id)
-    else if unlock.type == 'invention':
-      team.addAvailableInvention(unlock.id)
-    else if unlock.type == 'tile_level':
-      // Permitir que casillas de ese tipo suban a nivel 5
-      team.unlockTileLevel(unlock.id)
-  
-  // 4. Aplicar bonificadores permanentes
-  for each bonus in invention.bonuses:
-    team.addBonus(bonus)
+
+  // 2. Incrementar contador del invento (game_inventions.quantity += 1)
+  team.incrementInventionQuantity(invention.id)
+
+  // 3. Desbloquear consecuencias (sólo la primera vez que se construye)
+  if team.getInventionQuantity(invention.id) == 1:
+    for each unlock in invention.unlocks:
+      if unlock.type == 'technology':
+        team.addAvailableTechnology(unlock.id)
+      else if unlock.type == 'invention':
+        team.addAvailableInvention(unlock.id)
+      else if unlock.type == 'tile_level':
+        team.unlockTileLevel(unlock.id)
+
+    // 4. Aplicar bonificadores permanentes (sólo la primera vez)
+    for each bonus in invention.bonuses:
+      team.addBonus(bonus)
 ```
+
+> **Nota sobre desbloqueos y bonificadores**: se aplican una sola vez (al construir la primera unidad). Las construcciones posteriores sólo incrementan el contador, lo que permite cumplir prerequisitos que exijan N>1 unidades.
 
 ### Punto de Revisión: Victoria
 
@@ -524,7 +541,7 @@ Antes de cada fin de Jornada, verificar si se ha alcanzado la victoria:
 
 ```pseudocode
 function checkVictory(team):
-  return team.hasInvention('nave-asentamiento') && 
+  return team.getInventionQuantity('nave-asentamiento') >= 1 &&
          team.hasTechnology('terraformacion')
 ```
 

@@ -47,10 +47,17 @@ El criterio de ordenación dentro de cada sprint es: primero las tareas sin bloq
 - Tarea 36: `[Feat] Rate Limiting y Versionado de API` (Backend - Michelle) [Talla: XS]
 - Tarea 30: `[Feat] Cliente HTTP Centralizado con Interceptores` (Frontend - Michelle) [Talla: S]
 
-**Sin bloqueantes pendientes — puede solaparse con lo anterior:**
-- Tarea 38: `[Feat] Actualización de Seeders (Nuevos Items)` (BD - Michelle) [Talla: S]
+**Cierre del sprint — paralelo (cualquiera de las dos):**
+- Tarea 48: `[Refactor] DB Migration V6: Quantities in Inventions & Prerequisites` (BD - Bárbara) [Talla: M]
+  - *Bloqueado por: T22✅. Imprescindible antes de T10/T13/T19/T38.*
+- Tarea 49: `[Docs] Update ER Diagram to V6 + Evolución Tecnológica` (Documentación - Michelle) [Talla: S]
+  - *Bloqueado por: T48*
+- Tarea 38: `[Feat] Actualización de Seeders (Nuevos Items + Quantities)` (BD - Michelle) [Talla: S]
+  - *Bloqueado por: T23✅, T48*
+- Tarea 40: `[Refactor] Response Builder Centralizado` (Backend - Bárbara) [Talla: S]
+- Tarea 41: `[Feat] Middleware Global (Force JSON + Logging)` (Backend - Michelle) [Talla: XS]
 
-> ⚠️ Tarea 38 adapta los seeders a los últimos cambios de diseño (eliminación de Caolinita/Peces). T23 ya dejó la estructura lista.
+> ⚠️ T48 introduce el schema V6 (cantidades en prerrequisitos e inventos). Bloquea T10, T13, T19 y T38, así que debe cerrarse antes de pasar a S4.
 
 ---
 
@@ -65,22 +72,36 @@ El criterio de ordenación dentro de cada sprint es: primero las tareas sin bloq
   - *Bloqueado por: T30*
 - Tarea 33: `[Feat] CI/CD Pipeline` (DevOps - Bárbara) [Talla: M]
   - *Sin bloqueantes técnicos; antes mejor que después*
+- Tarea 42: `[Feat] RTK Query / Server State Cache` (Frontend - Bárbara) [Talla: M]
+  - *Bloqueado por: T30. Debe estar antes que T10 para que el polling se construya ya con RTK Query.*
+- Tarea 43: `[Refactor] Pages + Lazy Loading + Routes Centralizado` (Frontend - Bárbara) [Talla: M]
+  - *Sin bloqueantes técnicos. Mejor antes de T19 y T50/T51 para que las nuevas vistas nazcan en `/pages`.*
+- Tarea 44: `[Feat] Contexts + UI Components Reutilizables` (Frontend - Bárbara) [Talla: S]
+  - *Sin bloqueantes técnicos. Provee `Modal`, `Toast`, etc. para T12, T19, T50 y T51.*
 
-**Arranca cuando T25–T28 estén listas:**
+**Arranca cuando T25–T28 y T42 estén listas:**
 - Tarea 10: `[Feat] Relational Sync and Polling` (Fullstack - Bárbara) [Talla: M]
-  - *Bloqueado por: T8✅, T25, T26, T27, T28*
+  - *Bloqueado por: T8✅, T25, T26, T27, T28, T42, T48*
 
 **Arranca cuando T10 esté lista:**
 - Tarea 11: `[Feat] Progress Voting API` (Backend - Bárbara) [Talla: M]
   - *Bloqueado por: T10, T25, T26, T27, T28*
 - Tarea 19: `[Feat] Technology Tree & Progress Archive` (Frontend - Michelle) [Talla: M]
-  - *Bloqueado por: T23, T30*
+  - *Bloqueado por: T23✅, T30, T48*
+- Tarea 50: `[Feat] Inventory Panel: Inventions Section` (Frontend - Michelle) [Talla: S]
+  - *Bloqueado por: T10, T48*
 
 **Arranca cuando T11 esté lista:**
 - Tarea 12: `[Feat] Action & Decision Control Panel` (Frontend - Bárbara) [Talla: L]
-  - *Bloqueado por: T11, T30*
+  - *Bloqueado por: T11, T30, T44*
 - Tarea 13: `[Feat] Schedule / Cron Round Close and Round Jump` (Backend - Michelle) [Talla: XL]
-  - *Bloqueado por: T11*
+  - *Bloqueado por: T11, T48*
+- Tarea 39: `[Feat] Eventos y Listeners de Dominio` (Backend - Michelle) [Talla: M]
+  - *Sin bloqueantes técnicos. Idealmente en paralelo a T13 (Michelle) para que el cron emita eventos.*
+
+**Arranca cuando T19 y T44 estén listas:**
+- Tarea 51: `[Feat] Pueblo Tile: Center Placement + Tech Tree Access` (Fullstack - Michelle) [Talla: M]
+  - *Bloqueado por: T19, T44*
 
 > ⚠️ T13 es XL y es probable que se extienda al Sprint 5. Considerar dividir T13 en subtareas internas para poder hacer seguimiento.
 
@@ -104,10 +125,17 @@ El criterio de ordenación dentro de cada sprint es: primero las tareas sin bloq
 - Tarea 37: `[Feat] Cache Service` (Backend - Bárbara) [Talla: S]
   - *Bloqueado por: T25*
 - Tarea 35: `[Docs] Documentación de Arquitectura` (Documentación - Bárbara) [Talla: S]
+- Tarea 46: `[Feat] Monitoreo y Métricas` (DevOps - Michelle) [Talla: S]
 
 **Arranca cuando T33 esté lista:**
 - Tarea 34: `[Feat] Tests E2E` (Testing - Michelle) [Talla: L]
   - *Bloqueado por: T33*
+- Tarea 45: `[Feat] Despliegue Producción (HTTPS + CORS)` (DevOps - Bárbara) [Talla: M]
+  - *Bloqueado por: T33*
+
+**Arranca cuando T34 esté lista:**
+- Tarea 47: `[Feat] Accesibilidad` (Frontend - Bárbara) [Talla: S]
+  - *Bloqueado por: T34*
 
 ---
 
@@ -118,24 +146,38 @@ T21✅ ──┐
 T22✅ ──┼──► T23✅
          └──► T24✅
 
-T8✅ ────────────────────► T10 ──► T11 ──► T12
-                            ▲              │
-T25 ──┐                     │              └──► T13 ──► T15
-T26 ──┤                     │                       └──► T16
-T27 ──┼─────────────────────┘
+T22✅ ──► T48 ──┬──► T38
+                ├──► T10 ──► T11 ──► T12
+                ├──► T13 ──► T15
+                ├──► T13 ──► T16
+                ├──► T19 ──► T51
+                └──► T49
+
+T8✅ ────────────────────► T10
+T42 ─────────────────────► T10
+T25 ──┐
+T26 ──┤
+T27 ──┼─────────────────► T10
 T28 ──┘
   │
   └──► T29
 
-T23✅ ──► T38 ──► T19
+T11 ──► T12
+T11 ──► T13 ──► T39 (paralelo)
+T19 + T44 ──► T51
+
 T30 ──┬──► T12
       ├──► T19
-      └──► T31 ──► T32
+      ├──► T31 ──► T32
+      └──► T42
 
-T33 ──► T34
+T10 + T48 ──► T50
+
+T33 ──► T34 ──► T47
+T33 ──► T45
 T25 ──► T37
 
-T9✅, T18✅ (ya completadas — T30 y T31 adaptarán su código al cliente centralizado y al hook)
+T9✅, T18✅ (ya completadas — T30 y T31 adaptarán su código al cliente centralizado y al hook; T50 y T51 amplían inventario y BoardGrid sin modificarlas)
 ```
 
 ---
@@ -146,6 +188,6 @@ T9✅, T18✅ (ya completadas — T30 y T31 adaptarán su código al cliente cen
 |---|---|---|
 | S1 ✅ | T1(S), T14(M) | T2(M), T4(M), T6(S) |
 | S2 ✅ | T3(L), T20(S), T5(M), T22(M), T7(L), T8(L) | T17(S), T21(M), T24(S), T9(XL), T18(S), T23(L) |
-| S3 | T25(M), T27(M) | T26(M), T28(S), T36(XS), T30(S), T38(S) |
-| S4 | T29(L), T31(M), T33(M), T10(M), T11(M), T12(L) | T19(M), T13(XL) |
-| S5 | T37(S), T35(S) | T15(S), T16(S), T32(L), T34(L) |
+| S3 | T25(M), T27(M), T40(S), T48(M) | T26(M), T28(S), T30(S), T36(XS), T38(S), T41(XS), T49(S) |
+| S4 | T10(M), T11(M), T12(L), T29(L), T31(M), T33(M), T42(M), T43(M), T44(S) | T13(XL), T19(M), T39(M), T50(S), T51(M) |
+| S5 | T35(S), T37(S), T45(M), T47(S) | T15(S), T16(S), T32(L), T34(L), T46(S) |

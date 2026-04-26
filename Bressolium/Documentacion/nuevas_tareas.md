@@ -114,6 +114,15 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **HUs**: 2.4, 2.7
 - **Descripción**: Panel lateral de inventario. Iconos de materiales con Badges de cantidad. Estados activo/inactivo (opacidad) según descubrimiento.
 
+### Tarea 50
+- **Título**: `[Feat] Inventory Panel: Inventions Section`
+- **Estimación**: S
+- **Área**: [FRONTEND]
+- **Asignado a**: Michelle
+- **Bloqueado por**: Tarea 10, Tarea 48
+- **HUs**: 2.4, 2.7
+- **Descripción**: Extender el `inventorySlice` para añadir `inventions: InventoryInvention[]` (id, name, quantity, icon). Modificar `InventoryPanel.jsx` para dividir el panel en dos zonas claramente separadas: **"Recursos"** (existente, T18) y **"Inventos"** (nueva). Reutilizar la lógica de active/inactive según `quantity > 0`. Actualizar `Epica2_Front.test.jsx` con tests de la nueva sección. La hidratación se realiza desde el sync (T10).
+
 ---
 
 ## 🗳️ Épica 3: Mecánicas de Turno y Votos
@@ -123,8 +132,8 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Estimación**: M
 - **Área**: [BACKEND] / [FRONTEND]
 - **Asignado a**: Bárbara
-- **Bloqueado por**: Tarea 8, Tarea 25, Tarea 26, Tarea 27, Tarea 28
-- **Descripción**: Endpoint `GET /api/game/sync` para hidratar el estado global de RTK (recursos, progreso, rounds). Polling cada ~30s. Implementar siguiendo la arquitectura completa: Form Request, DTO, Service, Repository con interfaz, API Resource. La parte frontend del polling debe consumir la API a través del cliente HTTP centralizado (Tarea 30).
+- **Bloqueado por**: Tarea 8, Tarea 25, Tarea 26, Tarea 27, Tarea 28, Tarea 48
+- **Descripción**: Endpoint `GET /api/game/sync` para hidratar el estado global de RTK (recursos, **inventos construidos con sus cantidades**, progreso tecnológico, rounds). Polling cada ~30s. Implementar siguiendo la arquitectura completa: Form Request, DTO, Service, Repository con interfaz, API Resource. La parte frontend del polling debe consumir la API a través del cliente HTTP centralizado (Tarea 30).
 
 ### Tarea 11
 - **Título**: `[Feat] Progress Voting API (Relational)`
@@ -132,7 +141,7 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Área**: [BACKEND]
 - **Asignado a**: Bárbara
 - **Bloqueado por**: Tarea 10
-- **Descripción**: Endpoint para insertar en `votes`. Validación de si el usuario ya votó o si el item ya está investigado. (Implementar usando arquitectura Controller -> Service -> Repository).
+- **Descripción**: Endpoint para insertar en `votes`. Acepta votos tanto a **tecnologías como a inventos** (la tabla `votes` ya soporta ambos vía `technology_id` o `invention_id` nullable). Validación de si el usuario ya votó y si el item ya está completado/investigado. Para inventos, considerar la cantidad acumulada del equipo, no solo presencia. (Implementar usando arquitectura Controller -> Service -> Repository).
 
 ### Tarea 12 ⚙️
 - **Título**: `[Feat] Action & Decision Control Panel (SidePanel Derecho)`
@@ -141,15 +150,15 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Asignado a**: Bárbara
 - **Bloqueado por**: Tarea 11, Tarea 30
 - **HUs**: 3.8
-- **Descripción**: Panel de control de jornada: Contador visual de acciones, lista de votables (Tech/Invento) según stock, timer de fase y botón de finalizar turno. Los ítems con recursos suficientes se muestran activos; los ítems que podrían alcanzarse en pocos pasos (más recursos o investigando algo previo) se muestran en gris/desactivado con indicación de qué falta. Consumir la API a través del cliente HTTP centralizado (Tarea 30).
+- **Descripción**: Panel de control de jornada con **dos zonas de votación claramente separadas**: una para **Tecnologías** y otra para **Inventos**. Cada zona muestra su propia lista de votables según stock y prerrequisitos cumplidos. Incluir contador visual de acciones, timer de fase y botón de finalizar turno. Los ítems con recursos suficientes se muestran activos; los ítems alcanzables en pocos pasos (faltan recursos o un prerrequisito previo) en gris con indicación de qué falta. Consumir la API a través del cliente HTTP centralizado (Tarea 30).
 
 ### Tarea 13 ⚙️
 - **Título**: `[Feat] Schedule / Cron Round Close and Round Jump`
 - **Estimación**: XL
 - **Área**: [BACKEND]
 - **Asignado a**: Michelle
-- **Bloqueado por**: Tarea 11
-- **Descripción**: Job de Laravel para procesar el salto de turno: resuelve ganador de votos, aplica costes/recompensas, suma producción de materiales según las casillas explotadas por el equipo, y crea nueva Round. Resetear `actions_spent` en `round_user` para todos los jugadores de la partida al cerrar la jornada.
+- **Bloqueado por**: Tarea 11, Tarea 48
+- **Descripción**: Job de Laravel para procesar el salto de turno: resuelve ganador de votos (de tecnología y de invento), aplica costes/recompensas, **incrementa la cantidad del invento construido en el inventario del equipo**, suma producción de materiales según las casillas explotadas por el equipo, y crea nueva Round. La validación de prerrequisitos compara **cantidades** acumuladas, no solo presencia. Resetear `actions_spent` en `round_user` para todos los jugadores de la partida al cerrar la jornada.
 
 ---
 
@@ -186,22 +195,48 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Bloqueado por**: Tarea 21, Tarea 22
 - **Descripción**: Actualizar el diagrama ER_v4.html a V5 reflejando todos los cambios de schema introducidos en las Tareas 21 y 22: nuevas tablas `invention_prerequisites`, `technology_prerequisites`, `invention_costs`, `technology_bonuses`, `invention_bonuses`, `technology_unlocks`, `invention_unlocks`, columna `base_type` en `tile_types`, y atributos `tier`, `group` en `materials`.
 
+### Tarea 48
+- **Título**: `[Refactor] DB Migration V6: Quantities in Inventions & Prerequisites`
+- **Estimación**: M
+- **Área**: [BASE DE DATOS]
+- **Asignado a**: Bárbara
+- **Bloqueado por**: Tarea 22
+- **Descripción**: Migración aditiva V6: añadir columna `quantity int` a `invention_prerequisites` y `technology_prerequisites` (cuántos del invento/tech previo se requieren). Convertir el pivot many-to-many `game ↔ invention` en una tabla `game_inventions(id, game_id, invention_id, quantity)` análoga a `game_material`. Los tests existentes no deben romperse (cambios aditivos). Actualizar las relaciones de los modelos Eloquent.
+
+### Tarea 49
+- **Título**: `[Docs] Update ER Diagram to V6 + Evolución Tecnológica`
+- **Estimación**: S
+- **Área**: [DOCUMENTACIÓN]
+- **Asignado a**: Michelle
+- **Bloqueado por**: Tarea 48
+- **Descripción**: Actualizar el diagrama ER (actualmente V5) a V6 reflejando: columna `quantity` en `invention_prerequisites` y `technology_prerequisites`, y la nueva tabla `game_inventions`. Actualizar `casillas.md` y `evolucion-tecnologias-e-inventos.md` con las cantidades requeridas en cada prerrequisito. Verificar que la referencia desde `global_rules.md` apunta a la versión correcta del diagrama.
+
 ### Tarea 38
-- **Título**: `[Feat] Actualización de Seeders (Nuevos Items)`
+- **Título**: `[Feat] Actualización de Seeders (Nuevos Items + Quantities)`
 - **Estimación**: S
 - **Área**: [BASE DE DATOS]
 - **Asignado a**: Michelle
-- **Bloqueado por**: Tarea 23
-- **Descripción**: Modificar `ResourcesSeeder` y `TechnologiesSeeder` para reflejar la eliminación de Caolinita/Peces y la adición de los nuevos materiales/tecnologías según el documento `casillas.md` y `evolucion-tecnologias-e-inventos.md` actualizado en rondas anteriores de documentación (44 recursos y 31 tecnologías).
+- **Bloqueado por**: Tarea 23, Tarea 48
+- **Descripción**: Modificar `ResourcesSeeder`, `TechnologiesSeeder` e `InventionsSeeder` para reflejar (1) la eliminación de Caolinita/Peces y la adición de los nuevos materiales/tecnologías según el documento `casillas.md` y `evolucion-tecnologias-e-inventos.md` actualizado (44 recursos y 31 tecnologías), y (2) los nuevos campos de **cantidad** en prerrequisitos de inventos y tecnologías introducidos por T48.
 
 ### Tarea 19 ⚙️
 - **Título**: `[Feat] Technology Tree & Progress Archive`
 - **Estimación**: M
 - **Área**: [FRONTEND]
 - **Asignado a**: Michelle
-- **Bloqueado por**: Tarea 23, Tarea 30
+- **Bloqueado por**: Tarea 23, Tarea 30, Tarea 48
 - **HUs**: 4.1
-- **Descripción**: Visualización (Modal o sección) del árbol tecnológico del equipo. Mostrar investigaciones completadas, disponibles (recursos suficientes) y bloqueadas (indicando qué falta). Representar los múltiples caminos posibles hacia la tecnología final para que el equipo pueda planificar su estrategia. Consumir la API a través del cliente HTTP centralizado (Tarea 30).
+- **Descripción**: Modal del árbol tecnológico del equipo. Mostrar investigaciones completadas, disponibles (recursos y prerrequisitos suficientes) y bloqueadas (indicando qué falta y en qué cantidad). Representar los múltiples caminos posibles hacia la tecnología final para que el equipo pueda planificar su estrategia. **El modal se abre al hacer click sobre la casilla central de tipo `pueblo` del tablero (ver Tarea 51).** Consumir la API a través del cliente HTTP centralizado (Tarea 30).
+
+### Tarea 51
+- **Título**: `[Feat] Pueblo Tile: Center Placement + Tech Tree Access`
+- **Estimación**: M
+- **Área**: [BACKEND] / [FRONTEND]
+- **Asignado a**: Michelle
+- **Bloqueado por**: Tarea 19, Tarea 44
+- **Descripción**:
+  - **Backend:** modificar `BoardGeneratorService` para garantizar que la casilla central `(7, 7)` del 15×15 sea siempre de `base_type=pueblo`. La casilla pueblo no puede explorarse ni mejorarse mediante acciones individuales.
+  - **Frontend:** en `BoardGrid` (T9), detectar el click sobre la casilla pueblo y abrir el modal del árbol tecnológico (T19) en lugar de disparar `exploreTileThunk` o `upgradeTileThunk`. Aplicar estilo visual diferenciado siguiendo la guía brutalista. Actualizar tests de `Epica2_Front.test.jsx` para cubrir la apertura del modal desde la casilla central.
 
 ### Tarea 15 ⚙️
 - **Título**: `[Feat] End of Game (Terraforming)`
@@ -321,6 +356,72 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Bloqueado por**: Tarea 25
 - **Descripción**: Crear un servicio de caché que centralice la lógica de guardar, recuperar e invalidar datos temporales. Aplicarlo inicialmente al endpoint de sync (Tarea 10) y al tablero (Tarea 7): cachear el estado del tablero por partida e invalidar la caché al ejecutar una acción de explorar o upgrade.
 
+### Tarea 39
+- **Título**: `[Feat] Eventos y Listeners de Dominio`
+- **Estimación**: M
+- **Área**: [BACKEND]
+- **Asignado a**: Michelle
+- **Descripción**: Crear `/app/Events` con eventos de dominio (`TileExplored`, `TileUpgraded`, `RoundClosed`, `MaterialsProduced`, `GameFinished`, `VoteCast`, `InventionBuilt`) y `/app/Listeners` desacoplados (notificación a jugadores, auditoría, log estructurado). Refactorizar `ActionService` y los jobs de T13 y T15 para que emitan eventos en lugar de ejecutar todo inline. Encolar los listeners costosos.
+
+### Tarea 40
+- **Título**: `[Refactor] Response Builder Centralizado`
+- **Estimación**: S
+- **Área**: [BACKEND]
+- **Asignado a**: Bárbara
+- **Descripción**: Extraer la lógica de respuestas estandarizadas a `app/Support/ResponseBuilder.php` con métodos `success(data, code)`, `error(message, code)`, `paginated(query)`. Refactorizar todos los controladores existentes (T2, T4, T7, T8) para que pasen por este builder en lugar de devolver arrays directamente desde `BaseController`.
+
+### Tarea 41
+- **Título**: `[Feat] Middleware Global (Force JSON + Request Logging)`
+- **Estimación**: XS
+- **Área**: [BACKEND]
+- **Asignado a**: Michelle
+- **Descripción**: Crear middleware global que fuerce `Accept: application/json` en peticiones API y registre cada petición (método, ruta, usuario, tiempo de respuesta, status) en log estructurado. Registrar en `bootstrap/app.php`. Distinguir explícitamente del middleware de ruta (Sanctum, throttle).
+
+### Tarea 42
+- **Título**: `[Feat] RTK Query / Server State Cache`
+- **Estimación**: M
+- **Área**: [FRONTEND]
+- **Asignado a**: Bárbara
+- **Bloqueado por**: Tarea 30
+- **Descripción**: Añadir **RTK Query** al store Redux existente. Migrar progresivamente las llamadas API (board, inventory, sync, votes) para que usen `createApi` con caché automática y revalidación. Los `slices` quedan reservados para estado puramente de UI/cliente. Justifica documentalmente que cumple "librería de gestión de estado de servidor" exigida por la guía del módulo.
+
+### Tarea 43
+- **Título**: `[Refactor] Pages + Lazy Loading + Routes Centralizado`
+- **Estimación**: M
+- **Área**: [FRONTEND]
+- **Asignado a**: Bárbara
+- **Descripción**: Crear `/src/pages/` y extraer las vistas (`Login`, `Register`, `Dashboard`, `GameBoard`) desde `features/` como Pages independientes. Aplicar `React.lazy()` + `Suspense` para carga diferida. Crear `/src/routes/` extrayendo la configuración del router de `App.jsx`, con HOC `ProtectedRoute` para rutas autenticadas.
+
+### Tarea 44
+- **Título**: `[Feat] Contexts + UI Components Reutilizables`
+- **Estimación**: S
+- **Área**: [FRONTEND]
+- **Asignado a**: Bárbara
+- **Descripción**: Crear `/src/contexts/` con providers de baja frecuencia (`ThemeContext`, `ToastContext` para notificaciones globales). Crear `/src/components/ui/` con primitivos brutalistas reutilizables (`Button`, `Input`, `Modal`, `Toast`, `Badge`, `IconTile`) según `guia_estilos/`. Refactorizar componentes pendientes (T12, T19, T50, T51) para usarlos.
+
+### Tarea 45
+- **Título**: `[Feat] Despliegue Producción (HTTPS + CORS)`
+- **Estimación**: M
+- **Área**: [DEVOPS]
+- **Asignado a**: Bárbara
+- **Bloqueado por**: Tarea 33
+- **Descripción**: Configurar despliegue del backend en contenedor Docker (php-fpm + nginx) y del frontend como estáticos. Asegurar **HTTPS** en producción (certbot o equivalente). Configurar **CORS** estricto en Laravel para que solo el dominio del frontend acceda a la API. Variables de entorno separadas dev/prod (`.env.production`).
+
+### Tarea 46
+- **Título**: `[Feat] Monitoreo y Métricas`
+- **Estimación**: S
+- **Área**: [DEVOPS]
+- **Asignado a**: Michelle
+- **Descripción**: Integrar **Sentry** (o equivalente) para captura de errores en backend y frontend. Configurar logs estructurados en Laravel con canales separados. Endpoint `/api/v1/health` con métricas básicas (uptime, conexiones BD, peticiones/min, errores/min, latencia p95). Dashboard mínimo (Grafana o el panel free de Sentry).
+
+### Tarea 47
+- **Título**: `[Feat] Accesibilidad`
+- **Estimación**: S
+- **Área**: [FRONTEND]
+- **Asignado a**: Bárbara
+- **Bloqueado por**: Tarea 34
+- **Descripción**: Auditar la app con axe-core o Lighthouse. Asegurar contraste mínimo AA, alts en iconos de materiales y casillas, navegación por teclado en `BoardGrid` y modales del lobby/tech tree, atributos ARIA en componentes interactivos. Añadir tests de a11y dentro de Playwright.
+
 ---
 
 ## 📋 Resumen de distribución
@@ -348,6 +449,13 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 | T33 | CI/CD Pipeline | M | Pendiente |
 | T35 | Docs Arquitectura | S | Pendiente |
 | T37 | Cache Service | S | Pendiente |
+| T40 | Response Builder Centralizado | S | Pendiente |
+| T42 | RTK Query / Server State Cache | M | Pendiente |
+| T43 | Pages + Lazy Loading + Routes Centralizado | M | Pendiente |
+| T44 | Contexts + UI Components Reutilizables | S | Pendiente |
+| T45 | Despliegue Producción (HTTPS + CORS) | M | Pendiente |
+| T47 | Accesibilidad | S | Pendiente |
+| T48 | DB Migration V6: Quantities | M | Pendiente |
 
 ### Michelle
 | Tarea | Título | Talla | Estado |
@@ -371,3 +479,9 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 | T32 | Tests de Frontend | L | Pendiente |
 | T34 | Tests E2E | L | Pendiente |
 | T36 | Rate Limiting y Versionado API | XS | Pendiente |
+| T39 | Eventos y Listeners de Dominio | M | Pendiente |
+| T41 | Middleware Global (Force JSON + Logging) | XS | Pendiente |
+| T46 | Monitoreo y Métricas | S | Pendiente |
+| T49 | Docs ER V6 + Evolución Tecnológica | S | Pendiente |
+| T50 | Inventory Panel: Inventions Section | S | Pendiente |
+| T51 | Pueblo Tile + Tech Tree Access | M | Pendiente |

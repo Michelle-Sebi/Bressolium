@@ -32,8 +32,9 @@ Cada jugador dispone de **dos acciones** por turno. Puede elegir cualquier combi
     * **Niveles:** El nivel N produce N tipos de recursos. El paso de Nv1 a Nv2 es gratuito, pero niveles superiores requieren tecnologías o inventos específicos.
 
 ### Fase 3: Votación Colectiva
-Tras realizar las dos acciones, el jugador accede al panel de votación. El equipo decide en qué invertir los materiales del inventario (tecnologías o inventos como la rueda, el arado o un acueducto). 
+Tras realizar las dos acciones, el jugador accede al panel de votación, dividido en dos zonas: **tecnologías** e **inventos**. El equipo decide en qué invertir los materiales del inventario (tecnologías o inventos como la rueda, el arado o un acueducto).
 * Se muestran las opciones posibles según los recursos actuales.
+* Los inventos pueden construirse **múltiples veces**: cada partida lleva un contador por invento. Algunos prerequisitos de inventos avanzados exigen una cantidad mínima (p.ej. la Nave de Asentamiento requiere 2× Acero y 2× Vidrio).
 * Existe la opción de **"No gastar"** para ahorrar para la siguiente jornada.
 * En caso de empate, el sistema elige uno al azar entre los empatados.
 
