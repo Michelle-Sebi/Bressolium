@@ -13,6 +13,7 @@ class TechnologyPrerequisite extends Model
         'technology_id',
         'prereq_type',
         'prereq_id',
+        'quantity',
     ];
 
     /**

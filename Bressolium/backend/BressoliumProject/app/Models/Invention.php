@@ -28,7 +28,7 @@ class Invention extends Model
     public function games(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Game::class, 'game_invention')
-                    ->withPivot('is_active')
+                    ->withPivot('is_active', 'quantity')
                     ->withTimestamps();
     }
 
