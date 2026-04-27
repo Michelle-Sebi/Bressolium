@@ -38,13 +38,20 @@ class InventionsSeeder extends Seeder
             $inv = $invs[$slug];
 
             // Prerequisitos inv → invento
-            foreach ($data['prereqs_inv'] as $prereqSlug) {
+            // Cada entrada puede ser un slug (string) o ['slug' => ..., 'qty' => N]
+            foreach ($data['prereqs_inv'] as $prereqEntry) {
+                $prereqSlug = is_array($prereqEntry) ? $prereqEntry['slug'] : $prereqEntry;
+                $prereqQty  = is_array($prereqEntry) ? ($prereqEntry['qty'] ?? 1) : 1;
+
                 if (isset($invs[$prereqSlug])) {
-                    InventionPrerequisite::firstOrCreate([
-                        'invention_id' => $inv->id,
-                        'prereq_type'  => 'invention',
-                        'prereq_id'    => $invs[$prereqSlug]->id,
-                    ]);
+                    InventionPrerequisite::firstOrCreate(
+                        [
+                            'invention_id' => $inv->id,
+                            'prereq_type'  => 'invention',
+                            'prereq_id'    => $invs[$prereqSlug]->id,
+                        ],
+                        ['quantity' => $prereqQty]
+                    );
                 }
             }
 
@@ -492,7 +499,11 @@ class InventionsSeeder extends Seeder
             // ── Era Espacial ────────────────────────────────────────
             'nave-asentamiento' => [
                 'name'         => 'Nave de Asentamiento Interestelar',
-                'prereqs_inv'  => ['estacion-espacial', 'acero', 'vidrio'],
+                'prereqs_inv'  => [
+                    'estacion-espacial',
+                    ['slug' => 'acero',  'qty' => 2],
+                    ['slug' => 'vidrio', 'qty' => 2],
+                ],
                 'prereqs_tech' => ['Terraformación'],
                 'costs'        => ['silicio' => 400, 'hidrogeno' => 600, 'agua' => 300, 'mat-aisl-nat' => 200],
                 'bonuses'      => [],

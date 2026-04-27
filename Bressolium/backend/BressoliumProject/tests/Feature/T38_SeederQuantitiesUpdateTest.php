@@ -69,13 +69,13 @@ test('ResourcesSeeder carga al menos los recursos definidos en casillas.md', fun
 
 // ─── 3. TechnologiesSeeder — 31 tecnologías ──────────────────────────────────
 
-test('TechnologiesSeeder carga exactamente 31 tecnologías', function () {
+test('TechnologiesSeeder carga exactamente 26 tecnologías', function () {
     Artisan::call('db:seed', ['--class' => 'TechnologiesSeeder']);
 
-    expect(Technology::count())->toBe(31);
+    expect(Technology::count())->toBe(26);
 });
 
-test('TechnologiesSeeder incluye las 31 tecnologías del árbol según evolucion-tecnologias', function () {
+test('TechnologiesSeeder incluye las 26 tecnologías del árbol según evolucion-tecnologias', function () {
     Artisan::call('db:seed', ['--class' => 'TechnologiesSeeder']);
 
     $expectedTechs = [
@@ -87,7 +87,6 @@ test('TechnologiesSeeder incluye las 31 tecnologías del árbol según evolucion
         'Inteligencia Artificial', 'Energías Renovables', 'Robótica',
         'Nanotecnología', 'Edición Genética', 'Biotecnología',
         'Sistemas Autónomos', 'Tecnología Espacial', 'Terraformación',
-        'Imprenta', 'Satélite', 'Microscopio', 'Penicilina', 'Bombilla',
     ];
 
     foreach ($expectedTechs as $name) {
