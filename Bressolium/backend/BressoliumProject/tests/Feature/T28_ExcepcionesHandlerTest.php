@@ -119,7 +119,7 @@ describe('handler global convierte excepciones a JSON (requiere DB)', function (
         }
 
         $response = $this->withToken($token)
-            ->postJson("/api/tiles/{$tile->id}/explore");
+            ->postJson("/api/v1/tiles/{$tile->id}/explore");
 
         $response->assertStatus(403)
             ->assertJson(['success' => false])
@@ -144,7 +144,7 @@ describe('handler global convierte excepciones a JSON (requiere DB)', function (
         $tile->update(['explored' => true, 'explored_by_player_id' => $user->id]);
 
         $response = $this->withToken($token)
-            ->postJson("/api/tiles/{$tile->id}/explore");
+            ->postJson("/api/v1/tiles/{$tile->id}/explore");
 
         $response->assertStatus(422)
             ->assertJson(['success' => false])
@@ -169,7 +169,7 @@ describe('handler global convierte excepciones a JSON (requiere DB)', function (
         $tile->update(['explored' => false]);
 
         $response = $this->withToken($token)
-            ->postJson("/api/tiles/{$tile->id}/upgrade");
+            ->postJson("/api/v1/tiles/{$tile->id}/upgrade");
 
         $response->assertStatus(422)
             ->assertJson(['success' => false])
@@ -194,7 +194,7 @@ describe('handler global convierte excepciones a JSON (requiere DB)', function (
         $tile->update(['explored' => false]);
 
         $response = $this->withToken($token)
-            ->postJson("/api/tiles/{$tile->id}/explore");
+            ->postJson("/api/v1/tiles/{$tile->id}/explore");
 
         $response->assertStatus(403)
             ->assertJson(['success' => false])
@@ -220,7 +220,7 @@ describe('handler global convierte excepciones a JSON (requiere DB)', function (
         // game_material vacío → upgrade fallará por materiales insuficientes
 
         $response = $this->withToken($token)
-            ->postJson("/api/tiles/{$tile->id}/upgrade");
+            ->postJson("/api/v1/tiles/{$tile->id}/upgrade");
 
         // 400 si hay nivel siguiente disponible y no hay materiales; si no hay
         // nivel siguiente, puede ser 422 — ambos son error conocido no 500.
