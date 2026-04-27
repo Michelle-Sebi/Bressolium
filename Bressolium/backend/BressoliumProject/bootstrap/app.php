@@ -15,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->shouldRenderJsonWhen(fn ($request) => $request->is('api/*'));
+        $exceptions->shouldRenderJsonWhen(fn ($request) => $request->is('api/v1/*'));
 
         $exceptions->render(function (\App\Exceptions\DomainException $e, $request) {
             return response()->json([

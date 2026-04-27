@@ -23,7 +23,7 @@ beforeEach(function () {
 test('almacena el voto en la tabla votes vinculandolo a la jornada actual', function () {
     $tech = \App\Models\Technology::factory()->create();
 
-    $response = $this->postJson("/api/game/{$this->game->id}/vote", [
+    $response = $this->postJson("/api/v1/game/{$this->game->id}/vote", [
         'technology_id' => $tech->id
     ]);
 
@@ -39,7 +39,7 @@ test('almacena el voto en la tabla votes vinculandolo a la jornada actual', func
 test('permite votar por un invento en lugar de una tecnologia', function () {
     $inv = \App\Models\Invention::factory()->create();
 
-    $response = $this->postJson("/api/game/{$this->game->id}/vote", [
+    $response = $this->postJson("/api/v1/game/{$this->game->id}/vote", [
         'invention_id' => $inv->id
     ]);
 

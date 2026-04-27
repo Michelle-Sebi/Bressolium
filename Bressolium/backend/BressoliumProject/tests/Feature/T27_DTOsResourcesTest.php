@@ -352,7 +352,7 @@ test('BoardController::show devuelve colección de TileResource (sin timestamps)
     $user->games()->attach($game->id);
     Tile::factory()->count(3)->create(['game_id' => $game->id]);
 
-    $response = $this->actingAs($user)->getJson("/api/board/{$game->id}");
+    $response = $this->actingAs($user)->getJson("/api/v1/board/{$game->id}");
 
     $response->assertStatus(200);
     $tiles = $response->json('data');
@@ -379,7 +379,7 @@ test('TileController::explore devuelve TileResource (no modelo crudo)', function
         'explored'     => false,
     ]);
 
-    $response = $this->actingAs($user)->postJson("/api/tiles/{$tile->id}/explore");
+    $response = $this->actingAs($user)->postJson("/api/v1/tiles/{$tile->id}/explore");
 
     $response->assertStatus(200);
     $tileData = $response->json('data');
@@ -408,7 +408,7 @@ test('TileController::upgrade devuelve TileResource (no modelo crudo)', function
         'explored'     => true,
     ]);
 
-    $response = $this->actingAs($user)->postJson("/api/tiles/{$tile->id}/upgrade");
+    $response = $this->actingAs($user)->postJson("/api/v1/tiles/{$tile->id}/upgrade");
 
     $response->assertStatus(200);
     $tileData = $response->json('data');

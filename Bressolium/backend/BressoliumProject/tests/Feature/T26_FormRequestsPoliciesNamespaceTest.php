@@ -200,14 +200,14 @@ test('TileController::upgrade acepta UpgradeActionRequest como primer parámetro
 describe('validaciones y autorización (requiere DB)', function () {
     uses(RefreshDatabase::class);
     test('POST /api/register sin name devuelve 422', function () {
-        $this->postJson('/api/register', [
+        $this->postJson('/api/v1/register', [
             'email'    => 'test@example.com',
             'password' => 'secret123',
         ])->assertStatus(422);
     });
 
     test('POST /api/register con email inválido devuelve 422', function () {
-        $this->postJson('/api/register', [
+        $this->postJson('/api/v1/register', [
             'name'     => 'Test User',
             'email'    => 'not-an-email',
             'password' => 'secret123',
@@ -215,7 +215,7 @@ describe('validaciones y autorización (requiere DB)', function () {
     });
 
     test('POST /api/register con password menor de 8 caracteres devuelve 422', function () {
-        $this->postJson('/api/register', [
+        $this->postJson('/api/v1/register', [
             'name'     => 'Test User',
             'email'    => 'test@example.com',
             'password' => 'short',
@@ -223,7 +223,7 @@ describe('validaciones y autorización (requiere DB)', function () {
     });
 
     test('POST /api/login sin campos devuelve 422', function () {
-        $this->postJson('/api/login', [])->assertStatus(422);
+        $this->postJson('/api/v1/login', [])->assertStatus(422);
     });
 
     test('POST /api/game/create sin team_name devuelve 422', function () {
@@ -231,7 +231,7 @@ describe('validaciones y autorización (requiere DB)', function () {
         $token = $user->createToken('test')->plainTextToken;
 
         $this->withToken($token)
-            ->postJson('/api/game/create', [])
+            ->postJson('/api/v1/game/create', [])
             ->assertStatus(422);
     });
 
@@ -240,7 +240,7 @@ describe('validaciones y autorización (requiere DB)', function () {
         $token = $user->createToken('test')->plainTextToken;
 
         $this->withToken($token)
-            ->postJson('/api/game/join', [])
+            ->postJson('/api/v1/game/join', [])
             ->assertStatus(422);
     });
 
@@ -255,7 +255,7 @@ describe('validaciones y autorización (requiere DB)', function () {
         $game->users()->attach($owner->id);
 
         $this->withToken($token)
-            ->getJson('/api/board/' . $game->id)
+            ->getJson('/api/v1/board/' . $game->id)
             ->assertStatus(403);
     });
 });

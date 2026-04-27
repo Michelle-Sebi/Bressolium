@@ -22,7 +22,7 @@ beforeEach(function () {
 });
 
 test('endpoint GET /api/game/sync devuelve el estado relacional completo del equipo', function () {
-    $response = $this->getJson("/api/game/{$this->game->id}/sync");
+    $response = $this->getJson("/api/v1/game/{$this->game->id}/sync");
 
     $response->assertStatus(200)
         ->assertJsonStructure([
