@@ -26,7 +26,7 @@ function seedTileTypes(): void
 test('GET /api/board/{id} devuelve 401 sin sesión activa', function () {
     $game = Game::factory()->create();
 
-    $this->getJson("/api/board/{$game->id}")
+    $this->getJson("/api/v1/board/{$game->id}")
          ->assertUnauthorized();
 });
 
@@ -38,7 +38,7 @@ test('GET /api/board/{id} devuelve 403 si el usuario no pertenece a la partida',
     Tile::factory()->count(5)->create(['game_id' => $otherGame->id]);
 
     $this->actingAs($user)
-         ->getJson("/api/board/{$otherGame->id}")
+         ->getJson("/api/v1/board/{$otherGame->id}")
          ->assertForbidden();
 });
 
@@ -49,7 +49,7 @@ test('GET /api/board/{id} devuelve 200 con estructura {success, data[*], error} 
     Tile::factory()->count(10)->create(['game_id' => $game->id]);
 
     $this->actingAs($user)
-         ->getJson("/api/board/{$game->id}")
+         ->getJson("/api/v1/board/{$game->id}")
          ->assertStatus(200)
          ->assertJsonStructure([
              'success',
@@ -69,7 +69,7 @@ test('GET /api/board/{id} devuelve solo las casillas de la partida solicitada', 
     Tile::factory()->count(10)->create(['game_id' => $game->id]);
     Tile::factory()->count(5)->create(['game_id' => $other->id]);
 
-    $response = $this->actingAs($user)->getJson("/api/board/{$game->id}");
+    $response = $this->actingAs($user)->getJson("/api/v1/board/{$game->id}");
 
     expect(count($response->json('data')))->toBe(10);
 });
