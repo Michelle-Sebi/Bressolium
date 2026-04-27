@@ -17,6 +17,22 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(fn ($request) => $request->is('api/v1/*'));
 
+        $exceptions->render(function (\Illuminate\Validation\ValidationException $e, $request) {
+            return response()->json([
+                'success' => false,
+                'data'    => null,
+                'error'   => $e->errors(),
+            ], 422);
+        });
+
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException $e, $request) {
+            return response()->json([
+                'success' => false,
+                'data'    => null,
+                'error'   => 'No tienes permiso para realizar esta acción.',
+            ], 403);
+        });
+
         $exceptions->render(function (\App\Exceptions\DomainException $e, $request) {
             return response()->json([
                 'success' => false,
