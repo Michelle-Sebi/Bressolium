@@ -13,6 +13,7 @@ class InventionPrerequisite extends Model
         'invention_id',
         'prereq_type',
         'prereq_id',
+        'quantity',
     ];
 
     /**

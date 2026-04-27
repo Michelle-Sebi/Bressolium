@@ -20,17 +20,17 @@ uses(RefreshDatabase::class);
 
 test('invention_prerequisites tiene la columna quantity de tipo entero', function () {
     expect(Schema::hasColumn('invention_prerequisites', 'quantity'))->toBeTrue()
-        ->and(Schema::getColumnType('invention_prerequisites', 'quantity'))->toBe('integer');
+        ->and(Schema::getColumnType('invention_prerequisites', 'quantity'))->toBe('int');
 });
 
 test('technology_prerequisites tiene la columna quantity de tipo entero', function () {
     expect(Schema::hasColumn('technology_prerequisites', 'quantity'))->toBeTrue()
-        ->and(Schema::getColumnType('technology_prerequisites', 'quantity'))->toBe('integer');
+        ->and(Schema::getColumnType('technology_prerequisites', 'quantity'))->toBe('int');
 });
 
 test('game_invention tiene la columna quantity de tipo entero', function () {
     expect(Schema::hasColumn('game_invention', 'quantity'))->toBeTrue()
-        ->and(Schema::getColumnType('game_invention', 'quantity'))->toBe('integer');
+        ->and(Schema::getColumnType('game_invention', 'quantity'))->toBe('int');
 });
 
 // ─── game_invention sigue manteniendo is_active (cambios aditivos) ────────────
