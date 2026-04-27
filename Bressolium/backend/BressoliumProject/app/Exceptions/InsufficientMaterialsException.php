@@ -6,6 +6,6 @@ class InsufficientMaterialsException extends DomainException
 {
     public function __construct()
     {
-        parent::__construct('Insufficient materials to perform this action.', 400);
+        parent::__construct('Materiales insuficientes para realizar esta acción.', 400);
     }
 }

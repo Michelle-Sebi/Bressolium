@@ -6,6 +6,6 @@ class UserNotInGameException extends DomainException
 {
     public function __construct()
     {
-        parent::__construct('User is not in this game.', 403);
+        parent::__construct('El usuario no pertenece a esta partida.', 403);
     }
 }

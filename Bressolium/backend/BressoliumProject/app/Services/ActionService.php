@@ -59,7 +59,7 @@ class ActionService
 
         $nextType = $this->tileRepo->findNextTileType($tile);
         if (!$nextType) {
-            throw new TileNotExploredException(); // reutilizamos 422: sin nivel siguiente
+            throw new TileNotExploredException('No hay más niveles de mejora disponibles para esta casilla.');
         }
 
         $costs = $this->tileRepo->getUpgradeCosts($nextType);

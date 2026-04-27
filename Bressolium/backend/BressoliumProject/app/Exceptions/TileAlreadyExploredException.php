@@ -6,6 +6,6 @@ class TileAlreadyExploredException extends DomainException
 {
     public function __construct()
     {
-        parent::__construct('Tile has already been explored.', 422);
+        parent::__construct('La casilla ya ha sido explorada.', 422);
     }
 }
