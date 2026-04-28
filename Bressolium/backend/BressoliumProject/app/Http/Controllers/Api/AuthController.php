@@ -7,26 +7,26 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Services\AuthService;
+use App\Support\ResponseBuilder;
 use Exception;
 
 class AuthController extends Controller
 {
-    public function __construct(protected AuthService $authService) {}
+    public function __construct(
+        protected AuthService $authService,
+        protected ResponseBuilder $rb,
+    ) {}
 
     public function register(RegisterRequest $request)
     {
         try {
             $data = $this->authService->register($request->validated());
-            return response()->json([
-                'success' => true,
-                'data'    => [
-                    'user'  => (new UserResource($data['user']))->toArray($request),
-                    'token' => $data['token'],
-                ],
-                'error'   => null,
-            ], 200);
+            return $this->rb->success([
+                'user'  => (new UserResource($data['user']))->toArray($request),
+                'token' => $data['token'],
+            ]);
         } catch (Exception $e) {
-            return response()->json(['success' => false, 'data' => null, 'error' => $e->getMessage()], 500);
+            return $this->rb->error($e->getMessage(), 500);
         }
     }
 
@@ -34,17 +34,13 @@ class AuthController extends Controller
     {
         try {
             $data = $this->authService->login($request->email, $request->password);
-            return response()->json([
-                'success' => true,
-                'data'    => [
-                    'user'  => (new UserResource($data['user']))->toArray($request),
-                    'token' => $data['token'],
-                ],
-                'error'   => null,
-            ], 200);
+            return $this->rb->success([
+                'user'  => (new UserResource($data['user']))->toArray($request),
+                'token' => $data['token'],
+            ]);
         } catch (Exception $e) {
             $status = ($e->getMessage() === 'Invalid credentials') ? 401 : 500;
-            return response()->json(['success' => false, 'data' => null, 'error' => $e->getMessage()], $status);
+            return $this->rb->error($e->getMessage(), $status);
         }
     }
 }

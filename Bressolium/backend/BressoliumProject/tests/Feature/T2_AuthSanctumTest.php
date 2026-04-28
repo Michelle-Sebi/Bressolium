@@ -12,7 +12,7 @@ uses(RefreshDatabase::class);
 // ==========================================
 
 test('post a /api/register devuelve token y usuario en standar JSON', function () {
-    $response = $this->postJson('/api/register', [
+    $response = $this->postJson('/api/v1/register', [
         'name' => 'Jugador1',
         'email' => 'jugador1@bressolium.com',
         'password' => 'password123'
@@ -39,7 +39,7 @@ test('post a /api/login con datos correctos devuelve HTTP 200 y token', function
     ]);
 
     // Ejecución
-    $response = $this->postJson('/api/login', [
+    $response = $this->postJson('/api/v1/login', [
         'email' => 'test@auth.com',
         'password' => 'authpass'
     ]);
@@ -50,12 +50,12 @@ test('post a /api/login con datos correctos devuelve HTTP 200 y token', function
 });
 
 test('rutas protegidas rechazan usuarios sin token Sanctum', function () {
-    $response = $this->getJson('/api/user'); // Endpoint base de prueba de Sanctum
+    $response = $this->getJson('/api/v1/user'); // Endpoint base de prueba de Sanctum
     $response->assertStatus(401);
 });
 
 test('post a /api/register con datos inválidos devuelve errores en standar JSON', function () {
-    $response = $this->postJson('/api/register', [
+    $response = $this->postJson('/api/v1/register', [
         'name' => 'Invalid',
         // Faltan campos requeridos como email y password
     ]);
@@ -78,7 +78,7 @@ test('post a /api/login con credenciales incorrectas devuelve error en standar J
         'password' => bcrypt('authpass')
     ]);
 
-    $response = $this->postJson('/api/login', [
+    $response = $this->postJson('/api/v1/login', [
         'email' => 'test@auth.com',
         'password' => 'wrongpass'
     ]);
