@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
+        $middleware->redirectGuestsTo(fn () => null);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(fn ($request) => $request->is('api/v1/*'));
@@ -31,6 +32,22 @@ return Application::configure(basePath: dirname(__DIR__))
                 'data'    => null,
                 'error'   => 'No tienes permiso para realizar esta acción.',
             ], 403);
+        });
+
+        $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, $request) {
+            return response()->json([
+                'success' => false,
+                'data'    => null,
+                'error'   => 'No autenticado.',
+            ], 401);
+        });
+
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, $request) {
+            return response()->json([
+                'success' => false,
+                'data'    => null,
+                'error'   => 'Recurso no encontrado.',
+            ], 404);
         });
 
         $exceptions->render(function (\App\Exceptions\DomainException $e, $request) {
