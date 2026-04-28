@@ -348,7 +348,8 @@ El juego utiliza dos tipos de requisitos para inventos:
 
 1. **`invention_prerequisites`**: Inventos que deben estar construidos/investigados antes de poder construir otro invento.
    - NO se consumen del inventario
-   - Ejemplo: Para construir `trampa` necesitas tener `cuchillo` ya construido, pero el cuchillo no se gasta
+   - Incluyen una columna `quantity` (por defecto 1): indica cuántas unidades del invento prerequisito deben estar ya construidas. La comparación se hace contra `game_inventions.quantity`.
+   - Ejemplo: Para construir `trampa` necesitas tener `cuchillo` ya construido (`quantity=1`), pero el cuchillo no se gasta
 
 2. **`invention_costs`**: Recursos que se consumen del inventario cuando construyes un invento.
    - Siempre referencian `resource_id` (nunca `invention_id`)
@@ -445,7 +446,7 @@ function calculateTileProduction(tileInstance, team):
 
 **Nota**: Este cálculo NO maneja `invention_costs` (costes de construcción de inventos).
 Los costes se aplican en el sistema de construcción de inventos de forma independiente:
-- Verificar `invention_prerequisites` (inventos ya construidos, no se consumen)
+- Verificar `invention_prerequisites` (inventos ya construidos en la `quantity` mínima requerida, no se consumen)
 - Restar `invention_costs` (recursos consumidos del inventario)
 
 ---

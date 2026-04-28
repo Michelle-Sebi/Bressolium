@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bressolium ER Diagram — V5 (English)</title>
+    <title>Bressolium ER Diagram — V6 (English)</title>
     <style>
         body {
             font-family: sans-serif;
@@ -51,10 +51,11 @@
 </head>
 
 <body>
-    <h1>Bressolium Entity-Relationship Diagram — V5</h1>
-    <p>Normalized relational schema for the MVP. No JSON. All PKs are UUID. V5 incorporates tile schema corrections (T21:
-        base_type, explored_by_player_id, explored_at, tier, group) and tech tree normalization (T22: prerequisites,
-        costs, bonuses and unlocks as separate tables).</p>
+    <h1>Bressolium Entity-Relationship Diagram — V6</h1>
+    <p>Normalized relational schema for the MVP. No JSON. All PKs are UUID. V6 adds quantity tracking for prerequisites
+        and a dedicated game_inventions table (T48): quantity column in invention_prerequisites and
+        technology_prerequisites (minimum units required), and game_inventions(game_id, invention_id, quantity,
+        is_active) replacing the implicit many-to-many between GAME and INVENTION.</p>
     <div id="erd"></div>
     <script type="module">
         import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
@@ -158,12 +159,22 @@
     uuid invention_id FK
     enum prereq_type "invention|technology"
     uuid prereq_id "Polymorphic FK"
+    int quantity "Min units required (default 1)"
   }
 
   TECHNOLOGY_PREREQUISITES {
     uuid technology_id FK
     enum prereq_type "technology"
     uuid prereq_id "Polymorphic FK"
+    int quantity "Min units required (default 1)"
+  }
+
+  GAME_INVENTIONS {
+    uuid id PK
+    uuid game_id FK
+    uuid invention_id FK
+    int quantity "Times built in this game (default 0)"
+    boolean is_active
   }
 
   INVENTION_COSTS {
@@ -224,7 +235,8 @@
 
   %% ===== Game progress (what the team has unlocked) =====
   GAME }o--o{ TECHNOLOGY : "has researched"
-  GAME }o--o{ INVENTION : "has built"
+  GAME ||--o{ GAME_INVENTIONS : "tracks built inventions"
+  INVENTION ||--o{ GAME_INVENTIONS : "built in game"
 
   %% ===== Tech tree unlocks =====
   TILE_TYPE }o--o{ TECHNOLOGY : "requires to evolve"
