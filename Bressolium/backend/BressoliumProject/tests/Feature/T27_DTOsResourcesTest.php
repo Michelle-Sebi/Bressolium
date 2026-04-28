@@ -252,7 +252,7 @@ test('ActionService::upgrade acepta UpgradeActionDTO como único parámetro', fu
 // ─── Controladores devuelven Resources (no modelos crudos) ────────────────────
 
 test('AuthController::register envuelve el user en UserResource (sin password ni timestamps)', function () {
-    $response = $this->postJson('/api/register', [
+    $response = $this->postJson('/api/v1/register', [
         'name'     => 'Bárbara',
         'email'    => 'b@x.com',
         'password' => 'password123',
@@ -267,7 +267,7 @@ test('AuthController::register envuelve el user en UserResource (sin password ni
 test('AuthController::login envuelve el user en UserResource (sin password ni timestamps)', function () {
     User::factory()->create(['email' => 'a@x.com', 'password' => bcrypt('password123')]);
 
-    $response = $this->postJson('/api/login', [
+    $response = $this->postJson('/api/v1/login', [
         'email'    => 'a@x.com',
         'password' => 'password123',
     ]);
@@ -285,7 +285,7 @@ test('GameController::create devuelve GameResource (sin timestamps)', function (
 
     $user = User::factory()->create();
 
-    $response = $this->actingAs($user)->postJson('/api/game/create', [
+    $response = $this->actingAs($user)->postJson('/api/v1/game/create', [
         'team_name' => 'Los Vikingos',
     ]);
 
@@ -301,7 +301,7 @@ test('GameController::join devuelve GameResource', function () {
     $user = User::factory()->create();
     Game::factory()->create(['name' => 'Equipo Existente']);
 
-    $response = $this->actingAs($user)->postJson('/api/game/join', [
+    $response = $this->actingAs($user)->postJson('/api/v1/game/join', [
         'team_name' => 'Equipo Existente',
     ]);
 
@@ -319,7 +319,7 @@ test('GameController::myGames devuelve colección de GameResource', function () 
     $user->games()->attach($game1->id);
     $user->games()->attach($game2->id);
 
-    $response = $this->actingAs($user)->getJson('/api/game/my');
+    $response = $this->actingAs($user)->getJson('/api/v1/game/my');
 
     $response->assertStatus(200);
     $games = $response->json('data');
@@ -335,7 +335,7 @@ test('GameController::allGames devuelve colección de GameResource', function ()
     $user = User::factory()->create();
     Game::factory()->count(3)->create();
 
-    $response = $this->actingAs($user)->getJson('/api/game/all');
+    $response = $this->actingAs($user)->getJson('/api/v1/game/all');
 
     $response->assertStatus(200);
     $games = $response->json('data');

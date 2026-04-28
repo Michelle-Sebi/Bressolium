@@ -81,7 +81,7 @@ test('crear equipo genera automáticamente exactamente 225 casillas (15×15)', f
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)
-                     ->postJson('/api/game/create', ['team_name' => 'Equipo Alpha']);
+                     ->postJson('/api/v1/game/create', ['team_name' => 'Equipo Alpha']);
     $response->assertStatus(200);
 
     $gameId = $response->json('data.id');
@@ -93,7 +93,7 @@ test('el tablero cubre todas las coordenadas 0-14 × 0-14 sin duplicados', funct
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)
-                     ->postJson('/api/game/create', ['team_name' => 'Equipo Beta']);
+                     ->postJson('/api/v1/game/create', ['team_name' => 'Equipo Beta']);
     $gameId = $response->json('data.id');
 
     $coords = Tile::where('game_id', $gameId)
@@ -117,7 +117,7 @@ test('todas las casillas generadas nacen con explored = false', function () {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)
-                     ->postJson('/api/game/create', ['team_name' => 'Equipo Gamma']);
+                     ->postJson('/api/v1/game/create', ['team_name' => 'Equipo Gamma']);
     $gameId = $response->json('data.id');
 
     $unexplored = Tile::where('game_id', $gameId)->where('explored', false)->count();
@@ -129,7 +129,7 @@ test('el tablero usa al menos 2 tipos de casilla distintos', function () {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)
-                     ->postJson('/api/game/create', ['team_name' => 'Equipo Delta']);
+                     ->postJson('/api/v1/game/create', ['team_name' => 'Equipo Delta']);
     $gameId = $response->json('data.id');
 
     $distinctTypes = Tile::where('game_id', $gameId)
@@ -144,8 +144,8 @@ test('dos partidas distintas generan boards completamente independientes', funct
     $user1 = User::factory()->create();
     $user2 = User::factory()->create();
 
-    $r1 = $this->actingAs($user1)->postJson('/api/game/create', ['team_name' => 'Equipo Uno']);
-    $r2 = $this->actingAs($user2)->postJson('/api/game/create', ['team_name' => 'Equipo Dos']);
+    $r1 = $this->actingAs($user1)->postJson('/api/v1/game/create', ['team_name' => 'Equipo Uno']);
+    $r2 = $this->actingAs($user2)->postJson('/api/v1/game/create', ['team_name' => 'Equipo Dos']);
 
     $gameId1 = $r1->json('data.id');
     $gameId2 = $r2->json('data.id');

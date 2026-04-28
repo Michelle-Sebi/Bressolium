@@ -19,7 +19,7 @@ beforeEach(function () {
 });
 
 test('creating a game initializes the first round and responds with JSON standard', function () {
-    $response = $this->postJson('/api/game/create', [
+    $response = $this->postJson('/api/v1/game/create', [
         'team_name' => 'Digital Pioneers'
     ]);
 
@@ -49,7 +49,7 @@ test('creating a game initializes the first round and responds with JSON standar
 test('joining by exact name associates the player with the team (HU 1.3)', function () {
     $game = Game::factory()->create(['name' => 'The Testers']);
 
-    $response = $this->postJson('/api/game/join', [
+    $response = $this->postJson('/api/v1/game/join', [
         'team_name' => 'The Testers'
     ]);
 
@@ -63,7 +63,7 @@ test('random assignment finds teams with fewer than 5 members (HU 1.4)', functio
     // Game With Slot (Simulated)
     $freeGame = Game::factory()->hasUsers(2)->create();
 
-    $response = $this->postJson('/api/game/join-random');
+    $response = $this->postJson('/api/v1/game/join-random');
 
     $response->assertStatus(200);
     // User should land in the game with a slot, not the full one
