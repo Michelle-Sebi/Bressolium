@@ -14,6 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
         $middleware->redirectGuestsTo(fn () => null);
+        $middleware->appendToGroup('api', [
+            \App\Http\Middleware\ForceJsonMiddleware::class,
+            \App\Http\Middleware\RequestLoggingMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(fn ($request) => $request->is('api/v1/*'));
