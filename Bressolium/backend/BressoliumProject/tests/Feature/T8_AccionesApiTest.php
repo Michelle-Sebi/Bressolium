@@ -212,5 +212,5 @@ test('upgrade falla con 400 si el equipo no tiene materiales suficientes', funct
 
     $this->postJson("/api/v1/tiles/{$this->tile->id}/upgrade")
          ->assertStatus(400)
-         ->assertJsonFragment(['error' => 'Insufficient materials']);
+         ->assertJsonFragment(['error' => 'Materiales insuficientes para realizar esta acción.']);
 });
