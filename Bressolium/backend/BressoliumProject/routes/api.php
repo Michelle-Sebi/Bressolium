@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\GameController;
 use App\Http\Controllers\Api\BoardController;
+use App\Http\Controllers\Api\SyncController;
 use App\Http\Controllers\Api\TileController;
 
 Route::prefix('v1')->middleware('throttle:60,1')->group(function () {
@@ -24,6 +25,8 @@ Route::prefix('v1')->middleware('throttle:60,1')->group(function () {
         Route::get('/game/all',          [GameController::class, 'allGames']);
 
         Route::get('/board/{gameId}', [BoardController::class, 'show']);
+
+        Route::get('/game/{gameId}/sync', [SyncController::class, 'sync']);
 
         Route::post('/tiles/{id}/explore', [TileController::class, 'explore']);
         Route::post('/tiles/{id}/upgrade', [TileController::class, 'upgrade']);
