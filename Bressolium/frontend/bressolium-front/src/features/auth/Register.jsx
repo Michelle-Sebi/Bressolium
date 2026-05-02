@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import authService from '../../services/authService';
-import { loginThunk } from './authSlice';
+import { useAuth } from './useAuth';
 
 function Register() {
-  const dispatch = useDispatch();
+  const { register } = useAuth();
   const navigate = useNavigate();
-  
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,9 +17,7 @@ function Register() {
     setLoading(true);
     setError(null);
     try {
-      await authService.register(name, email, password);
-      // Auto-login or redirect
-      await dispatch(loginThunk({ email, password }));
+      await register(name, email, password);
       navigate('/dashboard');
     } catch (err) {
       setError(err.message || 'Error en el registro');
