@@ -13,7 +13,7 @@
  * @see Tarea 18 - Material Inventory Side-Panel (HU 2.4)
  */
 
-import { useSelector } from 'react-redux';
+import { useInventory } from './useInventory';
 
 /** @type {Record<string, string>} Mapeo de nombre de material a ruta de icono */
 const MATERIAL_ICON_MAP = {
@@ -109,7 +109,7 @@ function MaterialItem({ material }) {
  * Panel lateral izquierdo de inventario de materiales.
  */
 function InventoryPanel() {
-    const { materials, status } = useSelector((state) => state.inventory);
+    const { materials, status } = useInventory();
 
     if (status === 'LOADING') {
         return (

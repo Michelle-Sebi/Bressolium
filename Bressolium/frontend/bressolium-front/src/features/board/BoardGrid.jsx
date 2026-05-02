@@ -7,14 +7,9 @@
  */
 
 import { useEffect, useMemo } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import {
-    fetchBoardThunk,
-    exploreTileThunk,
-    upgradeTileThunk,
-    tileExploreRequested,
-    tileUpgradeRequested,
-} from './boardSlice';
+import { useBoard } from './useBoard';
+import { useAuth } from '../auth/useAuth';
+import { useGames } from '../game/useGames';
 
 import bosqueIcon  from '../../assets/icons/tiles/bosque.png';
 import canteraIcon from '../../assets/icons/tiles/cantera.png';
@@ -145,16 +140,15 @@ function Tile({ tile, currentUserId, isExplorable, onTileClick }) {
  * Cuadrícula principal 15×15 del tablero de juego.
  */
 function BoardGrid() {
-    const dispatch    = useDispatch();
-    const currentUser = useSelector((state) => state.auth.user);
-    const currentGame = useSelector((state) => state.game.currentGame);
-    const { tiles, status } = useSelector((state) => state.board);
+    const { user: currentUser } = useAuth();
+    const { currentGame } = useGames();
+    const { tiles, status, fetchBoard, exploreTile, upgradeTile } = useBoard();
 
     useEffect(() => {
         if (currentGame?.id) {
-            dispatch(fetchBoardThunk(currentGame.id));
+            fetchBoard(currentGame.id);
         }
-    }, [dispatch, currentGame?.id]);
+    }, [currentGame?.id]);
 
     /** Tiles ordenados por coord_x → coord_y para renderizado correcto del CSS grid. */
     const sortedTiles = useMemo(
@@ -188,11 +182,9 @@ function BoardGrid() {
 
         if (!tile.explored) {
             if (!isExplorable) return;
-            dispatch(exploreTileThunk(tile.id));
-            dispatch(tileExploreRequested(tile.id));
+            exploreTile(tile.id);
         } else {
-            dispatch(upgradeTileThunk(tile.id));
-            dispatch(tileUpgradeRequested(tile.id));
+            upgradeTile(tile.id);
         }
     }
 

@@ -1,20 +1,18 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { loginThunk } from './authSlice';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from './useAuth';
 
 function Login() {
-  const dispatch = useDispatch();
+  const { status, error, login } = useAuth();
   const navigate = useNavigate();
-  const { status, error } = useSelector((state) => state.auth);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const resultAction = await dispatch(loginThunk({ email, password }));
-    if (loginThunk.fulfilled.match(resultAction)) {
+    const resultAction = await login(email, password);
+    if (resultAction?.meta?.requestStatus === 'fulfilled') {
       navigate('/dashboard');
     }
   };
