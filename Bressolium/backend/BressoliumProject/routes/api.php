@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\GameController;
 use App\Http\Controllers\Api\BoardController;
 use App\Http\Controllers\Api\SyncController;
 use App\Http\Controllers\Api\TileController;
+use App\Http\Controllers\Api\VoteController;
 
 Route::prefix('v1')->middleware('throttle:60,1')->group(function () {
 
@@ -26,7 +27,8 @@ Route::prefix('v1')->middleware('throttle:60,1')->group(function () {
 
         Route::get('/board/{gameId}', [BoardController::class, 'show']);
 
-        Route::get('/game/{gameId}/sync', [SyncController::class, 'sync']);
+        Route::get('/game/{gameId}/sync',  [SyncController::class, 'sync']);
+        Route::post('/game/{gameId}/vote', [VoteController::class, 'vote']);
 
         Route::post('/tiles/{id}/explore', [TileController::class, 'explore']);
         Route::post('/tiles/{id}/upgrade', [TileController::class, 'upgrade']);
