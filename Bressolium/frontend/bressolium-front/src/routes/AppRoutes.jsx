@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 import TopBar from '../components/layout/TopBar';
 
@@ -37,7 +37,5 @@ function ProtectedLayout() {
         </div>
     );
 }
-
-import { Outlet } from 'react-router-dom';
 
 export default AppRoutes;
