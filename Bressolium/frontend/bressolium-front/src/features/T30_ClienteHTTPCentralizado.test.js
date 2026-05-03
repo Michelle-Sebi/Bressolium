@@ -4,7 +4,7 @@ import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const srcDir = resolve(__dirname, '../bressolium-front/src');
+const srcDir = resolve(__dirname, '..');
 
 // ==========================================
 // TEST PARA: TAREA 30
