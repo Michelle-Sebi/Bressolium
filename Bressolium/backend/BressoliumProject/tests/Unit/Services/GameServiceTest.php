@@ -74,6 +74,7 @@ test('createGame: llama al repo con name y status WAITING', function () {
         ->with(['name' => 'Los Vikingos', 'status' => 'WAITING'])
         ->once()
         ->andReturn(mockGame());
+    $gameRepo->shouldReceive('initializeMaterials')->once()->andReturn(null);
 
     $roundRepo = Mockery::mock(RoundRepositoryInterface::class);
     $roundRepo->shouldReceive('create')->andReturn(mockRoundWithUsers());
@@ -93,6 +94,7 @@ test('createGame: crea ronda número 1 con el game_id correcto', function () {
 
     $gameRepo = Mockery::mock(GameRepositoryInterface::class);
     $gameRepo->shouldReceive('create')->andReturn($game);
+    $gameRepo->shouldReceive('initializeMaterials')->once()->andReturn(null);
 
     $roundRepo = Mockery::mock(RoundRepositoryInterface::class);
     $roundRepo->shouldReceive('create')
@@ -114,6 +116,7 @@ test('createGame: genera el tablero con el game_id correcto', function () {
 
     $gameRepo = Mockery::mock(GameRepositoryInterface::class);
     $gameRepo->shouldReceive('create')->andReturn($game);
+    $gameRepo->shouldReceive('initializeMaterials')->once()->andReturn(null);
 
     $roundRepo = Mockery::mock(RoundRepositoryInterface::class);
     $roundRepo->shouldReceive('create')->andReturn(mockRoundWithUsers());

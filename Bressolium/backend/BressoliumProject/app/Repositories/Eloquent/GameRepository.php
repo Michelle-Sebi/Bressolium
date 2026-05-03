@@ -3,6 +3,7 @@
 namespace App\Repositories\Eloquent;
 
 use App\Models\Game;
+use App\Models\Material;
 use App\Repositories\Contracts\GameRepositoryInterface;
 
 class GameRepository implements GameRepositoryInterface
@@ -36,5 +37,12 @@ class GameRepository implements GameRepositoryInterface
         return Game::whereHas('users', function ($query) use ($userId) {
             $query->where('user_id', $userId);
         })->get();
+    }
+
+    public function initializeMaterials(Game $game): void
+    {
+        $materialIds = Material::pluck('id');
+        $syncData    = $materialIds->mapWithKeys(fn ($id) => [$id => ['quantity' => 0]])->all();
+        $game->materials()->sync($syncData);
     }
 }

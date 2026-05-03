@@ -55,6 +55,7 @@ class GameService
             $round->users()->attach($dto->userId, ['actions_spent' => 0]);
 
             $this->boardGenerator->generate($game->id);
+            $this->gameRepository->initializeMaterials($game);
 
             return $game;
         });
