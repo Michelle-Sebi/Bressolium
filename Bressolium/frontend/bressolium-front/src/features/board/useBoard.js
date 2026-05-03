@@ -1,29 +1,24 @@
-import { useDispatch, useSelector } from 'react-redux';
-import {
-    fetchBoardThunk,
-    exploreTileThunk,
-    upgradeTileThunk,
-    tileExploreRequested,
-    tileUpgradeRequested,
-} from './boardSlice';
+import { useDispatch } from 'react-redux';
+import { bressoliumApi } from '../../services/bressoliumApi';
+import { tileExploreRequested, tileUpgradeRequested } from './boardSlice';
 
-export function useBoard() {
+export function useBoard(gameId) {
     const dispatch = useDispatch();
-    const { tiles, status, error } = useSelector((state) => state.board);
+    const { data, isLoading, error } = bressoliumApi.useGetBoardQuery(gameId, { skip: !gameId });
+    const [exploreTileMutation] = bressoliumApi.useExploreTileMutation();
+    const [upgradeTileMutation] = bressoliumApi.useUpgradeTileMutation();
 
-    const fetchBoard = (gameId) => dispatch(fetchBoardThunk(gameId));
+    const tiles = data?.tiles ?? [];
 
     const exploreTile = (tileId) => {
-        const result = dispatch(exploreTileThunk(tileId));
         dispatch(tileExploreRequested(tileId));
-        return result;
+        return exploreTileMutation(tileId);
     };
 
     const upgradeTile = (tileId) => {
-        const result = dispatch(upgradeTileThunk(tileId));
         dispatch(tileUpgradeRequested(tileId));
-        return result;
+        return upgradeTileMutation(tileId);
     };
 
-    return { tiles, status, error, fetchBoard, exploreTile, upgradeTile };
+    return { tiles, isLoading, error, exploreTile, upgradeTile };
 }

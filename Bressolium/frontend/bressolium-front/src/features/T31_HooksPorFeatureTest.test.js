@@ -12,12 +12,10 @@ import React from 'react';
 import authReducer, { loginThunk } from './auth/authSlice';
 import gameReducer from './game/gameSlice';
 import boardReducer from './board/boardSlice';
-import inventoryReducer, { materialsReceived } from './inventory/inventorySlice';
+import inventoryReducer from './inventory/inventorySlice';
 
 import { useAuth } from './auth/useAuth';
 import { useGames } from './game/useGames';
-import { useBoard } from './board/useBoard';
-import { useInventory } from './inventory/useInventory';
 
 // ─── Store factory ────────────────────────────────────────────────────────────
 
@@ -174,81 +172,7 @@ describe('useGames', () => {
     });
 });
 
-// ─── useBoard ─────────────────────────────────────────────────────────────────
-
-describe('useBoard', () => {
-    it('expone tiles, status y error desde state.board', () => {
-        const tiles = [{ id: 't1', coord_x: 0, coord_y: 0, explored: false }];
-        const store = makeStore({
-            board: { tiles, status: 'SUCCESS', error: null },
-        });
-        const { result } = renderHook(() => useBoard(), { wrapper: wrapper(store) });
-
-        expect(result.current.tiles).toEqual(tiles);
-        expect(result.current.status).toBe('SUCCESS');
-        expect(result.current.error).toBeNull();
-    });
-
-    it('expone fetchBoard como función', () => {
-        const { result } = renderHook(() => useBoard(), { wrapper: wrapper(makeStore()) });
-        expect(typeof result.current.fetchBoard).toBe('function');
-    });
-
-    it('expone exploreTile como función', () => {
-        const { result } = renderHook(() => useBoard(), { wrapper: wrapper(makeStore()) });
-        expect(typeof result.current.exploreTile).toBe('function');
-    });
-
-    it('expone upgradeTile como función', () => {
-        const { result } = renderHook(() => useBoard(), { wrapper: wrapper(makeStore()) });
-        expect(typeof result.current.upgradeTile).toBe('function');
-    });
-
-    it('fetchBoard despacha fetchBoardThunk poniendo status LOADING', async () => {
-        const store = makeStore();
-        const dispatch = vi.spyOn(store, 'dispatch');
-
-        const { result } = renderHook(() => useBoard(), { wrapper: wrapper(store) });
-
-        // We don't mock the service, the thunk will reject — but we only care that dispatch was called
-        act(() => { result.current.fetchBoard('game-1'); });
-
-        expect(dispatch).toHaveBeenCalled();
-        vi.restoreAllMocks();
-    });
-});
-
-// ─── useInventory ─────────────────────────────────────────────────────────────
-
-describe('useInventory', () => {
-    it('expone materials, status y error desde state.inventory', () => {
-        const materials = [
-            { id: 'm1', name: 'Roble', quantity: 5, group: 'bosque', tier: 0 },
-        ];
-        const store = makeStore({
-            inventory: { materials, status: 'SUCCESS', error: null },
-        });
-        const { result } = renderHook(() => useInventory(), { wrapper: wrapper(store) });
-
-        expect(result.current.materials).toEqual(materials);
-        expect(result.current.status).toBe('SUCCESS');
-        expect(result.current.error).toBeNull();
-    });
-
-    it('devuelve materials vacío por defecto', () => {
-        const { result } = renderHook(() => useInventory(), { wrapper: wrapper(makeStore()) });
-        expect(result.current.materials).toEqual([]);
-        expect(result.current.status).toBe('IDLE');
-    });
-
-    it('refleja el inventario cuando el store se actualiza via materialsReceived', () => {
-        const store = makeStore();
-        const { result } = renderHook(() => useInventory(), { wrapper: wrapper(store) });
-
-        const newMaterials = [{ id: 'm2', name: 'Piedra', quantity: 10, group: 'cantera', tier: 0 }];
-        act(() => { store.dispatch(materialsReceived(newMaterials)); });
-
-        expect(result.current.materials).toEqual(newMaterials);
-        expect(result.current.status).toBe('SUCCESS');
-    });
-});
+// ─── useBoard y useInventory ──────────────────────────────────────────────────
+// Los tests de useBoard y useInventory se han movido a T42_RtkQueryTest.test.js.
+// T42 migra ambos hooks a RTK Query, lo que cambia la fuente de datos
+// (cache RTK Query en lugar de state.board / state.inventory) y la API del hook.

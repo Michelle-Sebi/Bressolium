@@ -1,6 +1,7 @@
-import { useSelector } from 'react-redux';
+import { bressoliumApi } from '../../services/bressoliumApi';
 
-export function useInventory() {
-    const { materials, status, error } = useSelector((state) => state.inventory);
-    return { materials, status, error };
+export function useInventory(gameId) {
+    const { data, isLoading, error } = bressoliumApi.useGetSyncQuery(gameId, { skip: !gameId });
+    const materials = data?.inventory ?? [];
+    return { materials, isLoading, error };
 }

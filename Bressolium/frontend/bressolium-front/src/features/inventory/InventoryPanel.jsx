@@ -14,6 +14,7 @@
  */
 
 import { useInventory } from './useInventory';
+import { useGames } from '../game/useGames';
 
 /** @type {Record<string, string>} Mapeo de nombre de material a ruta de icono */
 const MATERIAL_ICON_MAP = {
@@ -109,9 +110,10 @@ function MaterialItem({ material }) {
  * Panel lateral izquierdo de inventario de materiales.
  */
 function InventoryPanel() {
-    const { materials, status } = useInventory();
+    const { currentGame } = useGames();
+    const { materials, isLoading } = useInventory(currentGame?.id);
 
-    if (status === 'LOADING') {
+    if (isLoading) {
         return (
             <div
                 data-testid="inventory-loading"
