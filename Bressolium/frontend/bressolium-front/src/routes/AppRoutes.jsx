@@ -29,9 +29,9 @@ function AppRoutes() {
 
 function ProtectedLayout() {
     return (
-        <div className="min-h-screen flex flex-col bg-[#f7f9f7]">
+        <div className="h-screen overflow-hidden flex flex-col bg-[#f7f9f7]">
             <TopBar />
-            <main className="flex-1 flex flex-col relative">
+            <main className="flex-1 flex flex-col overflow-hidden">
                 <Outlet />
             </main>
         </div>

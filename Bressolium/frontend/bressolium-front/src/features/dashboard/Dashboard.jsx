@@ -53,10 +53,10 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row font-sans">
+    <div className="flex-1 flex flex-col lg:flex-row font-sans overflow-hidden">
       
       {/* SECCIÓN IZQUIERDA: LOBBY (UNIRSE) */}
-      <div className="w-full lg:w-1/2 bg-bgray p-8 lg:p-16 flex flex-col">
+      <div className="w-full lg:w-1/2 bg-bgray p-8 lg:p-16 flex flex-col overflow-y-auto">
         <h1 className="text-4xl lg:text-5xl font-black text-bbrown mb-12 tracking-tighter">
           UNIRSE A LA <br/> TERRAFORMACIÓN
         </h1>
@@ -116,7 +116,7 @@ const Dashboard = () => {
       </div>
 
       {/* SECCIÓN DERECHA: MIS PARTIDAS */}
-      <div className="w-full lg:w-1/2 bg-white p-8 lg:p-16 flex flex-col">
+      <div className="w-full lg:w-1/2 bg-white p-8 lg:p-16 flex flex-col overflow-y-auto">
         <h2 className="text-3xl lg:text-4xl font-black text-bbrown mb-12 tracking-tighter border-b-8 border-bgray pb-4 inline-block">
           MIS EXPEDICIONES <br/> ACTIVAS
         </h2>
