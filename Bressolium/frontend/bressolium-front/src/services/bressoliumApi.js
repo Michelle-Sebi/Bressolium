@@ -18,10 +18,12 @@ const axiosBaseQuery = () => async ({ url, method = 'GET', data }) => {
 export const bressoliumApi = createApi({
     reducerPath: 'bressoliumApi',
     baseQuery:   axiosBaseQuery(),
+    tagTypes:    ['Board'],
     endpoints: (builder) => ({
 
         getBoard: builder.query({
             query: (gameId) => ({ url: `/board/${gameId}` }),
+            providesTags: ['Board'],
             transformResponse: (response) => {
                 // Real API returns { success, data: tiles_array }; tests upsert { tiles: [...] } directly
                 if (Array.isArray(response?.tiles)) return response;
@@ -31,10 +33,12 @@ export const bressoliumApi = createApi({
 
         exploreTile: builder.mutation({
             query: (tileId) => ({ url: `/tiles/${tileId}/explore`, method: 'POST' }),
+            invalidatesTags: ['Board'],
         }),
 
         upgradeTile: builder.mutation({
             query: (tileId) => ({ url: `/tiles/${tileId}/upgrade`, method: 'POST' }),
+            invalidatesTags: ['Board'],
         }),
 
         getSync: builder.query({

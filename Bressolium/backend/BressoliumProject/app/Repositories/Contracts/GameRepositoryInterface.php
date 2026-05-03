@@ -15,4 +15,6 @@ interface GameRepositoryInterface
     public function getAllAvailableGames();
 
     public function getGamesByUserId(string $userId);
+
+    public function initializeMaterials(Game $game): void;
 }
