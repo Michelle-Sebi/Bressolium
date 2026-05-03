@@ -6,7 +6,7 @@
  * @see Tarea 9 - Board Grid Component y Frontend UI (HU 2.1, 2.2, 2.6)
  */
 
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useBoard } from './useBoard';
 import { useAuth } from '../auth/useAuth';
 import { useGames } from '../game/useGames';
@@ -142,13 +142,7 @@ function Tile({ tile, currentUserId, isExplorable, onTileClick }) {
 function BoardGrid() {
     const { user: currentUser } = useAuth();
     const { currentGame } = useGames();
-    const { tiles, status, fetchBoard, exploreTile, upgradeTile } = useBoard();
-
-    useEffect(() => {
-        if (currentGame?.id) {
-            fetchBoard(currentGame.id);
-        }
-    }, [currentGame?.id]);
+    const { tiles, isLoading, exploreTile, upgradeTile } = useBoard(currentGame?.id);
 
     /** Tiles ordenados por coord_x → coord_y para renderizado correcto del CSS grid. */
     const sortedTiles = useMemo(
@@ -188,7 +182,7 @@ function BoardGrid() {
         }
     }
 
-    if (status === 'LOADING') {
+    if (isLoading) {
         return (
             <div
                 data-testid="board-loading"

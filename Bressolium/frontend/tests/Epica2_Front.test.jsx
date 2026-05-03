@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import * as reactRedux from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 
 // ==========================================
@@ -11,15 +10,17 @@ import { MemoryRouter } from 'react-router-dom';
 // ==========================================
 
 import BoardGrid from '../src/features/board/BoardGrid';
-import * as boardService from '../src/services/boardService';
 import InventoryPanel from '../src/features/inventory/InventoryPanel';
 
-vi.mock('react-redux', () => ({
-    useSelector: vi.fn(),
-    useDispatch: vi.fn(),
-}));
+import { useBoard }     from '../src/features/board/useBoard';
+import { useAuth }      from '../src/features/auth/useAuth';
+import { useGames }     from '../src/features/game/useGames';
+import { useInventory } from '../src/features/inventory/useInventory';
 
-vi.mock('../src/services/boardService');
+vi.mock('../src/features/board/useBoard');
+vi.mock('../src/features/auth/useAuth');
+vi.mock('../src/features/game/useGames');
+vi.mock('../src/features/inventory/useInventory');
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -49,14 +50,13 @@ function createMockTiles({ exploredCount = 0, otherPlayerTiles = [] } = {}) {
     return tiles;
 }
 
-function mockReduxState({ tiles = [], status = 'SUCCESS' } = {}) {
-    reactRedux.useSelector.mockImplementation((selectorFn) =>
-        selectorFn({
-            auth: { user: { id: CURRENT_USER_ID, name: 'Michelle' } },
-            game: { currentGame: { id: GAME_ID, name: 'Expedición Test' } },
-            board: { tiles, status, error: null },
-        })
-    );
+const exploreTileMock = vi.fn();
+const upgradeTileMock = vi.fn();
+
+function mockReduxState({ tiles = [], isLoading = false } = {}) {
+    useAuth.mockReturnValue({ user: { id: CURRENT_USER_ID, name: 'Michelle' } });
+    useGames.mockReturnValue({ currentGame: { id: GAME_ID, name: 'Expedición Test' } });
+    useBoard.mockReturnValue({ tiles, isLoading, exploreTile: exploreTileMock, upgradeTile: upgradeTileMock });
 }
 
 const renderComponent = () =>
@@ -68,11 +68,8 @@ const renderComponent = () =>
 
 // ── Setup ─────────────────────────────────────────────────────────────────────
 
-const dispatchMock = vi.fn();
-
 beforeEach(() => {
     vi.clearAllMocks();
-    reactRedux.useDispatch.mockReturnValue(dispatchMock);
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -102,21 +99,21 @@ describe('HU 2.1 — Renderizado de cuadrícula 15×15', () => {
         expect(tileAt14_14).toHaveAttribute('data-y', '14');
     });
 
-    it('al montar el componente despacha la acción de carga del tablero', () => {
-        mockReduxState({ tiles: [], status: 'IDLE' });
+    it('al montar el componente, useBoard es invocado con el id de la partida', () => {
+        mockReduxState({ tiles: [] });
         renderComponent();
 
-        expect(dispatchMock).toHaveBeenCalled();
+        expect(useBoard).toHaveBeenCalledWith(GAME_ID);
     });
 
-    it('muestra un indicador de carga mientras status es LOADING', () => {
-        mockReduxState({ tiles: [], status: 'LOADING' });
+    it('muestra un indicador de carga mientras isLoading es true', () => {
+        mockReduxState({ tiles: [], isLoading: true });
         renderComponent();
 
         expect(screen.getByTestId('board-loading')).toBeInTheDocument();
     });
 
-    it('el slice de Redux expone los tiles tal como los devuelve la API', () => {
+    it('el hook useBoard expone los tiles tal como los devuelve la API', () => {
         const tiles = createMockTiles();
         mockReduxState({ tiles });
         renderComponent();
@@ -190,43 +187,36 @@ describe('HU 2.2 — Niebla de guerra y visibilidad de casillas', () => {
 
 describe('HU 2.6 — Acciones sobre casillas', () => {
 
-    it('click en casilla propia NO explorada despacha la acción explorar', () => {
+    it('click en casilla propia NO explorada llama a exploreTile con el id de la casilla', () => {
         mockReduxState({ tiles: createMockTiles({ exploredCount: 0 }) });
         renderComponent();
 
         const unexploredOwnTile = screen.getByTestId('tile-0-0');
         fireEvent.click(unexploredOwnTile);
 
-        expect(dispatchMock).toHaveBeenCalled();
-        const dispatchedArg = dispatchMock.mock.calls[dispatchMock.mock.calls.length - 1][0];
-        // La acción despachada debe referenciar el id de la casilla
-        expect(JSON.stringify(dispatchedArg)).toContain('tile-0-0');
+        expect(exploreTileMock).toHaveBeenCalledWith('tile-0-0');
     });
 
-    it('click en casilla propia YA explorada despacha la acción evolucionar', () => {
+    it('click en casilla propia YA explorada llama a upgradeTile con el id de la casilla', () => {
         mockReduxState({ tiles: createMockTiles({ exploredCount: 225 }) });
         renderComponent();
 
         const exploredOwnTile = screen.getByTestId('tile-0-0');
         fireEvent.click(exploredOwnTile);
 
-        expect(dispatchMock).toHaveBeenCalled();
-        const dispatchedArg = dispatchMock.mock.calls[dispatchMock.mock.calls.length - 1][0];
-        expect(JSON.stringify(dispatchedArg)).toContain('tile-0-0');
+        expect(upgradeTileMock).toHaveBeenCalledWith('tile-0-0');
     });
 
-    it('click en casilla de otro jugador NO despacha ninguna acción de juego', () => {
+    it('click en casilla de otro jugador NO llama a ninguna acción de juego', () => {
         const tiles = createMockTiles({ otherPlayerTiles: ['tile-0-0'] });
         mockReduxState({ tiles });
         renderComponent();
 
-        // Contamos dispatches previos (p.ej. fetchBoard al montar)
-        const dispatchCountBeforeClick = dispatchMock.mock.calls.length;
-
         const otherPlayerTile = screen.getByTestId('tile-0-0');
         fireEvent.click(otherPlayerTile);
 
-        expect(dispatchMock).toHaveBeenCalledTimes(dispatchCountBeforeClick);
+        expect(exploreTileMock).not.toHaveBeenCalled();
+        expect(upgradeTileMock).not.toHaveBeenCalled();
     });
 
     it('las casillas de otro jugador tienen el atributo data-owner distinto del usuario actual', () => {
@@ -281,15 +271,9 @@ function createMockMaterials({ activeCount = 0 } = {}) {
     }));
 }
 
-function mockInventoryState({ materials = [], status = 'SUCCESS' } = {}) {
-    reactRedux.useSelector.mockImplementation((selectorFn) =>
-        selectorFn({
-            auth:      { user: { id: CURRENT_USER_ID, name: 'Michelle' } },
-            game:      { currentGame: { id: GAME_ID, name: 'Expedición Test' } },
-            board:     { tiles: [], status: 'SUCCESS', error: null },
-            inventory: { materials, status, error: null },
-        })
-    );
+function mockInventoryState({ materials = [], isLoading = false } = {}) {
+    useGames.mockReturnValue({ currentGame: { id: GAME_ID, name: 'Expedición Test' } });
+    useInventory.mockReturnValue({ materials, isLoading });
 }
 
 const renderInventoryPanel = () =>
@@ -392,8 +376,8 @@ describe('HU 2.4 — Panel lateral de inventario de materiales', () => {
         });
     });
 
-    it('muestra un indicador de carga mientras status es LOADING', () => {
-        mockInventoryState({ materials: [], status: 'LOADING' });
+    it('muestra un indicador de carga mientras isLoading es true', () => {
+        mockInventoryState({ materials: [], isLoading: true });
         renderInventoryPanel();
 
         expect(screen.getByTestId('inventory-loading')).toBeInTheDocument();
