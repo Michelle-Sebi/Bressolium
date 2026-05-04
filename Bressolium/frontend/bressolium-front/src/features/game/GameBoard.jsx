@@ -7,8 +7,11 @@
 
 import BoardGrid     from '../board/BoardGrid';
 import InventoryPanel from '../inventory/InventoryPanel';
+import VotingPanel    from './VotingPanel';
+import { useGames }   from './useGames';
 
 function GameBoard() {
+    const { currentGame } = useGames();
     return (
         <div
             style={{
@@ -44,8 +47,8 @@ function GameBoard() {
                 >
                     Votaciones
                 </div>
-                <div style={{ flex: 1, padding: '12px', color: '#8B7355', fontSize: '13px' }}>
-                    — Pendiente T12 —
+                <div style={{ flex: 1, overflowY: 'auto' }}>
+                    <VotingPanel gameId={currentGame?.id} />
                 </div>
             </div>
 

@@ -99,7 +99,7 @@ const TopBar = () => {
       <div className="flex items-center space-x-4">
         <div className="hidden sm:flex flex-col items-end leading-none">
           <span className="text-[10px] font-bold text-gray-400 uppercase">Pionero</span>
-          <span className="text-sm font-black text-bbrown truncate max-w-[120px]">
+          <span className="text-sm font-black text-bbrown truncate max-w-30">
             {user?.name?.toUpperCase() || 'INVITADO'}
           </span>
         </div>
