@@ -198,6 +198,122 @@ test('sync devuelve inventos vacíos cuando el equipo no tiene ninguno', functio
     expect($response->json('data.progress.inventions'))->toBeArray()->toBeEmpty();
 });
 
+// ─── missing: prerrequisitos y costes que faltan ─────────────────────────────
+
+test('sync incluye campo missing en cada tecnología (vacío cuando no hay prerrequisitos)', function () {
+    $tech = Technology::create(['name' => 'Control del Fuego']);
+    $this->game->technologies()->attach($tech->id, ['is_active' => false]);
+
+    $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
+                     ->assertStatus(200);
+
+    $technologies = collect($response->json('data.progress.technologies'));
+    $found = $technologies->firstWhere('name', 'Control del Fuego');
+
+    expect($found)->toHaveKey('missing')
+        ->and($found['missing'])->toBeArray()->toBeEmpty();
+});
+
+test('sync indica missing cuando una tecnología tiene prerrequisito no activo', function () {
+    $prereqTech = Technology::create(['name' => 'Fuego Controlado']);
+    $mainTech   = Technology::create(['name' => 'Metalurgia']);
+    $mainTech->technologyPrerequisites()->create([
+        'prereq_type' => 'technology',
+        'prereq_id'   => $prereqTech->id,
+        'quantity'    => 1,
+    ]);
+
+    $this->game->technologies()->attach($prereqTech->id, ['is_active' => false]);
+    $this->game->technologies()->attach($mainTech->id,   ['is_active' => false]);
+
+    $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
+                     ->assertStatus(200);
+
+    $technologies = collect($response->json('data.progress.technologies'));
+    $found = $technologies->firstWhere('name', 'Metalurgia');
+
+    expect($found['missing'])->toHaveCount(1)
+        ->and($found['missing'][0]['type'])->toBe('technology')
+        ->and($found['missing'][0]['name'])->toBe('Fuego Controlado');
+});
+
+test('sync devuelve missing vacío cuando el prerrequisito ya está activo', function () {
+    $prereqTech = Technology::create(['name' => 'Fuego Controlado']);
+    $mainTech   = Technology::create(['name' => 'Metalurgia']);
+    $mainTech->technologyPrerequisites()->create([
+        'prereq_type' => 'technology',
+        'prereq_id'   => $prereqTech->id,
+        'quantity'    => 1,
+    ]);
+
+    $this->game->technologies()->attach($prereqTech->id, ['is_active' => true]);
+    $this->game->technologies()->attach($mainTech->id,   ['is_active' => false]);
+
+    $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
+                     ->assertStatus(200);
+
+    $technologies = collect($response->json('data.progress.technologies'));
+    $found = $technologies->firstWhere('name', 'Metalurgia');
+
+    expect($found['missing'])->toBeArray()->toBeEmpty();
+});
+
+test('sync incluye campo missing en cada invento (vacío sin costes ni prerrequisitos)', function () {
+    $tech   = Technology::create(['name' => 'Herramientas de Piedra']);
+    $invento = \App\Models\Invention::create(['name' => 'Cuchillo', 'technology_id' => $tech->id]);
+    $this->game->inventions()->attach($invento->id, ['is_active' => false, 'quantity' => 0]);
+
+    $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
+                     ->assertStatus(200);
+
+    $inventions = collect($response->json('data.progress.inventions'));
+    $found = $inventions->firstWhere('name', 'Cuchillo');
+
+    expect($found)->toHaveKey('missing')
+        ->and($found['missing'])->toBeArray()->toBeEmpty();
+});
+
+test('sync indica missing cuando faltan recursos para construir un invento', function () {
+    $tech     = Technology::create(['name' => 'Herramientas de Piedra']);
+    $material = \App\Models\Material::create(['name' => 'Silex', 'tier' => 0, 'group' => 'cantera']);
+    $invento  = \App\Models\Invention::create(['name' => 'Hacha', 'technology_id' => $tech->id]);
+    $invento->inventionCosts()->create(['resource_id' => $material->id, 'quantity' => 5]);
+
+    $this->game->inventions()->attach($invento->id, ['is_active' => false, 'quantity' => 0]);
+    // El equipo tiene solo 2 de Silex (necesita 5)
+    $this->game->materials()->attach($material->id, ['quantity' => 2]);
+
+    $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
+                     ->assertStatus(200);
+
+    $inventions = collect($response->json('data.progress.inventions'));
+    $found = $inventions->firstWhere('name', 'Hacha');
+
+    expect($found['missing'])->toHaveCount(1)
+        ->and($found['missing'][0]['type'])->toBe('resource')
+        ->and($found['missing'][0]['name'])->toBe('Silex')
+        ->and($found['missing'][0]['required'])->toBe(5)
+        ->and($found['missing'][0]['have'])->toBe(2);
+});
+
+test('sync devuelve missing vacío cuando el equipo tiene recursos suficientes', function () {
+    $tech     = Technology::create(['name' => 'Herramientas de Piedra']);
+    $material = \App\Models\Material::create(['name' => 'Silex', 'tier' => 0, 'group' => 'cantera']);
+    $invento  = \App\Models\Invention::create(['name' => 'Hacha', 'technology_id' => $tech->id]);
+    $invento->inventionCosts()->create(['resource_id' => $material->id, 'quantity' => 5]);
+
+    $this->game->inventions()->attach($invento->id, ['is_active' => false, 'quantity' => 0]);
+    $this->game->materials()->attach($material->id, ['quantity' => 5]);
+
+    $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
+                     ->assertStatus(200);
+
+    $inventions = collect($response->json('data.progress.inventions'));
+    $found = $inventions->firstWhere('name', 'Hacha');
+
+    expect($found['missing'])->toBeArray()->toBeEmpty();
+});
+
 // ─── Arquitectura ────────────────────────────────────────────────────────────
 
 test('existe SyncRequest en Http/Requests', function () {

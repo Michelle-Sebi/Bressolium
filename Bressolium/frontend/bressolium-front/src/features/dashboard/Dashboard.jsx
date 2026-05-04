@@ -90,7 +90,7 @@ const Dashboard = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             
-            <div className="bg-white border-l-8 border-bbrown min-h-[200px]">
+            <div className="bg-white border-l-8 border-bbrown min-h-50">
               {filteredGames.length > 0 ? (
                 <ul className="divide-y divide-gray-100">
                   {filteredGames.map(game => (
