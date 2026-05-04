@@ -16,7 +16,7 @@ function GameBoard() {
                 gridTemplateColumns: '280px 1fr 260px',
                 gap:                 '16px',
                 padding:             '16px',
-                height:              'calc(100vh - 56px)',
+                height:              'calc(100vh - 4rem)',
                 backgroundColor:     '#C1CDC1',
                 boxSizing:           'border-box',
             }}
@@ -52,10 +52,8 @@ function GameBoard() {
             {/* Centro — Tablero */}
             <div
                 style={{
-                    border:     '2px solid #8B7355',
-                    overflow:   'hidden',
-                    display:    'flex',
-                    alignItems: 'flex-start',
+                    border:    '2px solid #8B7355',
+                    overflowY: 'auto',
                 }}
             >
                 <BoardGrid />

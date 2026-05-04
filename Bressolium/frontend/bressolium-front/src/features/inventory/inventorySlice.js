@@ -17,17 +17,27 @@ import { createSlice } from '@reduxjs/toolkit';
  */
 
 /**
+ * @typedef {Object} InventoryInvention
+ * @property {string} id
+ * @property {string} name
+ * @property {number} quantity
+ * @property {string} icon
+ */
+
+/**
  * @typedef {Object} InventoryState
  * @property {InventoryMaterial[]} materials
+ * @property {InventoryInvention[]} inventions
  * @property {'IDLE'|'LOADING'|'SUCCESS'|'ERROR'} status
  * @property {string|null} error
  */
 
 /** @type {InventoryState} */
 const initialState = {
-    materials: [],
-    status:    'IDLE',
-    error:     null,
+    materials:  [],
+    inventions: [],
+    status:     'IDLE',
+    error:      null,
 };
 
 const inventorySlice = createSlice({

@@ -16,6 +16,7 @@ import { useBoard }     from '../src/features/board/useBoard';
 import { useAuth }      from '../src/features/auth/useAuth';
 import { useGames }     from '../src/features/game/useGames';
 import { useInventory } from '../src/features/inventory/useInventory';
+import inventoryReducer  from '../src/features/inventory/inventorySlice';
 
 vi.mock('../src/features/board/useBoard');
 vi.mock('../src/features/auth/useAuth');
@@ -271,9 +272,9 @@ function createMockMaterials({ activeCount = 0 } = {}) {
     }));
 }
 
-function mockInventoryState({ materials = [], isLoading = false } = {}) {
+function mockInventoryState({ materials = [], inventions = [], isLoading = false } = {}) {
     useGames.mockReturnValue({ currentGame: { id: GAME_ID, name: 'Expedición Test' } });
-    useInventory.mockReturnValue({ materials, isLoading });
+    useInventory.mockReturnValue({ materials, inventions, isLoading });
 }
 
 const renderInventoryPanel = () =>
@@ -388,6 +389,141 @@ describe('HU 2.4 — Panel lateral de inventario de materiales', () => {
         renderInventoryPanel();
 
         expect(screen.queryAllByTestId('material-item')).toHaveLength(0);
+    });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TESTS PARA: TAREA 50
+// Título: Inventory Panel: Inventions Section
+// HUs: 2.4, 2.7
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/**
+ * Genera una lista de inventos simulando el progreso de una partida.
+ * Los primeros `activeCount` tendrán quantity > 0; el resto quantity = 0.
+ * @param {{ activeCount?: number }} options
+ */
+function createMockInventions({ activeCount = 0 } = {}) {
+    const catalog = [
+        { id: 'inv-ceramica', name: 'Cerámica', icon: 'ceramica.png' },
+        { id: 'inv-arco',     name: 'Arco',     icon: 'arco.png'     },
+        { id: 'inv-hacha',    name: 'Hacha',    icon: 'hacha.png'    },
+    ];
+    return catalog.map((inv, idx) => ({
+        ...inv,
+        quantity: idx < activeCount ? idx + 1 : 0,
+    }));
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// inventorySlice — estado inicial con inventions
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('inventorySlice — estado inicial con inventions (T50)', () => {
+
+    it('incluye inventions: [] en el estado inicial', () => {
+        const state = inventoryReducer(undefined, { type: '@@INIT' });
+        expect(Array.isArray(state.inventions)).toBe(true);
+        expect(state.inventions).toHaveLength(0);
+    });
+
+    it('inventions no interfiere con materials ni status en el estado inicial', () => {
+        const state = inventoryReducer(undefined, { type: '@@INIT' });
+        expect(Array.isArray(state.materials)).toBe(true);
+        expect(state.status).toBe('IDLE');
+        expect(state.error).toBeNull();
+    });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HU 2.4 / 2.7 — Sección Recursos y sección Inventos del panel
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('HU 2.4 / 2.7 — Sección Recursos del panel lateral', () => {
+
+    it('renderiza el encabezado de sección "Recursos"', () => {
+        mockInventoryState({ materials: createMockMaterials() });
+        renderInventoryPanel();
+        expect(screen.getByText(/recursos/i)).toBeInTheDocument();
+    });
+
+    it('los materiales siguen renderizándose bajo la sección Recursos (no regresión)', () => {
+        const materials = createMockMaterials({ activeCount: 2 });
+        mockInventoryState({ materials });
+        renderInventoryPanel();
+        expect(screen.getAllByTestId('material-item')).toHaveLength(materials.length);
+    });
+
+});
+
+describe('HU 2.4 / 2.7 — Sección Inventos del panel lateral', () => {
+
+    it('renderiza el encabezado de sección "Inventos"', () => {
+        mockInventoryState({ inventions: createMockInventions() });
+        renderInventoryPanel();
+        expect(screen.getByText(/inventos/i)).toBeInTheDocument();
+    });
+
+    it('renderiza un ítem por cada invento', () => {
+        const inventions = createMockInventions();
+        mockInventoryState({ inventions });
+        renderInventoryPanel();
+        expect(screen.getAllByTestId('invention-item')).toHaveLength(inventions.length);
+    });
+
+    it('cada invento es identificable por su nombre en el DOM', () => {
+        const inventions = createMockInventions();
+        mockInventoryState({ inventions });
+        renderInventoryPanel();
+        expect(screen.getByTestId('invention-item-Cerámica')).toBeInTheDocument();
+        expect(screen.getByTestId('invention-item-Hacha')).toBeInTheDocument();
+    });
+
+    it('inventos con quantity > 0 tienen la clase invention--active', () => {
+        const inventions = createMockInventions({ activeCount: 2 });
+        mockInventoryState({ inventions });
+        renderInventoryPanel();
+        const activeInventions = inventions.filter(i => i.quantity > 0);
+        activeInventions.forEach(inv => {
+            expect(screen.getByTestId(`invention-item-${inv.name}`)).toHaveClass('invention--active');
+        });
+    });
+
+    it('inventos con quantity = 0 tienen la clase invention--inactive', () => {
+        const inventions = createMockInventions({ activeCount: 0 });
+        mockInventoryState({ inventions });
+        renderInventoryPanel();
+        inventions.forEach(inv => {
+            expect(screen.getByTestId(`invention-item-${inv.name}`)).toHaveClass('invention--inactive');
+        });
+    });
+
+    it('mezcla correcta: active e inactive según quantity', () => {
+        const inventions = createMockInventions({ activeCount: 1 });
+        mockInventoryState({ inventions });
+        renderInventoryPanel();
+        const allItems    = screen.getAllByTestId('invention-item');
+        const activeItems   = allItems.filter(el => el.classList.contains('invention--active'));
+        const inactiveItems = allItems.filter(el => el.classList.contains('invention--inactive'));
+        expect(activeItems).toHaveLength(1);
+        expect(inactiveItems).toHaveLength(inventions.length - 1);
+    });
+
+    it('muestra el nombre del invento activo en el panel', () => {
+        const inventions = createMockInventions({ activeCount: 1 });
+        mockInventoryState({ inventions });
+        renderInventoryPanel();
+        expect(screen.getByText('Cerámica')).toBeInTheDocument();
+    });
+
+    it('sin inventos, la sección Inventos no muestra ítems', () => {
+        mockInventoryState({ inventions: [] });
+        renderInventoryPanel();
+        expect(screen.queryAllByTestId('invention-item')).toHaveLength(0);
     });
 
 });

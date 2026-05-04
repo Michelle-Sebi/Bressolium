@@ -5,7 +5,7 @@ import * as reactRedux from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 
 // Importamos el componente usando el alias definido en vite.config.js
-import TopBar from '../src/components/layout/TopBar';
+import TopBar from '../components/layout/TopBar';
 
 // Mockeamos react-redux para aislar el test del store real
 vi.mock('react-redux', () => ({
@@ -32,9 +32,9 @@ describe('TopBar Component (Tarea 17)', () => {
       // Simulamos el estado de Redux
       return selectorFunc({
         auth: { user: { name: 'Michelle' } },
-        game: { 
-          currentGame: { id: 'g1', name: 'Equipo Bressolium' }, 
-          myGames: [] 
+        game: {
+          currentGame: { id: 'g1', name: 'Equipo Bressolium' },
+          myGames: []
         }
       });
     });
@@ -51,7 +51,7 @@ describe('TopBar Component (Tarea 17)', () => {
     reactRedux.useSelector.mockImplementation((selectorFunc) => {
       return selectorFunc({
         auth: { user: { name: 'Michelle' } },
-        game: { 
+        game: {
           currentGame: { id: 'g1', name: 'Equipo Bressolium' },
           myGames: [
             { id: 'g1', name: 'Equipo Bressolium' },
