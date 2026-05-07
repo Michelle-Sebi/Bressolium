@@ -54,6 +54,14 @@ export const bressoliumApi = createApi({
             }),
         }),
 
+        closeRound: builder.mutation({
+            query: (gameId) => ({
+                url:    `/game/${gameId}/close-round`,
+                method: 'POST',
+            }),
+            invalidatesTags: ['Sync'],
+        }),
+
     }),
 });
 
@@ -63,4 +71,5 @@ export const {
     useUpgradeTileMutation,
     useGetSyncQuery,
     useVoteMutation,
+    useCloseRoundMutation,
 } = bressoliumApi;

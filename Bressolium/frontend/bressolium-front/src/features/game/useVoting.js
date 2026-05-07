@@ -2,7 +2,8 @@ import { bressoliumApi } from '../../services/bressoliumApi';
 
 export function useVoting(gameId) {
     const { data, isLoading } = bressoliumApi.useGetSyncQuery(gameId, { skip: !gameId });
-    const [voteMutation] = bressoliumApi.useVoteMutation();
+    const [voteMutation]                              = bressoliumApi.useVoteMutation();
+    const [closeRoundMutation, { isLoading: isClosing }] = bressoliumApi.useCloseRoundMutation();
 
     const rawTechs = data?.progress?.technologies ?? [];
     const rawInvs  = data?.progress?.inventions   ?? [];
@@ -28,5 +29,9 @@ export function useVoting(gameId) {
         return voteMutation({ gameId, ...voteData });
     }
 
-    return { technologies, inventions, userActions, currentRound, isLoading, vote };
+    function closeRound() {
+        return closeRoundMutation(gameId);
+    }
+
+    return { technologies, inventions, userActions, currentRound, isLoading, isClosing, vote, closeRound };
 }
