@@ -5,9 +5,9 @@ namespace App\Services;
 use App\DTOs\ExploreActionDTO;
 use App\DTOs\UpgradeActionDTO;
 use App\Exceptions\ActionLimitExceededException;
-use App\Exceptions\InsufficientMaterialsException;
 use App\Exceptions\TileAlreadyExploredException;
 use App\Exceptions\TileNotExploredException;
+use App\Exceptions\TechnologyRequiredException;
 use App\Exceptions\UserNotInGameException;
 use App\Models\Game;
 use App\Models\Tile;
@@ -62,14 +62,18 @@ class ActionService
             throw new TileNotExploredException('No hay más niveles de mejora disponibles para esta casilla.');
         }
 
-        $costs = $this->tileRepo->getUpgradeCosts($nextType);
-        $game  = Game::find($tile->game_id);
-
-        if (!$this->tileRepo->hasSufficientMaterials($game, $costs)) {
-            throw new InsufficientMaterialsException();
+        $requiredTech = $this->tileRepo->getRequiredTechnology($nextType);
+        if ($requiredTech !== null) {
+            $game = Game::find($tile->game_id);
+            $isActive = $game->technologies()
+                ->where('technology_id', $requiredTech->id)
+                ->wherePivot('is_active', true)
+                ->exists();
+            if (!$isActive) {
+                throw new TechnologyRequiredException($requiredTech->name);
+            }
         }
 
-        $this->tileRepo->deductMaterials($game, $costs);
         $this->tileRepo->upgradeTile($tile, $nextType);
         $this->tileRepo->incrementActionsSpent($round, $dto->userId);
 

@@ -4,6 +4,7 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\Game;
 use App\Models\Round;
+use App\Models\Technology;
 use App\Models\Tile;
 use App\Models\TileType;
 use App\Repositories\Contracts\TileRepositoryInterface;
@@ -63,31 +64,13 @@ class TileRepository implements TileRepositoryInterface
             ->first();
     }
 
-    public function getUpgradeCosts(TileType $nextType): \Illuminate\Support\Collection
+    public function getRequiredTechnology(TileType $nextType): ?Technology
     {
-        return $nextType->materials;
-    }
-
-    public function hasSufficientMaterials(Game $game, \Illuminate\Support\Collection $costs): bool
-    {
-        foreach ($costs as $material) {
-            $required = $material->pivot->quantity;
-            $stock    = $game->materials()->where('material_id', $material->id)->first();
-            if (!$stock || $stock->pivot->quantity < $required) {
-                return false;
-            }
+        $material = $nextType->materials()->wherePivotNotNull('tech_required')->first();
+        if (!$material) {
+            return null;
         }
-        return true;
-    }
-
-    public function deductMaterials(Game $game, \Illuminate\Support\Collection $costs): void
-    {
-        foreach ($costs as $material) {
-            $required = $material->pivot->quantity;
-            $stock    = $game->materials()->where('material_id', $material->id)->first();
-            $newQty   = $stock->pivot->quantity - $required;
-            $game->materials()->updateExistingPivot($material->id, ['quantity' => $newQty]);
-        }
+        return Technology::find($material->pivot->tech_required);
     }
 
     public function upgradeTile(Tile $tile, TileType $nextType): void
