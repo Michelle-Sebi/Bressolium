@@ -55,6 +55,7 @@ class GameService
             $round->users()->attach($dto->userId, ['actions_spent' => 0]);
 
             $this->boardGenerator->generate($game->id);
+            $this->boardGenerator->assignStartingTile($game->id, $dto->userId, 0);
             $this->gameRepository->initializeMaterials($game);
 
             return $game;
@@ -81,6 +82,9 @@ class GameService
         return DB::transaction(function () use ($game, $dto) {
             if (!$game->users()->where('user_id', $dto->userId)->exists()) {
                 $game->users()->attach($dto->userId, ['is_afk' => false]);
+
+                $playerIndex = $game->users()->count() - 1;
+                $this->boardGenerator->assignStartingTile($game->id, $dto->userId, $playerIndex);
 
                 $latestRound = $this->roundRepository->getLatestRoundForGame($game->id);
                 if ($latestRound) {
@@ -110,7 +114,10 @@ class GameService
         return DB::transaction(function () use ($game, $userId) {
             if (!$game->users()->where('user_id', $userId)->exists()) {
                 $game->users()->attach($userId, ['is_afk' => false]);
-                
+
+                $playerIndex = $game->users()->count() - 1;
+                $this->boardGenerator->assignStartingTile($game->id, $userId, $playerIndex);
+
                 $latestRound = $this->roundRepository->getLatestRoundForGame($game->id);
                 if ($latestRound) {
                     $latestRound->users()->attach($userId, ['actions_spent' => 0]);
