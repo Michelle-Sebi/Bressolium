@@ -7,6 +7,7 @@ use App\DTOs\UpgradeActionDTO;
 use App\Events\TileExplored;
 use App\Events\TileUpgraded;
 use App\Exceptions\ActionLimitExceededException;
+use App\Exceptions\PuebloTileActionException;
 use App\Exceptions\TileAlreadyExploredException;
 use App\Exceptions\TileNotExploredException;
 use App\Exceptions\TechnologyRequiredException;
@@ -25,6 +26,10 @@ class ActionService
 
         if (!$this->tileRepo->isUserInGame($dto->userId, $tile->game_id)) {
             throw new UserNotInGameException();
+        }
+
+        if ($tile->type?->base_type === 'pueblo') {
+            throw new PuebloTileActionException();
         }
 
         $round = $this->tileRepo->getCurrentRound($tile->game_id);
@@ -51,6 +56,10 @@ class ActionService
 
         if (!$this->tileRepo->isUserInGame($dto->userId, $tile->game_id)) {
             throw new UserNotInGameException();
+        }
+
+        if ($tile->type?->base_type === 'pueblo') {
+            throw new PuebloTileActionException();
         }
 
         $round = $this->tileRepo->getCurrentRound($tile->game_id);

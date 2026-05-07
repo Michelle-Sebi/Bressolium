@@ -6,10 +6,11 @@
  * @see Tarea 9 - Board Grid Component y Frontend UI (HU 2.1, 2.2, 2.6)
  */
 
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useBoard } from './useBoard';
 import { useAuth } from '../auth/useAuth';
 import { useGames } from '../game/useGames';
+import TechTreeModal from '../techtree/TechTreeModal';
 
 import bosqueIcon  from '../../assets/icons/tiles/bosque.png';
 import canteraIcon from '../../assets/icons/tiles/cantera.png';
@@ -101,10 +102,12 @@ function Tile({ tile, currentUserId, isExplorable, onTileClick }) {
         ...(isExplored ? { 'data-base-type': baseType } : {}),
     };
 
+    const isPueblo = baseType === 'pueblo';
+
     return (
         <div
             data-testid="tile"
-            className={`tile${isExplored ? '' : ' tile--fog'}`}
+            className={`tile${isExplored ? '' : ' tile--fog'}${isPueblo ? ' tile--pueblo' : ''}`}
             style={{
                 backgroundColor,
                 width: '100%',
@@ -160,6 +163,7 @@ function BoardGrid() {
     const { user: currentUser } = useAuth();
     const { currentGame } = useGames();
     const { tiles, isLoading, exploreTile, upgradeTile } = useBoard(currentGame?.id);
+    const [isTechTreeOpen, setIsTechTreeOpen] = useState(false);
 
     /** Tiles ordenados por coord_x → coord_y para renderizado correcto del CSS grid. */
     const sortedTiles = useMemo(
@@ -189,6 +193,11 @@ function BoardGrid() {
      * @param {boolean} isExplorable
      */
     function handleTileClick(tile, isOwnTile, isExplorable) {
+        if (tile.type?.base_type === 'pueblo') {
+            setIsTechTreeOpen(true);
+            return;
+        }
+
         if (!isOwnTile) return;
 
         if (!tile.explored) {
@@ -213,6 +222,8 @@ function BoardGrid() {
     }
 
     return (
+        <>
+        <TechTreeModal isOpen={isTechTreeOpen} onClose={() => setIsTechTreeOpen(false)} />
         <div
             data-testid="board-grid"
             style={{
@@ -232,6 +243,7 @@ function BoardGrid() {
                 />
             ))}
         </div>
+        </>
     );
 }
 
