@@ -33,3 +33,14 @@ test('el seeder de tipos genera los biomas base con niveles', function () {
     $this->assertDatabaseHas('tile_types', ['name' => 'Forest', 'level' => 1]);
     $this->assertDatabaseHas('tile_types', ['name' => 'Quarry', 'level' => 1]);
 });
+
+test('el seeder de produccion inserta cantidades en material_tile_type', function () {
+    Artisan::call('db:seed', ['--class' => 'ResourcesSeeder']);
+    Artisan::call('db:seed', ['--class' => 'TileLevelResourcesSeeder']);
+
+    $count = \Illuminate\Support\Facades\DB::table('material_tile_type')
+        ->where('quantity', '>', 0)
+        ->count();
+
+    expect($count)->toBeGreaterThan(0);
+});

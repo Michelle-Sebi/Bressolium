@@ -32,18 +32,26 @@ test('creating a game initializes the first round and responds with JSON standar
     expect(Game::count())->toBe(1);
     $game = Game::first();
     expect($game->users->contains($this->user))->toBeTrue();
-        
+
     // Check Round 1 was created
     $round = \App\Models\Round::where('game_id', $game->id)->first();
     expect($round)->not->toBeNull()
         ->and($round->number)->toBe(1);
-        
+
     // Check round_user table was populated for initial members
     $roundUserCount = \Illuminate\Support\Facades\DB::table('round_user')
         ->where('round_id', $round->id)
         ->where('user_id', $this->user->id)
         ->count();
     expect($roundUserCount)->toBe(1);
+});
+
+test('una partida recién creada tiene status WAITING', function () {
+    $this->postJson('/api/v1/game/create', ['team_name' => 'Status Check Team'])
+        ->assertStatus(200);
+
+    $game = Game::first();
+    expect($game->status)->toBe('WAITING');
 });
 
 test('joining by exact name associates the player with the team (HU 1.3)', function () {

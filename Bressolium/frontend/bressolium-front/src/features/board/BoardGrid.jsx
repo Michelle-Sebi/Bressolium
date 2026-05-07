@@ -11,6 +11,7 @@ import { useBoard } from './useBoard';
 import { useAuth } from '../auth/useAuth';
 import { useGames } from '../game/useGames';
 import TechTreeModal from '../techtree/TechTreeModal';
+import Badge from '../../components/ui/Badge';
 
 import bosqueIcon  from '../../assets/icons/tiles/bosque.png';
 import canteraIcon from '../../assets/icons/tiles/cantera.png';
@@ -137,19 +138,22 @@ function Tile({ tile, currentUserId, isExplorable, onTileClick }) {
                     />
                 )}
                 {isExplored && level > 0 && (
-                    <span style={{
-                        position:        'absolute',
-                        bottom:          '1px',
-                        right:           '2px',
-                        fontSize:        '8px',
-                        fontWeight:      'bold',
-                        color:           '#fff',
-                        textShadow:      '0 0 2px rgba(0,0,0,0.8)',
-                        lineHeight:      1,
-                        pointerEvents:   'none',
-                    }}>
-                        {level}
-                    </span>
+                    <Badge
+                        count={level}
+                        style={{
+                            position:        'absolute',
+                            bottom:          '1px',
+                            right:           '2px',
+                            fontSize:        '8px',
+                            backgroundColor: 'transparent',
+                            color:           '#fff',
+                            textShadow:      '0 0 2px rgba(0,0,0,0.8)',
+                            padding:         0,
+                            minWidth:        'auto',
+                            lineHeight:      1,
+                            pointerEvents:   'none',
+                        }}
+                    />
                 )}
             </div>
         </div>

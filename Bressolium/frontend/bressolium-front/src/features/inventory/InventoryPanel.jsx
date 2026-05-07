@@ -15,6 +15,7 @@
 
 import { useInventory } from './useInventory';
 import { useGames } from '../game/useGames';
+import Badge from '../../components/ui/Badge';
 
 /** @type {Record<string, string>} Mapeo de nombre de material a ruta de icono */
 const MATERIAL_ICON_MAP = {
@@ -65,6 +66,7 @@ function MaterialItem({ material }) {
             data-testid="material-item"
             className={`material-item ${stateClass}`}
             style={{ opacity: isActive ? 1 : 0.35 }}
+            title={`${material.name} · ${material.group} · tier ${material.tier} · ×${material.quantity}`}
         >
             {/* Capa interior: inspeccionada individualmente por getByTestId('material-item-{name}') */}
             <div
@@ -86,20 +88,10 @@ function MaterialItem({ material }) {
                     style={{ width: '32px', height: '32px', objectFit: 'contain' }}
                 />
                 {isActive && (
-                    <span
+                    <Badge
+                        count={material.quantity}
                         data-testid={`material-badge-${material.name}`}
-                        style={{
-                            fontSize:        '11px',
-                            fontWeight:      'bold',
-                            color:           '#fff',
-                            backgroundColor: '#458B74',
-                            padding:         '1px 5px',
-                            minWidth:        '18px',
-                            textAlign:       'center',
-                        }}
-                    >
-                        {material.quantity}
-                    </span>
+                    />
                 )}
             </div>
         </div>

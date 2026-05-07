@@ -29,6 +29,8 @@ class CloseRoundService
         $this->repository->produceMaterialsFromExploredTiles($game);
         MaterialsProduced::dispatch($game);
 
+        $this->repository->markAfkPlayers($round, $game);
+
         $newRound = $this->repository->createNextRound($game);
         $this->repository->initializePlayersForRound($newRound, $game);
 

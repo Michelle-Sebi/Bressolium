@@ -3,6 +3,8 @@
  * @typedef {{ name: string, type: string }} MissingItem
  */
 
+import Badge from '../../components/ui/Badge';
+
 // ─── Colores brutalistas del proyecto ────────────────────────────────────────
 const COLOR_BROWN   = '#8B7355';
 const COLOR_GREEN   = '#458B74';
@@ -54,9 +56,9 @@ function TechRow({ tech, showMissing }) {
 
 /**
  * Encabezado de sección del árbol tecnológico.
- * @param {{ label: string, color: string }} props
+ * @param {{ label: string, color: string, count: number }} props
  */
-function SectionHeader({ label, color }) {
+function SectionHeader({ label, color, count }) {
     return (
         <div
             style={{
@@ -67,9 +69,13 @@ function SectionHeader({ label, color }) {
                 textTransform:   'uppercase',
                 letterSpacing:   '0.08em',
                 fontSize:        '12px',
+                display:         'flex',
+                justifyContent:  'space-between',
+                alignItems:      'center',
             }}
         >
-            {label}
+            <span>{label}</span>
+            <Badge count={count} />
         </div>
     );
 }
@@ -153,7 +159,7 @@ function TechTreeModal({ isOpen, onClose, completed = [], available = [], blocke
                 <div style={{ overflowY: 'auto', flex: 1 }}>
 
                     {/* ── Sección Completadas ── */}
-                    <SectionHeader label="Completadas" color={COLOR_GREEN} />
+                    <SectionHeader label="Completadas" color={COLOR_GREEN} count={completed.length} />
                     {completed.length === 0 ? (
                         <p style={{ padding: '8px 12px', color: COLOR_BROWN, fontSize: '12px', opacity: 0.6 }}>
                             Ninguna investigada todavía.
@@ -163,7 +169,7 @@ function TechTreeModal({ isOpen, onClose, completed = [], available = [], blocke
                     )}
 
                     {/* ── Sección Disponibles ── */}
-                    <SectionHeader label="Disponibles" color="#5a8f7b" />
+                    <SectionHeader label="Disponibles" color="#5a8f7b" count={available.length} />
                     {available.length === 0 ? (
                         <p style={{ padding: '8px 12px', color: COLOR_BROWN, fontSize: '12px', opacity: 0.6 }}>
                             Nada listo para investigar aún.
@@ -173,7 +179,7 @@ function TechTreeModal({ isOpen, onClose, completed = [], available = [], blocke
                     )}
 
                     {/* ── Sección Bloqueadas ── */}
-                    <SectionHeader label="Bloqueadas" color={COLOR_BROWN} />
+                    <SectionHeader label="Bloqueadas" color={COLOR_BROWN} count={blocked.length} />
                     {blocked.length === 0 ? (
                         <p style={{ padding: '8px 12px', color: COLOR_BROWN, fontSize: '12px', opacity: 0.6 }}>
                             Sin requisitos pendientes por cumplir.
