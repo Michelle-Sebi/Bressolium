@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\DTOs\ExploreActionDTO;
 use App\DTOs\UpgradeActionDTO;
+use App\Events\TileExplored;
+use App\Events\TileUpgraded;
 use App\Exceptions\ActionLimitExceededException;
 use App\Exceptions\TileAlreadyExploredException;
 use App\Exceptions\TileNotExploredException;
@@ -37,7 +39,10 @@ class ActionService
         $this->tileRepo->markExplored($tile, $dto->userId);
         $this->tileRepo->incrementActionsSpent($round, $dto->userId);
 
-        return $tile->refresh()->load('type');
+        $tile->refresh()->load('type');
+        TileExplored::dispatch($tile, $dto->userId);
+
+        return $tile;
     }
 
     public function upgrade(UpgradeActionDTO $dto): Tile
@@ -77,6 +82,9 @@ class ActionService
         $this->tileRepo->upgradeTile($tile, $nextType);
         $this->tileRepo->incrementActionsSpent($round, $dto->userId);
 
-        return $tile->refresh()->load('type');
+        $tile->refresh()->load('type');
+        TileUpgraded::dispatch($tile, $dto->userId);
+
+        return $tile;
     }
 }

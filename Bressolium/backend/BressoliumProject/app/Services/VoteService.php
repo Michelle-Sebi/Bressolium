@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\DTOs\VoteDTO;
+use App\Events\VoteCast;
 use App\Models\Vote;
 use App\Repositories\Contracts\VoteRepositoryInterface;
 use App\Repositories\Contracts\SyncRepositoryInterface;
@@ -39,6 +40,9 @@ class VoteService
             }
         }
 
-        return $this->voteRepository->store($round->id, $dto->userId, $dto->technologyId, $dto->inventionId);
+        $vote = $this->voteRepository->store($round->id, $dto->userId, $dto->technologyId, $dto->inventionId);
+        VoteCast::dispatch($dto->userId, $dto->gameId);
+
+        return $vote;
     }
 }
