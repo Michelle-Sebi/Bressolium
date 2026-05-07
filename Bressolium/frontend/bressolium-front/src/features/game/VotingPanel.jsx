@@ -1,4 +1,5 @@
 import { useVoting } from './useVoting';
+import Button from '../../components/ui/Button';
 
 const SECTION_HEADER = {
     padding:         '4px 8px',
@@ -110,25 +111,16 @@ function VotingPanel({ gameId }) {
             ))}
 
             {/* Botón finalizar turno */}
-            <button
-                onClick={closeRound}
-                disabled={isClosing}
-                style={{
-                    marginTop:       '8px',
-                    padding:         '8px 12px',
-                    backgroundColor: isClosing ? '#C1CDC1' : '#8B7355',
-                    color:           '#fff',
-                    border:          'none',
-                    fontWeight:      'bold',
-                    textTransform:   'uppercase',
-                    fontSize:        '11px',
-                    letterSpacing:   '0.08em',
-                    cursor:          isClosing ? 'not-allowed' : 'pointer',
-                    opacity:         isClosing ? 0.7 : 1,
-                }}
-            >
-                {isClosing ? 'Cerrando…' : 'Finalizar Turno'}
-            </button>
+            <div style={{ marginTop: '8px' }}>
+                <Button
+                    variant="secondary"
+                    onClick={closeRound}
+                    disabled={isClosing}
+                    style={isClosing ? { backgroundColor: '#C1CDC1' } : undefined}
+                >
+                    {isClosing ? 'Cerrando…' : 'Finalizar Turno'}
+                </Button>
+            </div>
         </div>
     );
 }

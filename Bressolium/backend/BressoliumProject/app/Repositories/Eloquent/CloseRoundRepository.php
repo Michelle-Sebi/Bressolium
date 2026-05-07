@@ -129,6 +129,11 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
         }
     }
 
+    public function finishGame(Game $game): void
+    {
+        $game->update(['status' => 'FINISHED']);
+    }
+
     public function produceMaterialsFromExploredTiles(Game $game): void
     {
         $exploredTiles = Tile::where('game_id', $game->id)
@@ -173,6 +178,17 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
     {
         foreach ($game->users as $user) {
             $round->users()->attach($user->id, ['actions_spent' => 0]);
+        }
+    }
+
+    public function markAfkPlayers(Round $round, Game $game): void
+    {
+        foreach ($game->users as $user) {
+            $roundUser = $round->users()->where('user_id', $user->id)->first();
+
+            if ($roundUser && (int) $roundUser->pivot->actions_spent === 0) {
+                $game->users()->updateExistingPivot($user->id, ['is_afk' => true]);
+            }
         }
     }
 }

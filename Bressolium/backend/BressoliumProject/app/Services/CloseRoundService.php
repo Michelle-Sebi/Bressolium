@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\GameFinished;
 use App\Events\InventionBuilt;
 use App\Events\MaterialsProduced;
 use App\Events\RoundClosed;
@@ -19,10 +20,16 @@ class CloseRoundService
         $round = $this->repository->getLatestRound($game);
 
         $this->resolveTechnologyWinner($game, $round);
-        $this->resolveInventionWinner($game, $round);
+        $gameFinished = $this->resolveInventionWinner($game, $round);
+
+        if ($gameFinished) {
+            return;
+        }
 
         $this->repository->produceMaterialsFromExploredTiles($game);
         MaterialsProduced::dispatch($game);
+
+        $this->repository->markAfkPlayers($round, $game);
 
         $newRound = $this->repository->createNextRound($game);
         $this->repository->initializePlayersForRound($newRound, $game);
@@ -39,29 +46,37 @@ class CloseRoundService
         }
     }
 
-    private function resolveInventionWinner(Game $game, Round $round): void
+    private function resolveInventionWinner(Game $game, Round $round): bool
     {
         $inventionId = $this->repository->getMostVotedInventionId($round);
 
         if (!$inventionId) {
-            return;
+            return false;
         }
 
         $invention = $this->repository->getInventionWithDependencies($inventionId);
 
         if (!$invention) {
-            return;
+            return false;
         }
 
         if (!$this->repository->inventionPrerequisitesMet($game, $invention)) {
-            return;
+            return false;
         }
 
         if (!$this->repository->inventionResourcesMet($game, $invention)) {
-            return;
+            return false;
         }
 
         $this->repository->buildInvention($game, $invention);
         InventionBuilt::dispatch($game, $invention);
+
+        if ($invention->is_final) {
+            $this->repository->finishGame($game);
+            GameFinished::dispatch($game);
+            return true;
+        }
+
+        return false;
     }
 }

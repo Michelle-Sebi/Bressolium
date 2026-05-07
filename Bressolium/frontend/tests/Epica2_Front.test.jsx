@@ -382,6 +382,18 @@ describe('HU 2.4 — Panel lateral de inventario de materiales', () => {
         });
     });
 
+    it('cada ítem tiene un tooltip (title) con nombre, grupo, tier y cantidad', () => {
+        const materials = createMockMaterials({ activeCount: 2 });
+        mockInventoryState({ materials });
+        renderInventoryPanel();
+
+        const items = screen.getAllByTestId('material-item');
+        materials.forEach((mat, i) => {
+            const expectedTitle = `${mat.name} · ${mat.group} · tier ${mat.tier} · ×${mat.quantity}`;
+            expect(items[i]).toHaveAttribute('title', expectedTitle);
+        });
+    });
+
     it('muestra un indicador de carga mientras isLoading es true', () => {
         mockInventoryState({ materials: [], isLoading: true });
         renderInventoryPanel();

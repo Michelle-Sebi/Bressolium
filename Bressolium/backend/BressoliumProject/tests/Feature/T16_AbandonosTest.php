@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use App\Models\Game;
+use App\Repositories\Contracts\CloseRoundRepositoryInterface;
 // use App\Jobs\CloseRoundJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -49,4 +50,38 @@ test('el juego avanza si el Usuario 2 esta marcado como is_afk aunque no haya vo
     // Verificación: Se ha creado el round 2 porque el AFK no bloqueo el cierre
     expect($this->game->rounds()->count())->toBe(2);
     $this->assertDatabaseHas('rounds', ['number' => 2, 'game_id' => $this->game->id]);
+});
+
+test('markAfkPlayers marca como AFK al jugador que no gastó acciones en el round', function () {
+    $repo = $this->app->make(CloseRoundRepositoryInterface::class);
+
+    // Vincular usuario al round sin acciones gastadas (actions_spent = 0)
+    $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 0]);
+
+    $repo->markAfkPlayers($this->round, $this->game);
+
+    $pivot = $this->game->users()->where('user_id', $this->users[0]->id)->first();
+    expect((bool) $pivot->pivot->is_afk)->toBeTrue();
+});
+
+test('markAfkPlayers no marca como AFK al jugador que gastó al menos una acción', function () {
+    $repo = $this->app->make(CloseRoundRepositoryInterface::class);
+
+    // Vincular usuario al round con acciones gastadas
+    $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 1]);
+
+    $repo->markAfkPlayers($this->round, $this->game);
+
+    $pivot = $this->game->users()->where('user_id', $this->users[0]->id)->first();
+    expect((bool) $pivot->pivot->is_afk)->toBeFalse();
+});
+
+test('markAfkPlayers no marca AFK a un jugador que no tiene entrada en el round', function () {
+    $repo = $this->app->make(CloseRoundRepositoryInterface::class);
+
+    // Usuario 0 vinculado a la partida pero NO al round (sin attach en round_user)
+    $repo->markAfkPlayers($this->round, $this->game);
+
+    $pivot = $this->game->users()->where('user_id', $this->users[0]->id)->first();
+    expect((bool) $pivot->pivot->is_afk)->toBeFalse();
 });

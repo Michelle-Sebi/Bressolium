@@ -67,7 +67,7 @@ test('ResourcesSeeder carga al menos los recursos definidos en casillas.md', fun
     }
 });
 
-// ─── 3. TechnologiesSeeder — 31 tecnologías ──────────────────────────────────
+// ─── 3. TechnologiesSeeder — 26 tecnologías ──────────────────────────────────
 
 test('TechnologiesSeeder carga exactamente 26 tecnologías', function () {
     Artisan::call('db:seed', ['--class' => 'TechnologiesSeeder']);

@@ -1,8 +1,9 @@
-function Badge({ count }) {
+function Badge({ count, style: customStyle, ...props }) {
     if (!count) return null;
 
     return (
         <span
+            className="ui-badge"
             style={{
                 fontSize:        '11px',
                 fontWeight:      'bold',
@@ -12,7 +13,9 @@ function Badge({ count }) {
                 minWidth:        '18px',
                 textAlign:       'center',
                 display:         'inline-block',
+                ...customStyle,
             }}
+            {...props}
         >
             {count}
         </span>

@@ -320,7 +320,35 @@ describe('Badge — componente brutalista', () => {
     });
 });
 
-// ─── 9. IconTile ─────────────────────────────────────────────────────────────
+// ─── 9. Uso de ui/ en T12/T19/T50/T51 ───────────────────────────────────────
+
+describe('T44 — componentes de feature usan primitivas de ui/', () => {
+    it('VotingPanel (T12) importa y usa <Button> de components/ui/Button', () => {
+        const src = fs.readFileSync(path.join(SRC, 'features', 'game', 'VotingPanel.jsx'), 'utf8');
+        expect(src).toMatch(/import Button from.*components\/ui\/Button/);
+        expect(src).toMatch(/<Button[\s>]/);
+    });
+
+    it('TechTreeModal (T19) importa y usa <Badge> de components/ui/Badge', () => {
+        const src = fs.readFileSync(path.join(SRC, 'features', 'techtree', 'TechTreeModal.jsx'), 'utf8');
+        expect(src).toMatch(/import Badge from.*components\/ui\/Badge/);
+        expect(src).toMatch(/<Badge[\s>]/);
+    });
+
+    it('InventoryPanel (T50) importa y usa <Badge> de components/ui/Badge', () => {
+        const src = fs.readFileSync(path.join(SRC, 'features', 'inventory', 'InventoryPanel.jsx'), 'utf8');
+        expect(src).toMatch(/import Badge from.*components\/ui\/Badge/);
+        expect(src).toMatch(/<Badge[\s>]/);
+    });
+
+    it('BoardGrid (T51) importa y usa <Badge> de components/ui/Badge', () => {
+        const src = fs.readFileSync(path.join(SRC, 'features', 'board', 'BoardGrid.jsx'), 'utf8');
+        expect(src).toMatch(/import Badge from.*components\/ui\/Badge/);
+        expect(src).toMatch(/<Badge[\s>]/);
+    });
+});
+
+// ─── 10. IconTile ────────────────────────────────────────────────────────────
 
 describe('IconTile — componente brutalista', () => {
     it('renderiza una imagen <img>', async () => {
