@@ -18,7 +18,7 @@ const axiosBaseQuery = () => async ({ url, method = 'GET', data }) => {
 export const bressoliumApi = createApi({
     reducerPath: 'bressoliumApi',
     baseQuery:   axiosBaseQuery(),
-    tagTypes:    ['Board'],
+    tagTypes:    ['Board', 'Sync'],
     endpoints: (builder) => ({
 
         getBoard: builder.query({
@@ -33,16 +33,17 @@ export const bressoliumApi = createApi({
 
         exploreTile: builder.mutation({
             query: (tileId) => ({ url: `/tiles/${tileId}/explore`, method: 'POST' }),
-            invalidatesTags: ['Board'],
+            invalidatesTags: ['Board', 'Sync'],
         }),
 
         upgradeTile: builder.mutation({
             query: (tileId) => ({ url: `/tiles/${tileId}/upgrade`, method: 'POST' }),
-            invalidatesTags: ['Board'],
+            invalidatesTags: ['Board', 'Sync'],
         }),
 
         getSync: builder.query({
             query: (gameId) => ({ url: `/game/${gameId}/sync` }),
+            providesTags: ['Sync'],
             transformResponse: (response) => response.data ?? response,
         }),
 
@@ -54,6 +55,14 @@ export const bressoliumApi = createApi({
             }),
         }),
 
+        closeRound: builder.mutation({
+            query: (gameId) => ({
+                url:    `/game/${gameId}/close-round`,
+                method: 'POST',
+            }),
+            invalidatesTags: ['Sync'],
+        }),
+
     }),
 });
 
@@ -63,4 +72,5 @@ export const {
     useUpgradeTileMutation,
     useGetSyncQuery,
     useVoteMutation,
+    useCloseRoundMutation,
 } = bressoliumApi;

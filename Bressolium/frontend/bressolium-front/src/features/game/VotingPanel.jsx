@@ -47,7 +47,7 @@ function VoteItem({ name, canVote, missing, onClick }) {
 }
 
 function VotingPanel({ gameId }) {
-    const { technologies, inventions, userActions, currentRound, isLoading, vote } = useVoting(gameId);
+    const { technologies, inventions, userActions, currentRound, isLoading, isClosing, vote, closeRound } = useVoting(gameId);
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px', overflowY: 'auto' }}>
@@ -111,21 +111,23 @@ function VotingPanel({ gameId }) {
 
             {/* Botón finalizar turno */}
             <button
-                onClick={() => {}}
+                onClick={closeRound}
+                disabled={isClosing}
                 style={{
                     marginTop:       '8px',
                     padding:         '8px 12px',
-                    backgroundColor: '#8B7355',
+                    backgroundColor: isClosing ? '#C1CDC1' : '#8B7355',
                     color:           '#fff',
                     border:          'none',
                     fontWeight:      'bold',
                     textTransform:   'uppercase',
                     fontSize:        '11px',
                     letterSpacing:   '0.08em',
-                    cursor:          'pointer',
+                    cursor:          isClosing ? 'not-allowed' : 'pointer',
+                    opacity:         isClosing ? 0.7 : 1,
                 }}
             >
-                Finalizar Turno
+                {isClosing ? 'Cerrando…' : 'Finalizar Turno'}
             </button>
         </div>
     );

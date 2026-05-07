@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Events\InventionBuilt;
+use App\Events\MaterialsProduced;
+use App\Events\RoundClosed;
 use App\Models\Game;
 use App\Models\Round;
 use App\Repositories\Contracts\CloseRoundRepositoryInterface;
@@ -19,9 +22,12 @@ class CloseRoundService
         $this->resolveInventionWinner($game, $round);
 
         $this->repository->produceMaterialsFromExploredTiles($game);
+        MaterialsProduced::dispatch($game);
 
         $newRound = $this->repository->createNextRound($game);
         $this->repository->initializePlayersForRound($newRound, $game);
+
+        RoundClosed::dispatch($game, $round);
     }
 
     private function resolveTechnologyWinner(Game $game, Round $round): void
@@ -56,5 +62,6 @@ class CloseRoundService
         }
 
         $this->repository->buildInvention($game, $invention);
+        InventionBuilt::dispatch($game, $invention);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Repositories\Contracts;
 
 use App\Models\Game;
 use App\Models\Round;
+use App\Models\Technology;
 use App\Models\Tile;
 use App\Models\TileType;
 
@@ -23,11 +24,7 @@ interface TileRepositoryInterface
 
     public function findNextTileType(Tile $tile): ?TileType;
 
-    public function getUpgradeCosts(TileType $nextType): \Illuminate\Support\Collection;
-
-    public function hasSufficientMaterials(Game $game, \Illuminate\Support\Collection $costs): bool;
-
-    public function deductMaterials(Game $game, \Illuminate\Support\Collection $costs): void;
+    public function getRequiredTechnology(TileType $nextType): ?Technology;
 
     public function upgradeTile(Tile $tile, TileType $nextType): void;
 }

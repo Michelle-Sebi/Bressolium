@@ -1,10 +1,13 @@
 import AppRoutes from './routes/AppRoutes';
+import { ToastProvider } from './contexts/ToastContext';
 
 function App() {
   return (
-    <div className="min-h-screen bg-[#f7f9f7]">
-      <AppRoutes />
-    </div>
+    <ToastProvider>
+      <div className="min-h-screen bg-[#f7f9f7]">
+        <AppRoutes />
+      </div>
+    </ToastProvider>
   );
 }
 

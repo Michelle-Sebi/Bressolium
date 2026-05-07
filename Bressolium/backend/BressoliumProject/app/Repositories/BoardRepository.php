@@ -36,4 +36,17 @@ class BoardRepository
 
         Tile::insert($rows);
     }
+
+    public function markAsStartingTile(string $gameId, int $x, int $y, string $userId): void
+    {
+        Tile::where('game_id', $gameId)
+            ->where('coord_x', $x)
+            ->where('coord_y', $y)
+            ->update([
+                'assigned_player'       => $userId,
+                'explored'              => true,
+                'explored_by_player_id' => $userId,
+                'explored_at'           => now(),
+            ]);
+    }
 }
