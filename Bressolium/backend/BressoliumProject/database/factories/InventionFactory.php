@@ -15,6 +15,7 @@ class InventionFactory extends Factory
         return [
             'name'          => $this->faker->unique()->words(2, true),
             'technology_id' => Technology::factory(),
+            'is_final'      => false,
         ];
     }
 }

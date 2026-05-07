@@ -129,6 +129,11 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
         }
     }
 
+    public function finishGame(Game $game): void
+    {
+        $game->update(['status' => 'FINISHED']);
+    }
+
     public function produceMaterialsFromExploredTiles(Game $game): void
     {
         $exploredTiles = Tile::where('game_id', $game->id)

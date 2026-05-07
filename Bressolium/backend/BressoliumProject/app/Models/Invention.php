@@ -13,6 +13,11 @@ class Invention extends Model
     protected $fillable = [
         'name',
         'technology_id',
+        'is_final',
+    ];
+
+    protected $casts = [
+        'is_final' => 'boolean',
     ];
 
     public function technology(): \Illuminate\Database\Eloquent\Relations\BelongsTo
