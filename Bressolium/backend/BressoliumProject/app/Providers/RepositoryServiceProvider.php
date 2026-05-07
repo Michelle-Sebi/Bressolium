@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Repositories\Contracts\BoardRepositoryInterface;
+use App\Repositories\Contracts\CloseRoundRepositoryInterface;
 use App\Repositories\Contracts\GameRepositoryInterface;
 use App\Repositories\Contracts\RoundRepositoryInterface;
 use App\Repositories\Contracts\SyncRepositoryInterface;
@@ -10,6 +11,7 @@ use App\Repositories\Contracts\VoteRepositoryInterface;
 use App\Repositories\Contracts\TileRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Eloquent\BoardRepository;
+use App\Repositories\Eloquent\CloseRoundRepository;
 use App\Repositories\Eloquent\GameRepository;
 use App\Repositories\Eloquent\RoundRepository;
 use App\Repositories\Eloquent\SyncRepository;
@@ -29,5 +31,6 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(TileRepositoryInterface::class, TileRepository::class);
         $this->app->bind(SyncRepositoryInterface::class, SyncRepository::class);
         $this->app->bind(VoteRepositoryInterface::class, VoteRepository::class);
+        $this->app->bind(CloseRoundRepositoryInterface::class, CloseRoundRepository::class);
     }
 }
