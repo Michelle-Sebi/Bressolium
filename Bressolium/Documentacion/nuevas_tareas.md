@@ -114,7 +114,7 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **HUs**: 2.4, 2.7
 - **Descripción**: Panel lateral de inventario. Iconos de materiales con Badges de cantidad. Estados activo/inactivo (opacidad) según descubrimiento.
 
-### Tarea 50
+### Tarea 50 [TERMINADA]
 - **Título**: `[Feat] Inventory Panel: Inventions Section`
 - **Estimación**: S
 - **Área**: [FRONTEND]
@@ -127,7 +127,7 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 
 ## 🗳️ Épica 3: Mecánicas de Turno y Votos
 
-### Tarea 10 ⚙️
+### Tarea 10 [TERMINADA]
 - **Título**: `[Feat] Relational Sync and Polling`
 - **Estimación**: M
 - **Área**: [BACKEND] / [FRONTEND]
@@ -135,7 +135,7 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Bloqueado por**: Tarea 8, Tarea 25, Tarea 26, Tarea 27, Tarea 28, Tarea 48
 - **Descripción**: Endpoint `GET /api/game/sync` para hidratar el estado global de RTK (recursos, **inventos construidos con sus cantidades**, progreso tecnológico, rounds). Polling cada ~30s. Implementar siguiendo la arquitectura completa: Form Request, DTO, Service, Repository con interfaz, API Resource. La parte frontend del polling debe consumir la API a través del cliente HTTP centralizado (Tarea 30).
 
-### Tarea 11
+### Tarea 11 [TERMINADA]
 - **Título**: `[Feat] Progress Voting API (Relational)`
 - **Estimación**: M
 - **Área**: [BACKEND]
@@ -143,7 +143,7 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Bloqueado por**: Tarea 10
 - **Descripción**: Endpoint para insertar en `votes`. Acepta votos tanto a **tecnologías como a inventos** (la tabla `votes` ya soporta ambos vía `technology_id` o `invention_id` nullable). Validación de si el usuario ya votó y si el item ya está completado/investigado. Para inventos, considerar la cantidad acumulada del equipo, no solo presencia. (Implementar usando arquitectura Controller -> Service -> Repository).
 
-### Tarea 12 ⚙️
+### Tarea 12 [TERMINADA]
 - **Título**: `[Feat] Action & Decision Control Panel (SidePanel Derecho)`
 - **Estimación**: L
 - **Área**: [FRONTEND]
@@ -152,7 +152,7 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **HUs**: 3.8
 - **Descripción**: Panel de control de jornada con **dos zonas de votación claramente separadas**: una para **Tecnologías** y otra para **Inventos**. Cada zona muestra su propia lista de votables según stock y prerrequisitos cumplidos. Incluir contador visual de acciones, timer de fase y botón de finalizar turno. Los ítems con recursos suficientes se muestran activos; los ítems alcanzables en pocos pasos (faltan recursos o un prerrequisito previo) en gris con indicación de qué falta. Consumir la API a través del cliente HTTP centralizado (Tarea 30).
 
-### Tarea 13 ⚙️
+### Tarea 13 [TERMINADA]
 - **Título**: `[Feat] Schedule / Cron Round Close and Round Jump`
 - **Estimación**: XL
 - **Área**: [BACKEND]
@@ -195,7 +195,7 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Bloqueado por**: Tarea 21, Tarea 22
 - **Descripción**: Actualizar el diagrama ER_v4.html a V5 reflejando todos los cambios de schema introducidos en las Tareas 21 y 22: nuevas tablas `invention_prerequisites`, `technology_prerequisites`, `invention_costs`, `technology_bonuses`, `invention_bonuses`, `technology_unlocks`, `invention_unlocks`, columna `base_type` en `tile_types`, y atributos `tier`, `group` en `materials`.
 
-### Tarea 48
+### Tarea 48 [TERMINADA]
 - **Título**: `[Refactor] DB Migration V6: Quantities in Inventions & Prerequisites`
 - **Estimación**: M
 - **Área**: [BASE DE DATOS]
@@ -211,7 +211,7 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Bloqueado por**: Tarea 48
 - **Descripción**: Actualizar el diagrama ER (actualmente V5) a V6 reflejando: columna `quantity` en `invention_prerequisites` y `technology_prerequisites`, y la nueva tabla `game_inventions`. Actualizar `casillas.md` y `evolucion-tecnologias-e-inventos.md` con las cantidades requeridas en cada prerrequisito. Verificar que la referencia desde `global_rules.md` apunta a la versión correcta del diagrama.
 
-### Tarea 38
+### Tarea 38 [TERMINADA]
 - **Título**: `[Feat] Actualización de Seeders (Nuevos Items + Quantities)`
 - **Estimación**: S
 - **Área**: [BASE DE DATOS]
@@ -260,28 +260,28 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 
 > Tareas derivadas de los requisitos de la guía del módulo (s4-proyecto.md). Deben completarse antes de implementar T10 en adelante para que el código nuevo nazca con los patrones correctos.
 
-### Tarea 25
+### Tarea 25 [TERMINADA]
 - **Título**: `[Refactor] Contracts, Interfaces y Service Providers`
 - **Estimación**: M
 - **Área**: [BACKEND]
 - **Asignado a**: Bárbara
 - **Descripción**: Crear `/Repositories/Contracts` con una interfaz por cada repositorio existente (Game, User, Round, Board, Tile). Mover las implementaciones actuales a `/Repositories/Eloquent`. Crear un `RepositoryServiceProvider` que registre los bindings interfaz→implementación en el IoC Container de Laravel. Actualizar todos los servicios que inyectan repositorios para que dependan de la interfaz, no de la clase concreta.
 
-### Tarea 26
+### Tarea 26 [TERMINADA]
 - **Título**: `[Refactor] Form Requests, Policies y Namespace de Controladores API`
 - **Estimación**: M
 - **Área**: [BACKEND]
 - **Asignado a**: Michelle
 - **Descripción**: Crear clases en `/Http/Requests` para validación de entrada en los endpoints existentes (register, login, create game, join game, explore, upgrade). Crear `/Http/Policies` para las reglas de autorización sobre recursos (acceso a partida, acciones sobre casillas). Mover todos los controladores a `/Http/Controllers/Api/` para separar espacio de nombres correctamente. Refactorizar controladores para delegar validación a Form Requests y autorización a Policies en lugar de hacerlo manualmente en servicios.
 
-### Tarea 27
+### Tarea 27 [TERMINADA]
 - **Título**: `[Refactor] DTOs y API Resources`
 - **Estimación**: M
 - **Área**: [BACKEND]
 - **Asignado a**: Bárbara
 - **Descripción**: Crear `/DTOs` con clases de transferencia de datos para los flujos principales (CreateGameDTO, JoinGameDTO, ExploreActionDTO, UpgradeActionDTO, SyncResponseDTO, VoteDTO). Crear `/Http/Resources` con API Resources para transformar modelos Eloquent antes de devolverlos al cliente (GameResource, TileResource, MaterialResource, RoundResource). Sustituir los retornos directos de modelos por sus Resources correspondientes en todos los controladores existentes.
 
-### Tarea 28
+### Tarea 28 [TERMINADA]
 - **Título**: `[Refactor] Excepciones Personalizadas y Handler Global`
 - **Estimación**: S
 - **Área**: [BACKEND]
@@ -296,7 +296,7 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Bloqueado por**: Tarea 25, Tarea 26, Tarea 27, Tarea 28
 - **Descripción**: Crear tests en `/tests/Unit` para los servicios y repositorios de forma aislada, mockeando dependencias. Cubrir como mínimo: GameService, ActionService, y los repositorios principales. Los tests unitarios deben verificar lógica de negocio sin tocar la base de datos.
 
-### Tarea 30
+### Tarea 30 [TERMINADA]
 - **Título**: `[Feat] Cliente HTTP Centralizado con Interceptores`
 - **Estimación**: S
 - **Área**: [FRONTEND]
@@ -341,7 +341,7 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Asignado a**: Bárbara
 - **Descripción**: Redactar un documento de arquitectura que explique las decisiones técnicas del proyecto: justificación del patrón Controller→Service→Repository, uso de Contracts e IoC Container, estructura de features en el frontend, gestión del estado con Redux, y convenciones de nomenclatura. Debe poder usarse como referencia durante la presentación del proyecto.
 
-### Tarea 36
+### Tarea 36 [TERMINADA]
 - **Título**: `[Feat] Rate Limiting y Versionado de API`
 - **Estimación**: XS
 - **Área**: [BACKEND]
@@ -363,21 +363,21 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Asignado a**: Michelle
 - **Descripción**: Crear `/app/Events` con eventos de dominio (`TileExplored`, `TileUpgraded`, `RoundClosed`, `MaterialsProduced`, `GameFinished`, `VoteCast`, `InventionBuilt`) y `/app/Listeners` desacoplados (notificación a jugadores, auditoría, log estructurado). Refactorizar `ActionService` y los jobs de T13 y T15 para que emitan eventos en lugar de ejecutar todo inline. Encolar los listeners costosos.
 
-### Tarea 40
+### Tarea 40 [TERMINADA]
 - **Título**: `[Refactor] Response Builder Centralizado`
 - **Estimación**: S
 - **Área**: [BACKEND]
 - **Asignado a**: Bárbara
 - **Descripción**: Extraer la lógica de respuestas estandarizadas a `app/Support/ResponseBuilder.php` con métodos `success(data, code)`, `error(message, code)`, `paginated(query)`. Refactorizar todos los controladores existentes (T2, T4, T7, T8) para que pasen por este builder en lugar de devolver arrays directamente desde `BaseController`.
 
-### Tarea 41
+### Tarea 41 [TERMINADA]
 - **Título**: `[Feat] Middleware Global (Force JSON + Request Logging)`
 - **Estimación**: XS
 - **Área**: [BACKEND]
 - **Asignado a**: Michelle
 - **Descripción**: Crear middleware global que fuerce `Accept: application/json` en peticiones API y registre cada petición (método, ruta, usuario, tiempo de respuesta, status) en log estructurado. Registrar en `bootstrap/app.php`. Distinguir explícitamente del middleware de ruta (Sanctum, throttle).
 
-### Tarea 42
+### Tarea 42 [TERMINADA]
 - **Título**: `[Feat] RTK Query / Server State Cache`
 - **Estimación**: M
 - **Área**: [FRONTEND]
@@ -392,7 +392,7 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Asignado a**: Bárbara
 - **Descripción**: Crear `/src/pages/` y extraer las vistas (`Login`, `Register`, `Dashboard`, `GameBoard`) desde `features/` como Pages independientes. Aplicar `React.lazy()` + `Suspense` para carga diferida. Crear `/src/routes/` extrayendo la configuración del router de `App.jsx`, con HOC `ProtectedRoute` para rutas autenticadas.
 
-### Tarea 44
+### Tarea 44 [TERMINADA]
 - **Título**: `[Feat] Contexts + UI Components Reutilizables`
 - **Estimación**: S
 - **Área**: [FRONTEND]
@@ -439,23 +439,23 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 | T22 | DB V5b Tech Tree Normalization | M | ✅ Terminada |
 | T7 | Board Generator and API Controller | L | ✅ Terminada |
 | T8 | Individual Actions API | L | ✅ Terminada |
-| T10 ⚙️ | Relational Sync and Polling | M | Pendiente |
-| T11 | Progress Voting API | M | Pendiente |
-| T12 ⚙️ | Action & Decision Control Panel | L | Pendiente |
-| T25 | Contracts, Interfaces y Service Providers | M | Pendiente |
-| T27 | DTOs y API Resources | M | Pendiente |
+| T10 | Relational Sync and Polling | M | ✅ Terminada |
+| T11 | Progress Voting API | M | ✅ Terminada |
+| T12 | Action & Decision Control Panel | L | ✅ Terminada |
+| T25 | Contracts, Interfaces y Service Providers | M | ✅ Terminada |
+| T27 | DTOs y API Resources | M | ✅ Terminada |
 | T29 | Tests Unitarios Backend | L | Pendiente |
 | T31 | Hooks por Feature | M | Pendiente |
 | T33 | CI/CD Pipeline | M | Pendiente |
 | T35 | Docs Arquitectura | S | Pendiente |
 | T37 | Cache Service | S | Pendiente |
-| T40 | Response Builder Centralizado | S | Pendiente |
-| T42 | RTK Query / Server State Cache | M | Pendiente |
+| T40 | Response Builder Centralizado | S | ✅ Terminada |
+| T42 | RTK Query / Server State Cache | M | ✅ Terminada |
 | T43 | Pages + Lazy Loading + Routes Centralizado | M | Pendiente |
-| T44 | Contexts + UI Components Reutilizables | S | Pendiente |
+| T44 | Contexts + UI Components Reutilizables | S | ✅ Terminada |
 | T45 | Despliegue Producción (HTTPS + CORS) | M | Pendiente |
 | T47 | Accesibilidad | S | Pendiente |
-| T48 | DB Migration V6: Quantities | M | Pendiente |
+| T48 | DB Migration V6: Quantities | M | ✅ Terminada |
 
 ### Michelle
 | Tarea | Título | Talla | Estado |
@@ -467,21 +467,22 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 | T17 | Global TopBar & Session Navigation | S | ✅ Terminada |
 | T9 | Board Grid Component and Frontend Visualization | XL | ✅ Terminada |
 | T18 | Material Inventory Side-Panel | S | ✅ Terminada |
-| T13 ⚙️ | Schedule / Cron Round Close | XL | Pendiente |
+| T13 | Schedule / Cron Round Close | XL | ✅ Terminada |
 | T15 ⚙️ | End of Game (Terraforming) | S | Pendiente |
 | T16 ⚙️ | Abandonment Management | S | Pendiente |
 | T19 ⚙️ | Technology Tree & Progress Archive | M | Pendiente |
-| T23 | Catalog Seeders | L | Pendiente |
-| T24 | Update ER Diagram to V5 | S | Pendiente |
-| T26 | Form Requests, Policies y Namespace | M | Pendiente |
-| T28 | Excepciones Personalizadas y Handler | S | Pendiente |
-| T30 | Cliente HTTP Centralizado | S | Pendiente |
+| T23 | Catalog Seeders | L | ✅ Terminada |
+| T24 | Update ER Diagram to V5 | S | ✅ Terminada |
+| T26 | Form Requests, Policies y Namespace | M | ✅ Terminada |
+| T28 | Excepciones Personalizadas y Handler | S | ✅ Terminada |
+| T30 | Cliente HTTP Centralizado | S | ✅ Terminada |
 | T32 | Tests de Frontend | L | Pendiente |
 | T34 | Tests E2E | L | Pendiente |
-| T36 | Rate Limiting y Versionado API | XS | Pendiente |
+| T36 | Rate Limiting y Versionado API | XS | ✅ Terminada |
+| T38 | Actualización de Seeders | S | ✅ Terminada |
 | T39 | Eventos y Listeners de Dominio | M | Pendiente |
-| T41 | Middleware Global (Force JSON + Logging) | XS | Pendiente |
+| T41 | Middleware Global (Force JSON + Logging) | XS | ✅ Terminada |
 | T46 | Monitoreo y Métricas | S | Pendiente |
 | T49 | Docs ER V6 + Evolución Tecnológica | S | Pendiente |
-| T50 | Inventory Panel: Inventions Section | S | Pendiente |
+| T50 | Inventory Panel: Inventions Section | S | ✅ Terminada |
 | T51 | Pueblo Tile + Tech Tree Access | M | Pendiente |

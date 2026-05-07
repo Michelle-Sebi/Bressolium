@@ -11,7 +11,7 @@ class BoardGeneratorService
 
     public function generate(string $gameId): void
     {
-        $tileTypeIds = TileType::pluck('id')->toArray();
+        $tileTypeIds = TileType::where('level', 1)->pluck('id')->toArray();
 
         if (empty($tileTypeIds)) {
             return;

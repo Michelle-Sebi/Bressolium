@@ -33,29 +33,27 @@ El criterio de ordenación dentro de cada sprint es: primero las tareas sin bloq
 
 ---
 
-# 🏛️ Sprint 3: Arquitectura Completa y Fundamentos
+# ✅ Sprint 3: Arquitectura Completa y Fundamentos [COMPLETADO]
 
 (La guía del módulo exige capas que aún faltan. Este sprint las construye antes de seguir añadiendo features, para que T10 en adelante ya nazcan con los patrones correctos. Las tareas de este sprint no tienen bloqueantes pendientes y pueden hacerse en paralelo.)
 
 **En paralelo — Backend (Bárbara):**
-- Tarea 25: `[Refactor] Contracts, Interfaces y Service Providers` (Backend - Bárbara) [Talla: M]
-- Tarea 27: `[Refactor] DTOs y API Resources` (Backend - Bárbara) [Talla: M]
+- Tarea 25: `[Refactor] Contracts, Interfaces y Service Providers` (Backend - Bárbara) [Talla: M] [TERMINADA]
+- Tarea 27: `[Refactor] DTOs y API Resources` (Backend - Bárbara) [Talla: M] [TERMINADA]
 
 **En paralelo — Backend + Frontend (Michelle):**
-- Tarea 26: `[Refactor] Form Requests, Policies y Namespace Controladores API` (Backend - Michelle) [Talla: M]
-- Tarea 28: `[Refactor] Excepciones Personalizadas y Handler Global` (Backend - Michelle) [Talla: S]
-- Tarea 36: `[Feat] Rate Limiting y Versionado de API` (Backend - Michelle) [Talla: XS]
-- Tarea 30: `[Feat] Cliente HTTP Centralizado con Interceptores` (Frontend - Michelle) [Talla: S]
+- Tarea 26: `[Refactor] Form Requests, Policies y Namespace Controladores API` (Backend - Michelle) [Talla: M] [TERMINADA]
+- Tarea 28: `[Refactor] Excepciones Personalizadas y Handler Global` (Backend - Michelle) [Talla: S] [TERMINADA]
+- Tarea 36: `[Feat] Rate Limiting y Versionado de API` (Backend - Michelle) [Talla: XS] [TERMINADA]
+- Tarea 30: `[Feat] Cliente HTTP Centralizado con Interceptores` (Frontend - Michelle) [Talla: S] [TERMINADA]
 
 **Cierre del sprint — paralelo (cualquiera de las dos):**
-- Tarea 48: `[Refactor] DB Migration V6: Quantities in Inventions & Prerequisites` (BD - Bárbara) [Talla: M]
-  - *Bloqueado por: T22✅. Imprescindible antes de T10/T13/T19/T38.*
+- Tarea 48: `[Refactor] DB Migration V6: Quantities in Inventions & Prerequisites` (BD - Bárbara) [Talla: M] [TERMINADA]
 - Tarea 49: `[Docs] Update ER Diagram to V6 + Evolución Tecnológica` (Documentación - Michelle) [Talla: S]
   - *Bloqueado por: T48*
-- Tarea 38: `[Feat] Actualización de Seeders (Nuevos Items + Quantities)` (BD - Michelle) [Talla: S]
-  - *Bloqueado por: T23✅, T48*
-- Tarea 40: `[Refactor] Response Builder Centralizado` (Backend - Bárbara) [Talla: S]
-- Tarea 41: `[Feat] Middleware Global (Force JSON + Logging)` (Backend - Michelle) [Talla: XS]
+- Tarea 38: `[Feat] Actualización de Seeders (Nuevos Items + Quantities)` (BD - Michelle) [Talla: S] [TERMINADA]
+- Tarea 40: `[Refactor] Response Builder Centralizado` (Backend - Bárbara) [Talla: S] [TERMINADA]
+- Tarea 41: `[Feat] Middleware Global (Force JSON + Logging)` (Backend - Michelle) [Talla: XS] [TERMINADA]
 
 > ⚠️ T48 introduce el schema V6 (cantidades en prerrequisitos e inventos). Bloquea T10, T13, T19 y T38, así que debe cerrarse antes de pasar a S4.
 
@@ -72,30 +70,23 @@ El criterio de ordenación dentro de cada sprint es: primero las tareas sin bloq
   - *Bloqueado por: T30*
 - Tarea 33: `[Feat] CI/CD Pipeline` (DevOps - Bárbara) [Talla: M]
   - *Sin bloqueantes técnicos; antes mejor que después*
-- Tarea 42: `[Feat] RTK Query / Server State Cache` (Frontend - Bárbara) [Talla: M]
-  - *Bloqueado por: T30. Debe estar antes que T10 para que el polling se construya ya con RTK Query.*
+- Tarea 42: `[Feat] RTK Query / Server State Cache` (Frontend - Bárbara) [Talla: M] [TERMINADA]
 - Tarea 43: `[Refactor] Pages + Lazy Loading + Routes Centralizado` (Frontend - Bárbara) [Talla: M]
   - *Sin bloqueantes técnicos. Mejor antes de T19 y T50/T51 para que las nuevas vistas nazcan en `/pages`.*
-- Tarea 44: `[Feat] Contexts + UI Components Reutilizables` (Frontend - Bárbara) [Talla: S]
-  - *Sin bloqueantes técnicos. Provee `Modal`, `Toast`, etc. para T12, T19, T50 y T51.*
+- Tarea 44: `[Feat] Contexts + UI Components Reutilizables` (Frontend - Bárbara) [Talla: S] [TERMINADA]
 
 **Arranca cuando T25–T28 y T42 estén listas:**
-- Tarea 10: `[Feat] Relational Sync and Polling` (Fullstack - Bárbara) [Talla: M]
-  - *Bloqueado por: T8✅, T25, T26, T27, T28, T42, T48*
+- Tarea 10: `[Feat] Relational Sync and Polling` (Fullstack - Bárbara) [Talla: M] [TERMINADA]
 
 **Arranca cuando T10 esté lista:**
-- Tarea 11: `[Feat] Progress Voting API` (Backend - Bárbara) [Talla: M]
-  - *Bloqueado por: T10, T25, T26, T27, T28*
+- Tarea 11: `[Feat] Progress Voting API` (Backend - Bárbara) [Talla: M] [TERMINADA]
 - Tarea 19: `[Feat] Technology Tree & Progress Archive` (Frontend - Michelle) [Talla: M]
   - *Bloqueado por: T23✅, T30, T48*
-- Tarea 50: `[Feat] Inventory Panel: Inventions Section` (Frontend - Michelle) [Talla: S]
-  - *Bloqueado por: T10, T48*
+- Tarea 50: `[Feat] Inventory Panel: Inventions Section` (Frontend - Michelle) [Talla: S] [TERMINADA]
 
 **Arranca cuando T11 esté lista:**
-- Tarea 12: `[Feat] Action & Decision Control Panel` (Frontend - Bárbara) [Talla: L]
-  - *Bloqueado por: T11, T30, T44*
-- Tarea 13: `[Feat] Schedule / Cron Round Close and Round Jump` (Backend - Michelle) [Talla: XL]
-  - *Bloqueado por: T11, T48*
+- Tarea 12: `[Feat] Action & Decision Control Panel` (Frontend - Bárbara) [Talla: L] [TERMINADA]
+- Tarea 13: `[Feat] Schedule / Cron Round Close and Round Jump` (Backend - Michelle) [Talla: XL] [TERMINADA]
 - Tarea 39: `[Feat] Eventos y Listeners de Dominio` (Backend - Michelle) [Talla: M]
   - *Sin bloqueantes técnicos. Idealmente en paralelo a T13 (Michelle) para que el cron emita eventos.*
 

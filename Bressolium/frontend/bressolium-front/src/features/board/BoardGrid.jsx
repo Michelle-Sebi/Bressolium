@@ -87,6 +87,7 @@ function Tile({ tile, currentUserId, isExplorable, onTileClick }) {
     const isExplored = tile.explored;
     const isOwnTile  = !tile.assigned_player || tile.assigned_player === currentUserId;
     const baseType   = tile.type?.base_type;
+    const level      = tile.type?.level ?? 0;
 
     const isClickable     = isOwnTile && (isExplored || isExplorable);
     const backgroundColor = isExplored ? (TILE_BG_COLORS[baseType] ?? FOG_BG_COLOR) : FOG_BG_COLOR;
@@ -115,6 +116,7 @@ function Tile({ tile, currentUserId, isExplorable, onTileClick }) {
                 data-testid={`tile-${tile.coord_x}-${tile.coord_y}`}
                 {...specificTestIdAttributes}
                 style={{
+                    position: 'relative',
                     width: '100%',
                     height: '100%',
                     display: 'flex',
@@ -130,6 +132,21 @@ function Tile({ tile, currentUserId, isExplorable, onTileClick }) {
                         alt={baseType}
                         style={{ width: '60%', height: '60%', objectFit: 'contain' }}
                     />
+                )}
+                {isExplored && level > 0 && (
+                    <span style={{
+                        position:        'absolute',
+                        bottom:          '1px',
+                        right:           '2px',
+                        fontSize:        '8px',
+                        fontWeight:      'bold',
+                        color:           '#fff',
+                        textShadow:      '0 0 2px rgba(0,0,0,0.8)',
+                        lineHeight:      1,
+                        pointerEvents:   'none',
+                    }}>
+                        {level}
+                    </span>
                 )}
             </div>
         </div>
