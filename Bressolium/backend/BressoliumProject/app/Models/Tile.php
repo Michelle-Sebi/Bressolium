@@ -22,6 +22,10 @@ class Tile extends Model
         'explored_at',
     ];
 
+    protected $casts = [
+        'explored' => 'boolean',
+    ];
+
     public function game()
     {
         return $this->belongsTo(Game::class);

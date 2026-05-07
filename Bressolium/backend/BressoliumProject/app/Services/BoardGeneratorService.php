@@ -21,21 +21,38 @@ class BoardGeneratorService
 
     public function generate(string $gameId): void
     {
-        $tileTypeIds = TileType::where('level', 1)->pluck('id')->toArray();
+        $nonPuebloTypeIds = TileType::where('level', 1)
+            ->where('base_type', '!=', 'pueblo')
+            ->pluck('id')
+            ->toArray();
 
-        if (empty($tileTypeIds)) {
+        $puebloType = TileType::where('level', 1)
+            ->where('base_type', 'pueblo')
+            ->first();
+
+        if (empty($nonPuebloTypeIds)) {
             return;
         }
 
         $tiles = [];
         for ($x = 0; $x <= 14; $x++) {
             for ($y = 0; $y <= 14; $y++) {
-                $tiles[] = [
-                    'game_id'      => $gameId,
-                    'tile_type_id' => $tileTypeIds[array_rand($tileTypeIds)],
-                    'coord_x'      => $x,
-                    'coord_y'      => $y,
-                ];
+                if ($x === 7 && $y === 7 && $puebloType) {
+                    $tiles[] = [
+                        'game_id'      => $gameId,
+                        'tile_type_id' => $puebloType->id,
+                        'coord_x'      => $x,
+                        'coord_y'      => $y,
+                        'explored'     => true,
+                    ];
+                } else {
+                    $tiles[] = [
+                        'game_id'      => $gameId,
+                        'tile_type_id' => $nonPuebloTypeIds[array_rand($nonPuebloTypeIds)],
+                        'coord_x'      => $x,
+                        'coord_y'      => $y,
+                    ];
+                }
             }
         }
 
