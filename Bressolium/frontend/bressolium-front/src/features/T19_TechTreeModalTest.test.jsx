@@ -428,3 +428,167 @@ describe('TechTreeModal — múltiples caminos', () => {
         expect(screen.getByText(/Ganadería/i)).toBeTruthy();
     });
 });
+
+// ─── T53 — Fix: BoardGrid debe conectar useTechTree al TechTreeModal ─────────
+//
+// Bug raíz: BoardGrid renderiza <TechTreeModal isOpen={...} onClose={...} />
+// sin pasar completed/available/blocked, por lo que el modal siempre aparece vacío.
+// Los tests de este bloque fallarán hasta que BoardGrid importe useTechTree
+// y pase las tres listas como props al modal.
+
+describe('T53 — BoardGrid conecta useTechTree al TechTreeModal', () => {
+    it('BoardGrid.jsx importa useTechTree', () => {
+        const src = fs.readFileSync(
+            path.join(SRC, 'features', 'board', 'BoardGrid.jsx'), 'utf8'
+        );
+        expect(src).toMatch(/useTechTree/);
+    });
+
+    it('BoardGrid.jsx pasa la prop completed al TechTreeModal', () => {
+        const src = fs.readFileSync(
+            path.join(SRC, 'features', 'board', 'BoardGrid.jsx'), 'utf8'
+        );
+        expect(src).toMatch(/completed=/);
+    });
+
+    it('BoardGrid.jsx pasa la prop available al TechTreeModal', () => {
+        const src = fs.readFileSync(
+            path.join(SRC, 'features', 'board', 'BoardGrid.jsx'), 'utf8'
+        );
+        expect(src).toMatch(/available=/);
+    });
+
+    it('BoardGrid.jsx pasa la prop blocked al TechTreeModal', () => {
+        const src = fs.readFileSync(
+            path.join(SRC, 'features', 'board', 'BoardGrid.jsx'), 'utf8'
+        );
+        expect(src).toMatch(/blocked=/);
+    });
+});
+
+// ─── T53 — DoD: tecnologías disponibles tienen botón de voto activo ──────────
+//
+// Las tecnologías en la sección "Disponibles" deben mostrar un botón de votar
+// habilitado. Las bloqueadas no deben tenerlo.
+
+describe('T53 — TechTreeModal: disponibles tienen botón de voto activo', () => {
+    async function importModal() {
+        const mod = await import(
+            /* @vite-ignore */
+            path.join(SRC, 'features', 'techtree', 'TechTreeModal.jsx')
+        );
+        return mod.default ?? mod.TechTreeModal;
+    }
+
+    it('cada tecnología disponible muestra un botón de votar', async () => {
+        const TechTreeModal = await importModal();
+        const store = makeStore();
+        render(
+            React.createElement(Provider, { store },
+                React.createElement(TechTreeModal, {
+                    isOpen:    true,
+                    onClose:   () => {},
+                    completed: [],
+                    available: [{ id: 'tech-ceramica', name: 'Cerámica y Alfarería', missing: [] }],
+                    blocked:   [],
+                })
+            )
+        );
+        expect(screen.getByRole('button', { name: /votar/i })).toBeTruthy();
+    });
+
+    it('el botón de votar de una tecnología disponible está habilitado', async () => {
+        const TechTreeModal = await importModal();
+        const store = makeStore();
+        render(
+            React.createElement(Provider, { store },
+                React.createElement(TechTreeModal, {
+                    isOpen:    true,
+                    onClose:   () => {},
+                    completed: [],
+                    available: [{ id: 'tech-ceramica', name: 'Cerámica y Alfarería', missing: [] }],
+                    blocked:   [],
+                })
+            )
+        );
+        expect(screen.getByRole('button', { name: /votar/i })).not.toBeDisabled();
+    });
+
+    it('las tecnologías bloqueadas no tienen botón de votar', async () => {
+        const TechTreeModal = await importModal();
+        const store = makeStore();
+        render(
+            React.createElement(Provider, { store },
+                React.createElement(TechTreeModal, {
+                    isOpen:    true,
+                    onClose:   () => {},
+                    completed: [],
+                    available: [],
+                    blocked: [{
+                        id:      'tech-escritura',
+                        name:    'Escritura',
+                        missing: [{ name: 'Cerámica y Alfarería', type: 'technology' }],
+                    }],
+                })
+            )
+        );
+        expect(screen.queryAllByRole('button', { name: /votar/i })).toHaveLength(0);
+    });
+});
+
+// ─── T53 — DoD: bloqueadas muestran la cantidad requerida ────────────────────
+//
+// Cuando un prerrequisito faltante tiene quantity > 1, el modal debe indicar
+// cuántas unidades se necesitan (ej. "×2" junto al nombre del prerrequisito).
+
+describe('T53 — TechTreeModal: bloqueadas muestran cantidad requerida', () => {
+    async function importModal() {
+        const mod = await import(
+            /* @vite-ignore */
+            path.join(SRC, 'features', 'techtree', 'TechTreeModal.jsx')
+        );
+        return mod.default ?? mod.TechTreeModal;
+    }
+
+    it('muestra la cantidad cuando un prerrequisito faltante tiene quantity > 1', async () => {
+        const TechTreeModal = await importModal();
+        const store = makeStore();
+        render(
+            React.createElement(Provider, { store },
+                React.createElement(TechTreeModal, {
+                    isOpen:    true,
+                    onClose:   () => {},
+                    completed: [],
+                    available: [],
+                    blocked: [{
+                        id:      'tech-metalurgia',
+                        name:    'Metalurgia y Aleaciones',
+                        missing: [{ name: 'Control del Fuego', type: 'technology', quantity: 3 }],
+                    }],
+                })
+            )
+        );
+        expect(screen.getByText(/×3|x3/i)).toBeTruthy();
+    });
+
+    it('no muestra multiplicador cuando quantity es 1', async () => {
+        const TechTreeModal = await importModal();
+        const store = makeStore();
+        render(
+            React.createElement(Provider, { store },
+                React.createElement(TechTreeModal, {
+                    isOpen:    true,
+                    onClose:   () => {},
+                    completed: [],
+                    available: [],
+                    blocked: [{
+                        id:      'tech-escritura',
+                        name:    'Escritura',
+                        missing: [{ name: 'Cerámica y Alfarería', type: 'technology', quantity: 1 }],
+                    }],
+                })
+            )
+        );
+        expect(screen.queryByText(/×1|x1/i)).toBeNull();
+    });
+});

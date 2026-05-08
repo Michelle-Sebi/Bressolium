@@ -15,7 +15,7 @@ const COLOR_BLOCKED = '#C1CDC1';
  * Fila individual de tecnología dentro de una sección.
  * @param {{ tech: TechEntry, showMissing?: boolean }} props
  */
-function TechRow({ tech, showMissing }) {
+function TechRow({ tech, showMissing, showVote, onVote }) {
     return (
         <div
             style={{
@@ -26,9 +26,29 @@ function TechRow({ tech, showMissing }) {
                 gap:           '4px',
             }}
         >
-            <span style={{ fontWeight: 'bold', color: COLOR_BROWN, fontSize: '13px' }}>
-                {tech.name}
-            </span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontWeight: 'bold', color: COLOR_BROWN, fontSize: '13px' }}>
+                    {tech.name}
+                </span>
+                {showVote && (
+                    <button
+                        onClick={() => onVote?.({ technology_id: tech.id }, tech.name)}
+                        style={{
+                            background:    COLOR_BROWN,
+                            color:         '#fff',
+                            border:        'none',
+                            padding:       '3px 10px',
+                            fontSize:      '11px',
+                            fontWeight:    'bold',
+                            cursor:        'pointer',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.06em',
+                        }}
+                    >
+                        Votar
+                    </button>
+                )}
+            </div>
 
             {showMissing && tech.missing?.length > 0 && (
                 <div style={{ paddingLeft: '12px' }}>
@@ -45,7 +65,7 @@ function TechRow({ tech, showMissing }) {
                                 marginTop:       '2px',
                             }}
                         >
-                            {item.name}
+                            {item.name}{item.quantity > 1 ? ` ×${item.quantity}` : ''}
                         </span>
                     ))}
                 </div>
@@ -89,7 +109,7 @@ function SectionHeader({ label, color, count }) {
  *
  * @param {{ isOpen: boolean, onClose: Function, completed: TechEntry[], available: TechEntry[], blocked: TechEntry[] }} props
  */
-function TechTreeModal({ isOpen, onClose, completed = [], available = [], blocked = [] }) {
+function TechTreeModal({ isOpen, onClose, completed = [], available = [], blocked = [], onVote = () => {} }) {
     if (!isOpen) return null;
 
     return (
@@ -175,7 +195,7 @@ function TechTreeModal({ isOpen, onClose, completed = [], available = [], blocke
                             Nada listo para investigar aún.
                         </p>
                     ) : (
-                        available.map(tech => <TechRow key={tech.id} tech={tech} />)
+                        available.map(tech => <TechRow key={tech.id} tech={tech} showVote onVote={onVote} />)
                     )}
 
                     {/* ── Sección Bloqueadas ── */}
