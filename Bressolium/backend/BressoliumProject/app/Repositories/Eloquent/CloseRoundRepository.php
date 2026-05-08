@@ -178,6 +178,8 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
     {
         foreach ($game->users as $user) {
             $round->users()->attach($user->id, ['actions_spent' => 0]);
+            // Cada jornada empieza limpia: el AFK se re-evalúa al cierre, no se arrastra
+            $game->users()->updateExistingPivot($user->id, ['is_afk' => false]);
         }
     }
 

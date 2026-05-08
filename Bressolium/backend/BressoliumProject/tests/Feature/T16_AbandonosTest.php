@@ -90,8 +90,9 @@ test('markAfkPlayers no marca AFK a un jugador que no tiene entrada en el round'
 // Integración vía CloseRoundJob (DoD 1 — activación automática)
 // ==========================================
 
-test('CloseRoundJob activa is_afk para el jugador que no gastó acciones al cerrar la jornada', function () {
-    // users[0] inactivo (0 acciones), users[1] activo (1 acción)
+test('CloseRoundJob crea la siguiente jornada con todos los jugadores sin AFK', function () {
+    // markAfkPlayers detecta correctamente al inactivo (cubierto por tests unitarios),
+    // pero initializePlayersForRound resetea is_afk=false para que cada jornada empiece limpia
     $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 0]);
     $this->round->users()->attach($this->users[1]->id, ['actions_spent' => 1]);
 
@@ -100,7 +101,7 @@ test('CloseRoundJob activa is_afk para el jugador que no gastó acciones al cerr
     $pivot0 = $this->game->fresh()->users()->where('user_id', $this->users[0]->id)->first();
     $pivot1 = $this->game->fresh()->users()->where('user_id', $this->users[1]->id)->first();
 
-    expect((bool) $pivot0->pivot->is_afk)->toBeTrue();
+    expect((bool) $pivot0->pivot->is_afk)->toBeFalse();
     expect((bool) $pivot1->pivot->is_afk)->toBeFalse();
 });
 
@@ -136,15 +137,15 @@ test('CloseRoundJob resuelve los votos correctamente aunque un jugador AFK no ha
     expect($this->game->fresh()->rounds()->count())->toBe(2);
 });
 
-test('CloseRoundJob no marca AFK a un jugador ya AFK de jornadas anteriores (idempotente)', function () {
+test('CloseRoundJob no falla con un jugador que ya era AFK y la nueva jornada lo resetea', function () {
     $this->game->users()->updateExistingPivot($this->users[0]->id, ['is_afk' => true]);
     $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 0]);
 
     \App\Jobs\CloseRoundJob::dispatchSync($this->game->id);
 
-    // Sigue AFK (no cambia a false ni falla)
+    // initializePlayersForRound resetea is_afk=false al empezar la nueva jornada
     $pivot = $this->game->fresh()->users()->where('user_id', $this->users[0]->id)->first();
-    expect((bool) $pivot->pivot->is_afk)->toBeTrue();
+    expect((bool) $pivot->pivot->is_afk)->toBeFalse();
 });
 
 // ==========================================

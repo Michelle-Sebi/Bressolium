@@ -1,5 +1,4 @@
 import { useVoting } from './useVoting';
-import Button from '../../components/ui/Button';
 
 const SECTION_HEADER = {
     padding:         '4px 8px',
@@ -48,7 +47,7 @@ function VoteItem({ name, canVote, missing, onClick }) {
 }
 
 function VotingPanel({ gameId }) {
-    const { technologies, inventions, userActions, currentRound, isLoading, isClosing, vote, closeRound } = useVoting(gameId);
+    const { technologies, inventions, userActions, currentRound, isLoading, hasVoted, votedName, vote } = useVoting(gameId);
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px', overflowY: 'auto' }}>
@@ -71,6 +70,23 @@ function VotingPanel({ gameId }) {
                 {currentRound && <span>Jornada {currentRound.number}</span>}
             </div>
 
+            {/* Confirmación de voto */}
+            {hasVoted && (
+                <div style={{
+                    padding:         '6px 8px',
+                    backgroundColor: '#e8f5e9',
+                    border:          '1px solid #458B74',
+                    borderLeft:      '3px solid #458B74',
+                    fontSize:        '10px',
+                    fontWeight:      'bold',
+                    color:           '#2e7d5a',
+                    textTransform:   'uppercase',
+                    letterSpacing:   '0.05em',
+                }}>
+                    Voto registrado{votedName ? `: ${votedName}` : ''} — esperando al resto de jugadores
+                </div>
+            )}
+
             {/* Zona Tecnologías */}
             <SectionHeader label="Tecnologías" />
             {isLoading && (
@@ -89,7 +105,7 @@ function VotingPanel({ gameId }) {
                     name={tech.name}
                     canVote={tech.canVote}
                     missing={tech.missing}
-                    onClick={() => vote({ technology_id: tech.id })}
+                    onClick={() => vote({ technology_id: tech.id }, tech.name)}
                 />
             ))}
 
@@ -106,21 +122,10 @@ function VotingPanel({ gameId }) {
                     name={inv.name}
                     canVote={inv.canVote}
                     missing={inv.missing}
-                    onClick={() => vote({ invention_id: inv.id })}
+                    onClick={() => vote({ invention_id: inv.id }, inv.name)}
                 />
             ))}
 
-            {/* Botón finalizar turno */}
-            <div style={{ marginTop: '8px' }}>
-                <Button
-                    variant="secondary"
-                    onClick={closeRound}
-                    disabled={isClosing}
-                    style={isClosing ? { backgroundColor: '#C1CDC1' } : undefined}
-                >
-                    {isClosing ? 'Cerrando…' : 'Finalizar Turno'}
-                </Button>
-            </div>
         </div>
     );
 }

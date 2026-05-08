@@ -41,6 +41,13 @@ class VoteService
         }
 
         $vote = $this->voteRepository->store($round->id, $dto->userId, $dto->technologyId, $dto->inventionId);
+
+        // Cualquier voto activo limpia el AFK de toda la partida:
+        // si alguien está votando, la sesión está viva y el quórum debe recalcularse desde cero
+        \Illuminate\Support\Facades\DB::table('game_user')
+            ->where('game_id', $dto->gameId)
+            ->update(['is_afk' => false]);
+
         VoteCast::dispatch($dto->userId, $dto->gameId);
 
         return $vote;
