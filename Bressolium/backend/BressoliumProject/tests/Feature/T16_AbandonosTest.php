@@ -190,3 +190,53 @@ test('allNonAfkPlayersHaveVoted devuelve false si no ha votado nadie', function 
 
     expect($repo->allNonAfkPlayersHaveVoted($this->round, $this->game))->toBeFalse();
 });
+
+// ==========================================
+// Trigger A — cierre automático por quórum (DoD 2 — flujo completo)
+// Al emitirse VoteCast, CheckQuorumOnVoteCast comprueba si todos los
+// jugadores activos han votado y despacha CloseRoundJob si es así.
+// ==========================================
+
+test('VoteCast cierra la jornada automáticamente cuando todos los jugadores activos han votado', function () {
+    // Ambos usuarios activos, vinculados al round
+    $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 1]);
+    $this->round->users()->attach($this->users[1]->id, ['actions_spent' => 1]);
+
+    // Ambos votan
+    $this->round->votes()->create(['user_id' => $this->users[0]->id, 'technology_id' => null, 'invention_id' => null]);
+    $this->round->votes()->create(['user_id' => $this->users[1]->id, 'technology_id' => null, 'invention_id' => null]);
+
+    // Al emitir VoteCast el listener comprueba quórum y cierra la jornada
+    \App\Events\VoteCast::dispatch($this->users[1]->id, $this->game->id);
+
+    expect($this->game->fresh()->rounds()->count())->toBe(2);
+});
+
+test('VoteCast no cierra la jornada si algún jugador activo no ha votado aún', function () {
+    $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 1]);
+    $this->round->users()->attach($this->users[1]->id, ['actions_spent' => 0]);
+
+    // Solo users[0] vota; users[1] todavía no
+    $this->round->votes()->create(['user_id' => $this->users[0]->id, 'technology_id' => null, 'invention_id' => null]);
+
+    \App\Events\VoteCast::dispatch($this->users[0]->id, $this->game->id);
+
+    // La jornada sigue abierta
+    expect($this->game->fresh()->rounds()->count())->toBe(1);
+});
+
+test('VoteCast cierra la jornada aunque un jugador AFK no haya votado', function () {
+    // users[1] es AFK y no vota
+    $this->game->users()->updateExistingPivot($this->users[1]->id, ['is_afk' => true]);
+
+    $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 1]);
+    $this->round->users()->attach($this->users[1]->id, ['actions_spent' => 0]);
+
+    // Solo el jugador activo vota
+    $this->round->votes()->create(['user_id' => $this->users[0]->id, 'technology_id' => null, 'invention_id' => null]);
+
+    \App\Events\VoteCast::dispatch($this->users[0]->id, $this->game->id);
+
+    // El quórum se cumple: la jornada cierra sin esperar al AFK
+    expect($this->game->fresh()->rounds()->count())->toBe(2);
+});

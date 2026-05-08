@@ -191,4 +191,19 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
             }
         }
     }
+
+    public function allNonAfkPlayersHaveVoted(Round $round, Game $game): bool
+    {
+        $activePlayerCount = $game->users()->wherePivot('is_afk', false)->count();
+
+        if ($activePlayerCount === 0) {
+            return false;
+        }
+
+        $voteCount = DB::table('votes')
+            ->where('round_id', $round->id)
+            ->count();
+
+        return $voteCount >= $activePlayerCount;
+    }
 }
