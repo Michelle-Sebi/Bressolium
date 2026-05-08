@@ -137,6 +137,16 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Descripción**: Extender el `inventorySlice` para añadir `inventions: InventoryInvention[]` (id, name, quantity, icon). Modificar `InventoryPanel.jsx` para dividir el panel en dos zonas claramente separadas: **"Recursos"** (existente, T18) y **"Inventos"** (nueva). Reutilizar la lógica de active/inactive según `quantity > 0`. Actualizar `Epica2_Front.test.jsx` con tests de la nueva sección. La hidratación se realiza desde el sync (T10).
 - **DoD**: El `InventoryPanel` muestra dos zonas diferenciadas: "Recursos" e "Inventos". Los inventos con `quantity > 0` aparecen activos y los demás inactivos. Los tests de `Epica2_Front.test.jsx` cubren ambas zonas.
 
+### Tarea 52 [TERMINADA]
+- **Título**: `[Fix] Inventory Panel — Layout en Grid de 4 Columnas`
+- **Estimación**: XS
+- **Área**: [FRONTEND]
+- **Asignado a**: Michelle
+- **Bloqueado por**: Tarea 50
+- **HUs**: 2.4
+- **Descripción**: El panel de inventario mostraba materiales e inventos en columna única, desaprovechando el espacio del panel lateral. Cambiar el layout de cada sección a un grid de 4 columnas para que los iconos se dispongan en rejilla compacta.
+- **DoD**: Materiales e inventos se muestran en un grid de 4 columnas (`repeat(4, 1fr)`). El panel mantiene su scroll vertical. Los tests existentes de `InventoryPanel` siguen en verde.
+
 ---
 
 ## 🗳️ Épica 3: Mecánicas de Turno y Votos
@@ -264,6 +274,16 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
   - **Backend:** modificar `BoardGeneratorService` para garantizar que la casilla central `(7, 7)` del 15×15 sea siempre de `base_type=pueblo`. La casilla pueblo no puede explorarse ni mejorarse mediante acciones individuales.
   - **Frontend:** en `BoardGrid` (T9), detectar el click sobre la casilla pueblo y abrir el modal del árbol tecnológico (T19) en lugar de disparar `exploreTileThunk` o `upgradeTileThunk`. Aplicar estilo visual diferenciado siguiendo la guía brutalista. Actualizar tests de `Epica2_Front.test.jsx` para cubrir la apertura del modal desde la casilla central.
 - **DoD**: La casilla `(7, 7)` del tablero es siempre `base_type=pueblo`. Las acciones de explorar y mejorar sobre esa casilla lanzan una excepción 422. En el frontend, hacer clic sobre la casilla pueblo abre el modal del árbol tecnológico. Los tests de backend y frontend cubren todos los casos.
+
+### Tarea 53
+- **Título**: `[Fix] Tech Tree Modal — Tecnologías no visibles al abrir desde casilla Pueblo`
+- **Estimación**: M
+- **Área**: [FRONTEND]
+- **Asignado a**: Michelle
+- **Bloqueado por**: Tarea 19, Tarea 51
+- **HUs**: 4.1
+- **Descripción**: Al hacer clic sobre la casilla pueblo `(7, 7)`, el modal del árbol tecnológico se abre pero no muestra ningún contenido: ni tecnologías investigadas, ni disponibles, ni bloqueadas. La causa es que el modal no recibe ni consume correctamente los datos de progreso tecnológico del sync. Implementar la hidratación del modal desde el estado RTK Query (sync) y renderizar las tres categorías con su estado correcto.
+- **DoD**: El modal muestra tres secciones diferenciadas: (1) **Investigadas** — tecnologías con `is_active=true`, resaltadas; (2) **Disponibles** — prerrequisitos y recursos cumplidos, botón de voto activo; (3) **Bloqueadas** — en gris con indicación de qué falta y en qué cantidad. Los datos se leen del sync vía RTK Query. Los tests de `Epica2_Front.test.jsx` (T19) cubren las tres categorías de visualización.
 
 ### Tarea 15 ⚙️
 - **Título**: `[Feat] End of Game (Terraforming)`
@@ -472,7 +492,7 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Bloqueado por**: Tarea 34
 - **Descripción**: Auditar la app con axe-core o Lighthouse. Asegurar contraste mínimo AA, alts en iconos de materiales y casillas, navegación por teclado en `BoardGrid` y modales del lobby/tech tree, atributos ARIA en componentes interactivos. Añadir tests de a11y dentro de Playwright.
 - **DoD**: La app supera la auditoría de axe-core con contraste mínimo AA. Los iconos de materiales y casillas tienen `alt` o `aria-label`. La navegación por teclado funciona en `BoardGrid` y en los modales. Los tests de Playwright incluyen aserciones de accesibilidad.
-
+y e
 ---
 
 ## 📋 Resumen de distribución
@@ -537,3 +557,5 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 | T49 | Docs ER V6 + Evolución Tecnológica | S | Pendiente |
 | T50 | Inventory Panel: Inventions Section | S | ✅ Terminada |
 | T51 | Pueblo Tile + Tech Tree Access | M | Pendiente |
+| T52 | Inventory Panel — Grid 4 Columnas | XS | ✅ Terminada |
+| T53 | Tech Tree Modal — Tecnologías no visibles | M | Pendiente |
