@@ -3,7 +3,9 @@
 namespace App\Repositories\Eloquent;
 
 use App\Models\Game;
+use App\Models\Invention;
 use App\Models\Round;
+use App\Models\Technology;
 use App\Repositories\Contracts\SyncRepositoryInterface;
 
 class SyncRepository implements SyncRepositoryInterface
@@ -37,11 +39,13 @@ class SyncRepository implements SyncRepositoryInterface
 
     public function getTechnologies(Game $game): array
     {
-        $gameTechs = $game->technologies()
-            ->with('technologyPrerequisites')
-            ->get();
+        $allTechs    = Technology::with('technologyPrerequisites')->get();
+        $gameTechMap = $game->technologies()->get()->keyBy('id');
 
-        return $gameTechs->map(function ($tech) use ($gameTechs) {
+        return $allTechs->map(function ($tech) use ($gameTechMap, $allTechs) {
+            $isActive = isset($gameTechMap[$tech->id])
+                && (bool) $gameTechMap[$tech->id]->pivot->is_active;
+
             $missing = [];
 
             foreach ($tech->technologyPrerequisites as $prereq) {
@@ -49,13 +53,14 @@ class SyncRepository implements SyncRepositoryInterface
                     continue;
                 }
 
-                $prereqTech = $gameTechs->firstWhere('id', $prereq->prereq_id);
-                $isActive   = $prereqTech ? (bool) $prereqTech->pivot->is_active : false;
+                $prereqEntry  = $gameTechMap->get($prereq->prereq_id);
+                $prereqActive = $prereqEntry ? (bool) $prereqEntry->pivot->is_active : false;
 
-                if (! $isActive) {
-                    $missing[] = [
+                if (! $prereqActive) {
+                    $prereqInfo = $allTechs->firstWhere('id', $prereq->prereq_id);
+                    $missing[]  = [
                         'type' => 'technology',
-                        'name' => $prereqTech?->name ?? 'Desconocido',
+                        'name' => $prereqInfo?->name ?? 'Desconocido',
                     ];
                 }
             }
@@ -63,7 +68,7 @@ class SyncRepository implements SyncRepositoryInterface
             return [
                 'id'        => $tech->id,
                 'name'      => $tech->name,
-                'is_active' => (bool) $tech->pivot->is_active,
+                'is_active' => $isActive,
                 'missing'   => $missing,
             ];
         })->values()->toArray();
@@ -71,14 +76,13 @@ class SyncRepository implements SyncRepositoryInterface
 
     public function getInventions(Game $game): array
     {
-        $gameInvs = $game->inventions()
-            ->with(['inventionCosts.resource', 'inventionPrerequisites'])
-            ->get();
+        $allInvs    = Invention::with(['inventionCosts.resource', 'inventionPrerequisites'])->get();
+        $gameInvMap = $game->inventions()->get()->keyBy('id');
+        $matMap     = $game->materials()->get()->keyBy('id');
 
-        $matMap = $game->materials()->get()->keyBy('id');
-
-        return $gameInvs->map(function ($inv) use ($gameInvs, $matMap) {
-            $missing = [];
+        return $allInvs->map(function ($inv) use ($gameInvMap, $allInvs, $matMap) {
+            $quantity = $gameInvMap->has($inv->id) ? (int) $gameInvMap[$inv->id]->pivot->quantity : 0;
+            $missing  = [];
 
             foreach ($inv->inventionCosts as $cost) {
                 $mat    = $matMap->get($cost->resource_id);
@@ -100,14 +104,15 @@ class SyncRepository implements SyncRepositoryInterface
                     continue;
                 }
 
-                $prereqInv = $gameInvs->firstWhere('id', $prereq->prereq_id);
-                $have      = $prereqInv ? (int) $prereqInv->pivot->quantity : 0;
-                $needed    = (int) ($prereq->quantity ?? 1);
+                $prereqEntry = $gameInvMap->get($prereq->prereq_id);
+                $have        = $prereqEntry ? (int) $prereqEntry->pivot->quantity : 0;
+                $needed      = (int) ($prereq->quantity ?? 1);
 
                 if ($have < $needed) {
-                    $missing[] = [
+                    $prereqInfo = $allInvs->firstWhere('id', $prereq->prereq_id);
+                    $missing[]  = [
                         'type'     => 'invention',
-                        'name'     => $prereqInv?->name ?? 'Invento',
+                        'name'     => $prereqInfo?->name ?? 'Invento',
                         'required' => $needed,
                         'have'     => $have,
                     ];
@@ -117,7 +122,7 @@ class SyncRepository implements SyncRepositoryInterface
             return [
                 'id'       => $inv->id,
                 'name'     => $inv->name,
-                'quantity' => (int) $inv->pivot->quantity,
+                'quantity' => $quantity,
                 'missing'  => $missing,
             ];
         })->values()->toArray();
