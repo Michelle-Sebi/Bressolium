@@ -10,6 +10,8 @@ import { useState, useMemo } from 'react';
 import { useBoard } from './useBoard';
 import { useAuth } from '../auth/useAuth';
 import { useGames } from '../game/useGames';
+import { useTechTree } from '../techtree/useTechTree';
+import { useVoting } from '../game/useVoting';
 import TechTreeModal from '../techtree/TechTreeModal';
 import Badge from '../../components/ui/Badge';
 
@@ -167,6 +169,8 @@ function BoardGrid() {
     const { user: currentUser } = useAuth();
     const { currentGame } = useGames();
     const { tiles, isLoading, exploreTile, upgradeTile } = useBoard(currentGame?.id);
+    const { completed, available, blocked } = useTechTree(currentGame?.id);
+    const { vote } = useVoting(currentGame?.id);
     const [isTechTreeOpen, setIsTechTreeOpen] = useState(false);
 
     /** Tiles ordenados por coord_x → coord_y para renderizado correcto del CSS grid. */
@@ -227,7 +231,14 @@ function BoardGrid() {
 
     return (
         <>
-        <TechTreeModal isOpen={isTechTreeOpen} onClose={() => setIsTechTreeOpen(false)} />
+        <TechTreeModal
+            isOpen={isTechTreeOpen}
+            onClose={() => setIsTechTreeOpen(false)}
+            completed={completed}
+            available={available}
+            blocked={blocked}
+            onVote={vote}
+        />
         <div
             data-testid="board-grid"
             style={{

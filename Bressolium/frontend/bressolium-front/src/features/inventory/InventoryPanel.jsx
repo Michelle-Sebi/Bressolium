@@ -241,14 +241,18 @@ function InventoryPanel() {
             }}
         >
             <InventorySectionHeader label="Recursos" />
-            {materials.map((material) => (
-                <MaterialItem key={material.id} material={material} />
-            ))}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2px' }}>
+                {materials.map((material) => (
+                    <MaterialItem key={material.id} material={material} />
+                ))}
+            </div>
 
             <InventorySectionHeader label="Inventos" />
-            {inventions.map((invention) => (
-                <InventionItem key={invention.id} invention={invention} />
-            ))}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2px' }}>
+                {inventions.map((invention) => (
+                    <InventionItem key={invention.id} invention={invention} />
+                ))}
+            </div>
         </div>
     );
 }
