@@ -178,6 +178,8 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
     {
         foreach ($game->users as $user) {
             $round->users()->attach($user->id, ['actions_spent' => 0]);
+            // Cada jornada empieza limpia: el AFK se re-evalúa al cierre, no se arrastra
+            $game->users()->updateExistingPivot($user->id, ['is_afk' => false]);
         }
     }
 
@@ -190,5 +192,20 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
                 $game->users()->updateExistingPivot($user->id, ['is_afk' => true]);
             }
         }
+    }
+
+    public function allNonAfkPlayersHaveVoted(Round $round, Game $game): bool
+    {
+        $activePlayerCount = $game->users()->wherePivot('is_afk', false)->count();
+
+        if ($activePlayerCount === 0) {
+            return false;
+        }
+
+        $voteCount = DB::table('votes')
+            ->where('round_id', $round->id)
+            ->count();
+
+        return $voteCount >= $activePlayerCount;
     }
 }

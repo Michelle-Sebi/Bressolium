@@ -2,7 +2,6 @@
 
 namespace App\Repositories\Contracts;
 
-use App\Models\Game;
 use App\Models\Round;
 use App\Models\Technology;
 use App\Models\Tile;
@@ -27,4 +26,6 @@ interface TileRepositoryInterface
     public function getRequiredTechnology(TileType $nextType): ?Technology;
 
     public function upgradeTile(Tile $tile, TileType $nextType): void;
+
+    public function isAdjacentToUserExplored(Tile $tile, string $userId): bool;
 }

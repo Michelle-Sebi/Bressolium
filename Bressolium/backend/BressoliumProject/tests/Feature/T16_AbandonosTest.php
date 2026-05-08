@@ -2,8 +2,8 @@
 
 use App\Models\User;
 use App\Models\Game;
+use App\Models\Technology;
 use App\Repositories\Contracts\CloseRoundRepositoryInterface;
-// use App\Jobs\CloseRoundJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -84,4 +84,160 @@ test('markAfkPlayers no marca AFK a un jugador que no tiene entrada en el round'
 
     $pivot = $this->game->users()->where('user_id', $this->users[0]->id)->first();
     expect((bool) $pivot->pivot->is_afk)->toBeFalse();
+});
+
+// ==========================================
+// Integración vía CloseRoundJob (DoD 1 — activación automática)
+// ==========================================
+
+test('CloseRoundJob crea la siguiente jornada con todos los jugadores sin AFK', function () {
+    // markAfkPlayers detecta correctamente al inactivo (cubierto por tests unitarios),
+    // pero initializePlayersForRound resetea is_afk=false para que cada jornada empiece limpia
+    $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 0]);
+    $this->round->users()->attach($this->users[1]->id, ['actions_spent' => 1]);
+
+    \App\Jobs\CloseRoundJob::dispatchSync($this->game->id);
+
+    $pivot0 = $this->game->fresh()->users()->where('user_id', $this->users[0]->id)->first();
+    $pivot1 = $this->game->fresh()->users()->where('user_id', $this->users[1]->id)->first();
+
+    expect((bool) $pivot0->pivot->is_afk)->toBeFalse();
+    expect((bool) $pivot1->pivot->is_afk)->toBeFalse();
+});
+
+test('CloseRoundJob no activa is_afk para un jugador que realizó al menos una acción', function () {
+    $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 2]);
+
+    \App\Jobs\CloseRoundJob::dispatchSync($this->game->id);
+
+    $pivot = $this->game->fresh()->users()->where('user_id', $this->users[0]->id)->first();
+    expect((bool) $pivot->pivot->is_afk)->toBeFalse();
+});
+
+test('CloseRoundJob resuelve los votos correctamente aunque un jugador AFK no haya votado', function () {
+    // users[1] ya era AFK de jornadas anteriores y no vota
+    $this->game->users()->updateExistingPivot($this->users[1]->id, ['is_afk' => true]);
+
+    $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 1]);
+    $this->round->users()->attach($this->users[1]->id, ['actions_spent' => 0]);
+
+    $tech = Technology::factory()->create(['name' => 'Agriculture']);
+    $this->round->votes()->create(['user_id' => $this->users[0]->id, 'technology_id' => $tech->id]);
+
+    \App\Jobs\CloseRoundJob::dispatchSync($this->game->id);
+
+    // La tecnología debe activarse aunque el AFK no haya votado
+    $this->assertDatabaseHas('game_technology', [
+        'game_id'       => $this->game->id,
+        'technology_id' => $tech->id,
+        'is_active'     => true,
+    ]);
+
+    // La jornada 2 debe haberse creado
+    expect($this->game->fresh()->rounds()->count())->toBe(2);
+});
+
+test('CloseRoundJob no falla con un jugador que ya era AFK y la nueva jornada lo resetea', function () {
+    $this->game->users()->updateExistingPivot($this->users[0]->id, ['is_afk' => true]);
+    $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 0]);
+
+    \App\Jobs\CloseRoundJob::dispatchSync($this->game->id);
+
+    // initializePlayersForRound resetea is_afk=false al empezar la nueva jornada
+    $pivot = $this->game->fresh()->users()->where('user_id', $this->users[0]->id)->first();
+    expect((bool) $pivot->pivot->is_afk)->toBeFalse();
+});
+
+// ==========================================
+// Quórum de votos — DoD 2
+// Trigger A: si todos los jugadores activos (is_afk=false) ya han votado,
+// la jornada puede cerrarse sin esperar el plazo de 2h.
+// Estos tests verifican el método allNonAfkPlayersHaveVoted()
+// del CloseRoundRepositoryInterface.
+// ==========================================
+
+test('allNonAfkPlayersHaveVoted devuelve true cuando todos los jugadores activos han votado', function () {
+    $repo = $this->app->make(CloseRoundRepositoryInterface::class);
+
+    // users[0] activo y ha votado; users[1] AFK (no cuenta para quórum)
+    $this->game->users()->updateExistingPivot($this->users[1]->id, ['is_afk' => true]);
+    $this->round->votes()->create(['user_id' => $this->users[0]->id, 'technology_id' => null, 'invention_id' => null]);
+
+    expect($repo->allNonAfkPlayersHaveVoted($this->round, $this->game))->toBeTrue();
+});
+
+test('allNonAfkPlayersHaveVoted devuelve false cuando algún jugador activo no ha votado', function () {
+    $repo = $this->app->make(CloseRoundRepositoryInterface::class);
+
+    // Ambos usuarios activos (is_afk=false por defecto), solo users[0] ha votado
+    $this->round->votes()->create(['user_id' => $this->users[0]->id, 'technology_id' => null, 'invention_id' => null]);
+
+    expect($repo->allNonAfkPlayersHaveVoted($this->round, $this->game))->toBeFalse();
+});
+
+test('allNonAfkPlayersHaveVoted devuelve true aunque jugadores AFK no hayan votado', function () {
+    $repo = $this->app->make(CloseRoundRepositoryInterface::class);
+
+    // 2 jugadores: users[0] activo (vota), users[1] AFK (no vota)
+    $this->game->users()->updateExistingPivot($this->users[1]->id, ['is_afk' => true]);
+    $this->round->votes()->create(['user_id' => $this->users[0]->id, 'technology_id' => null, 'invention_id' => null]);
+
+    // El quórum se cumple aunque users[1] no haya votado
+    expect($repo->allNonAfkPlayersHaveVoted($this->round, $this->game))->toBeTrue();
+});
+
+test('allNonAfkPlayersHaveVoted devuelve false si no ha votado nadie', function () {
+    $repo = $this->app->make(CloseRoundRepositoryInterface::class);
+
+    expect($repo->allNonAfkPlayersHaveVoted($this->round, $this->game))->toBeFalse();
+});
+
+// ==========================================
+// Trigger A — cierre automático por quórum (DoD 2 — flujo completo)
+// Al emitirse VoteCast, CheckQuorumOnVoteCast comprueba si todos los
+// jugadores activos han votado y despacha CloseRoundJob si es así.
+// ==========================================
+
+test('VoteCast cierra la jornada automáticamente cuando todos los jugadores activos han votado', function () {
+    // Ambos usuarios activos, vinculados al round
+    $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 1]);
+    $this->round->users()->attach($this->users[1]->id, ['actions_spent' => 1]);
+
+    // Ambos votan
+    $this->round->votes()->create(['user_id' => $this->users[0]->id, 'technology_id' => null, 'invention_id' => null]);
+    $this->round->votes()->create(['user_id' => $this->users[1]->id, 'technology_id' => null, 'invention_id' => null]);
+
+    // Al emitir VoteCast el listener comprueba quórum y cierra la jornada
+    \App\Events\VoteCast::dispatch($this->users[1]->id, $this->game->id);
+
+    expect($this->game->fresh()->rounds()->count())->toBe(2);
+});
+
+test('VoteCast no cierra la jornada si algún jugador activo no ha votado aún', function () {
+    $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 1]);
+    $this->round->users()->attach($this->users[1]->id, ['actions_spent' => 0]);
+
+    // Solo users[0] vota; users[1] todavía no
+    $this->round->votes()->create(['user_id' => $this->users[0]->id, 'technology_id' => null, 'invention_id' => null]);
+
+    \App\Events\VoteCast::dispatch($this->users[0]->id, $this->game->id);
+
+    // La jornada sigue abierta
+    expect($this->game->fresh()->rounds()->count())->toBe(1);
+});
+
+test('VoteCast cierra la jornada aunque un jugador AFK no haya votado', function () {
+    // users[1] es AFK y no vota
+    $this->game->users()->updateExistingPivot($this->users[1]->id, ['is_afk' => true]);
+
+    $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 1]);
+    $this->round->users()->attach($this->users[1]->id, ['actions_spent' => 0]);
+
+    // Solo el jugador activo vota
+    $this->round->votes()->create(['user_id' => $this->users[0]->id, 'technology_id' => null, 'invention_id' => null]);
+
+    \App\Events\VoteCast::dispatch($this->users[0]->id, $this->game->id);
+
+    // El quórum se cumple: la jornada cierra sin esperar al AFK
+    expect($this->game->fresh()->rounds()->count())->toBe(2);
 });

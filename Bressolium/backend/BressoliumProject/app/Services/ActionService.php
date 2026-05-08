@@ -9,6 +9,7 @@ use App\Events\TileUpgraded;
 use App\Exceptions\ActionLimitExceededException;
 use App\Exceptions\PuebloTileActionException;
 use App\Exceptions\TileAlreadyExploredException;
+use App\Exceptions\TileNotAdjacentException;
 use App\Exceptions\TileNotExploredException;
 use App\Exceptions\TechnologyRequiredException;
 use App\Exceptions\UserNotInGameException;
@@ -39,6 +40,10 @@ class ActionService
 
         if ($tile->explored) {
             throw new TileAlreadyExploredException();
+        }
+
+        if (!$this->tileRepo->isAdjacentToUserExplored($tile, $dto->userId)) {
+            throw new TileNotAdjacentException();
         }
 
         $this->tileRepo->markExplored($tile, $dto->userId);

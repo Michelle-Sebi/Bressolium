@@ -52,6 +52,21 @@ export const createGameThunk = createAsyncThunk(
 );
 
 /**
+ * Thunk para unirse a una partida por nombre de equipo.
+ */
+export const joinByNameThunk = createAsyncThunk(
+  'game/joinByName',
+  async ({ teamName }, { rejectWithValue }) => {
+    try {
+      const response = await gameService.joinByName(teamName);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+/**
  * Thunk para unirse de forma aleatoria.
  */
 export const joinRandomThunk = createAsyncThunk(
@@ -105,6 +120,10 @@ const gameSlice = createSlice({
       })
       // Create Game
       .addCase(createGameThunk.fulfilled, (state, action) => {
+        state.myGames.push(action.payload);
+      })
+      // Join By Name
+      .addCase(joinByNameThunk.fulfilled, (state, action) => {
         state.myGames.push(action.payload);
       })
       // Join Random
