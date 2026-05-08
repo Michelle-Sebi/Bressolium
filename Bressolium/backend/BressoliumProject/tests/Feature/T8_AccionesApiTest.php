@@ -52,6 +52,16 @@ beforeEach(function () {
         'explored'     => false,
     ]);
 
+    // Casilla de inicio del usuario: explorada y adyacente al tile de pruebas (coord 0,1 → adyacente a 1,1)
+    Tile::factory()->create([
+        'game_id'               => $this->game->id,
+        'tile_type_id'          => $tileType->id,
+        'coord_x'               => 0,
+        'coord_y'               => 1,
+        'explored'              => true,
+        'explored_by_player_id' => $this->user->id,
+    ]);
+
     $this->actingAs($this->user);
 });
 
@@ -151,6 +161,21 @@ test('no se puede explorar una casilla que ya está explorada', function () {
 
     $this->postJson("/api/v1/tiles/{$this->tile->id}/explore")
          ->assertStatus(422);
+});
+
+test('no se puede explorar una casilla no adyacente al territorio del jugador', function () {
+    $tileType = TileType::factory()->create(['level' => 1, 'base_type' => 'bosque']);
+    $farTile  = Tile::factory()->create([
+        'game_id'      => $this->game->id,
+        'tile_type_id' => $tileType->id,
+        'coord_x'      => 5,
+        'coord_y'      => 5,
+        'explored'     => false,
+    ]);
+
+    $this->postJson("/api/v1/tiles/{$farTile->id}/explore")
+         ->assertStatus(422)
+         ->assertJsonFragment(['error' => 'Solo puedes explorar casillas adyacentes a tu territorio.']);
 });
 
 // ─── Acción: Upgrade ──────────────────────────────────────────────────────────

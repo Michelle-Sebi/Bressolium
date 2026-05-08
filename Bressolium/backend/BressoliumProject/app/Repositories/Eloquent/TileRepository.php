@@ -77,4 +77,20 @@ class TileRepository implements TileRepositoryInterface
     {
         $tile->update(['tile_type_id' => $nextType->id]);
     }
+
+    public function isAdjacentToUserExplored(Tile $tile, string $userId): bool
+    {
+        return Tile::where('game_id', $tile->game_id)
+            ->where('explored_by_player_id', $userId)
+            ->where(function ($q) use ($tile) {
+                $q->where(function ($q2) use ($tile) {
+                    $q2->where('coord_x', $tile->coord_x)
+                       ->whereIn('coord_y', [$tile->coord_y - 1, $tile->coord_y + 1]);
+                })->orWhere(function ($q2) use ($tile) {
+                    $q2->where('coord_y', $tile->coord_y)
+                       ->whereIn('coord_x', [$tile->coord_x - 1, $tile->coord_x + 1]);
+                });
+            })
+            ->exists();
+    }
 }
