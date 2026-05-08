@@ -8,10 +8,11 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { 
-  fetchGamesThunk, 
-  fetchMyGamesThunk, 
-  createGameThunk, 
+import {
+  fetchGamesThunk,
+  fetchMyGamesThunk,
+  createGameThunk,
+  joinByNameThunk,
   joinRandomThunk,
   setCurrentGame
 } from '../game/gameSlice';
@@ -40,6 +41,13 @@ const Dashboard = () => {
     if (!result.error) {
       setIsModalOpen(false);
       setNewTeamName('');
+    }
+  };
+
+  const handleJoinByName = async (teamName) => {
+    const result = await dispatch(joinByNameThunk({ teamName }));
+    if (!result.error) {
+      dispatch(fetchGamesThunk());
     }
   };
 
@@ -99,7 +107,10 @@ const Dashboard = () => {
                         <span className="font-bold text-bbrown block">{game.name.toUpperCase()}</span>
                         <span className="text-xs text-gray-400">{game.users_count || 0}/5 MIEMBROS</span>
                       </div>
-                      <button className="text-sm font-black text-bgreen hover:underline">
+                      <button
+                        onClick={() => handleJoinByName(game.name)}
+                        className="text-sm font-black text-bgreen hover:underline"
+                      >
                         UNIRSE
                       </button>
                     </li>
