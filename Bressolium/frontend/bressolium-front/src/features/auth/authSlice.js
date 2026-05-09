@@ -38,7 +38,7 @@ export const loginThunk = createAsyncThunk(
 
 /** @type {AuthState} */
 const initialState = {
-  status: 'IDLE',
+  status: authService.getToken() ? 'LOGGED_IN' : 'IDLE',
   user: null,
   error: null,
 };

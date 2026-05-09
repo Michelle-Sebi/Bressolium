@@ -99,8 +99,10 @@ El criterio de ordenación dentro de cada sprint es: primero las tareas sin bloq
 **Arranca cuando T19 y T44 estén listas:**
 - Tarea 51: `[Feat] Pueblo Tile: Center Placement + Tech Tree Access` (Fullstack - Michelle) [Talla: M]
   - *Bloqueado por: T19, T44*
-- Tarea 53: `[Fix] Tech Tree Modal — Tecnologías no visibles al abrir desde casilla Pueblo` (Frontend - Michelle) [Talla: M]
+- Tarea 53: `[Fix] Tech Tree Modal — Tecnologías no visibles al abrir desde casilla Pueblo` (Frontend - Michelle) [Talla: M] [TERMINADA]
   - *Bloqueado por: T19, T51*
+- Tarea 54: `[Fix] VotingPanel — Inventos construibles solo una vez` (Frontend - Michelle) [Talla: XS] [TERMINADA]
+  - *Bloqueado por: T12, T48*
 
 > ⚠️ T13 es XL y es probable que se extienda al Sprint 5. Considerar dividir T13 en subtareas internas para poder hacer seguimiento.
 
@@ -124,7 +126,7 @@ El criterio de ordenación dentro de cada sprint es: primero las tareas sin bloq
 - Tarea 37: `[Feat] Cache Service` (Backend - Bárbara) [Talla: S]
   - *Bloqueado por: T25*
 - Tarea 35: `[Docs] Documentación de Arquitectura` (Documentación - Bárbara) [Talla: S]
-- Tarea 46: `[Feat] Monitoreo y Métricas` (DevOps - Michelle) [Talla: S]
+- Tarea 46: `[Feat] Monitoreo y Métricas` (DevOps - Michelle) [Talla: S] [TERMINADA]
 
 **Arranca cuando T33 esté lista:**
 - Tarea 34: `[Feat] Tests E2E` (Testing - Michelle) [Talla: L]

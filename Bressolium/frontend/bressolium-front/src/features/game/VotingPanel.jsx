@@ -15,7 +15,7 @@ function SectionHeader({ label }) {
     return <div style={SECTION_HEADER}>{label}</div>;
 }
 
-function VoteItem({ name, canVote, missing, onClick }) {
+function VoteItem({ name, canVote, missing, quantity, onClick }) {
     return (
         <button
             onClick={canVote ? onClick : undefined}
@@ -34,12 +34,22 @@ function VoteItem({ name, canVote, missing, onClick }) {
                 fontWeight:      'bold',
                 textTransform:   'uppercase',
                 opacity:         canVote ? 1 : 0.55,
+                display:         'flex',
+                justifyContent:  'space-between',
+                alignItems:      'flex-start',
             }}
         >
-            {name}
-            {missing.length > 0 && (
-                <span style={{ fontSize: '9px', color: '#c0826b', marginLeft: '6px', fontWeight: 'normal' }}>
-                    falta: {missing.map((m) => m.name).join(', ')}
+            <span>
+                {name}
+                {missing.length > 0 && (
+                    <span style={{ fontSize: '9px', color: '#c0826b', marginLeft: '6px', fontWeight: 'normal' }}>
+                        falta: {missing.map((m) => m.name).join(', ')}
+                    </span>
+                )}
+            </span>
+            {quantity > 0 && (
+                <span style={{ fontSize: '10px', color: '#458B74', fontWeight: 'bold', marginLeft: '6px', flexShrink: 0 }}>
+                    ×{quantity}
                 </span>
             )}
         </button>
@@ -120,6 +130,7 @@ function VotingPanel({ gameId }) {
                 <VoteItem
                     key={inv.id}
                     name={inv.name}
+                    quantity={inv.quantity}
                     canVote={inv.canVote}
                     missing={inv.missing}
                     onClick={() => vote({ invention_id: inv.id }, inv.name)}
