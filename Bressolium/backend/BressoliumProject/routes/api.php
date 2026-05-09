@@ -9,8 +9,11 @@ use App\Http\Controllers\Api\SyncController;
 use App\Http\Controllers\Api\TileController;
 use App\Http\Controllers\Api\RoundController;
 use App\Http\Controllers\Api\VoteController;
+use App\Http\Controllers\Api\StatsController;
 
 Route::prefix('v1')->middleware('throttle:60,1')->group(function () {
+
+    Route::get('/stats', [StatsController::class, 'stats']);
 
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login',    [AuthController::class, 'login']);

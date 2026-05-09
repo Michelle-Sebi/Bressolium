@@ -2,7 +2,7 @@
 // TEST FOR: TASK 46 — [Feat] Monitoreo y Métricas
 // Validates:
 //   - MonitoringPage existe en /src/pages/ y está en AppRoutes
-//   - MonitoringPage muestra las métricas del endpoint /api/v1/health
+//   - MonitoringPage muestra las métricas del endpoint /api/v1/stats
 //   - ErrorBoundary captura errores de componentes React
 // HTTP mockeado — sin dependencia de red
 // ==========================================
@@ -52,22 +52,36 @@ function makeStore() {
     });
 }
 
-// ─── Respuesta de health de ejemplo ──────────────────────────────────────────
+// ─── Respuesta de stats de ejemplo ───────────────────────────────────────────
 
-const MOCK_HEALTH = {
+const MOCK_STATS = {
     success: true,
     data: {
-        uptime:               3600,
-        database:             'ok',
-        requests_per_minute:  42,
-        errors_per_minute:    1,
-        latency_p95:          120.5,
+        system: {
+            uptime:               3600,
+            database:             'ok',
+            requests_per_minute:  42,
+            errors_per_minute:    1,
+            latency_p95:          120.5,
+        },
+        game: {
+            total_games:    5,
+            waiting_games:  3,
+            active_games:   1,
+            finished_games: 1,
+            total_players:  10,
+            total_rounds:   25,
+            players: [
+                { name: 'alice', games_count: 3 },
+                { name: 'bob',   games_count: 2 },
+            ],
+        },
     },
     error: null,
 };
 
 beforeEach(() => {
-    mockGet.mockResolvedValue({ data: MOCK_HEALTH });
+    mockGet.mockResolvedValue({ data: MOCK_STATS });
 });
 
 afterEach(() => {
@@ -108,23 +122,7 @@ describe('MonitoringPage — renderizado', () => {
         return mod.default ?? mod.MonitoringPage;
     }
 
-    function renderPage() {
-        const store = makeStore();
-        return render(
-            React.createElement(Provider, { store },
-                React.createElement(MemoryRouter, null,
-                    React.createElement(React.Suspense, { fallback: null },
-                        React.createElement(
-                            React.lazy(() => import(/* @vite-ignore */ path.join(SRC, 'pages', 'MonitoringPage.jsx')))
-                        )
-                    )
-                )
-            )
-        );
-    }
-
     it('muestra estado de carga mientras el fetch está pendiente', async () => {
-        // Retrasar la respuesta para capturar el loading
         mockGet.mockReturnValueOnce(new Promise(() => {}));
 
         const MonitoringPage = await importPage();
@@ -134,7 +132,6 @@ describe('MonitoringPage — renderizado', () => {
                     React.createElement(MonitoringPage)))
         );
 
-        // El componente debe mostrar algún indicador de carga
         const loading = screen.queryByTestId('monitoring-loading')
             ?? screen.queryByText(/cargando/i)
             ?? screen.queryByRole('status');
@@ -150,7 +147,6 @@ describe('MonitoringPage — renderizado', () => {
         );
 
         await waitFor(() => {
-            // uptime en segundos: 3600 → puede mostrarse como "3600s", "1h", "3600", etc.
             expect(screen.getByTestId('metric-uptime')).toBeTruthy();
         });
     });
@@ -211,7 +207,22 @@ describe('MonitoringPage — renderizado', () => {
         });
     });
 
-    it('muestra un mensaje de error cuando el endpoint /health falla', async () => {
+    it('muestra métricas de juego cuando la API responde', async () => {
+        const MonitoringPage = await importPage();
+        render(
+            React.createElement(Provider, { store: makeStore() },
+                React.createElement(MemoryRouter, null,
+                    React.createElement(MonitoringPage)))
+        );
+
+        await waitFor(() => {
+            expect(screen.getByTestId('metric-total-games').textContent).toMatch(/5/);
+            expect(screen.getByTestId('metric-total-players').textContent).toMatch(/10/);
+            expect(screen.getByTestId('metric-total-rounds').textContent).toMatch(/25/);
+        });
+    });
+
+    it('muestra un mensaje de error cuando el endpoint /stats falla', async () => {
         mockGet.mockRejectedValueOnce(new Error('Network Error'));
 
         const MonitoringPage = await importPage();
@@ -228,7 +239,7 @@ describe('MonitoringPage — renderizado', () => {
         });
     });
 
-    it('llama al endpoint /health al montar el componente', async () => {
+    it('llama al endpoint /stats al montar el componente', async () => {
         const MonitoringPage = await importPage();
         render(
             React.createElement(Provider, { store: makeStore() },
@@ -238,7 +249,7 @@ describe('MonitoringPage — renderizado', () => {
 
         await waitFor(() => {
             expect(mockGet).toHaveBeenCalledWith(
-                expect.stringMatching(/health/)
+                expect.stringMatching(/stats/)
             );
         });
     });
@@ -254,7 +265,6 @@ describe('ErrorBoundary — captura de errores de componentes React', () => {
         return mod.default ?? mod.ErrorBoundary;
     }
 
-    /** Componente auxiliar que lanza un error durante el renderizado */
     function BrokenComponent({ shouldThrow }) {
         if (shouldThrow) throw new Error('Error de prueba en componente');
         return React.createElement('div', { 'data-testid': 'child-ok' }, 'Hijo OK');
@@ -278,19 +288,15 @@ describe('ErrorBoundary — captura de errores de componentes React', () => {
 
     it('muestra un fallback cuando un hijo lanza un error durante el renderizado', async () => {
         const ErrorBoundary = await importBoundary();
-
-        // Suprimir console.error de React para no ensuciar la salida de tests
-        const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+        const consoleError  = vi.spyOn(console, 'error').mockImplementation(() => {});
 
         render(
             React.createElement(ErrorBoundary, null,
                 React.createElement(BrokenComponent, { shouldThrow: true }))
         );
 
-        // El componente hijo fallido no debe aparecer en el DOM
         expect(screen.queryByTestId('child-ok')).toBeNull();
 
-        // El fallback del ErrorBoundary debe estar visible
         const fallback = screen.queryByTestId('error-boundary-fallback')
             ?? screen.queryByRole('alert')
             ?? screen.queryByText(/algo salió mal|error|fallo/i);
@@ -308,7 +314,6 @@ describe('ErrorBoundary — captura de errores de componentes React', () => {
                 React.createElement(BrokenComponent, { shouldThrow: true }))
         );
 
-        // Debe mostrar texto en lugar de una pantalla en blanco
         expect(document.body.textContent.trim().length).toBeGreaterThan(0);
 
         consoleError.mockRestore();

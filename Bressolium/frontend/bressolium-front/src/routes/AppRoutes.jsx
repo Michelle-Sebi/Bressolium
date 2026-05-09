@@ -3,10 +3,11 @@ import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 import TopBar from '../components/layout/TopBar';
 
-const LoginPage    = lazy(() => import('../pages/LoginPage'));
-const RegisterPage = lazy(() => import('../pages/RegisterPage'));
+const LoginPage      = lazy(() => import('../pages/LoginPage'));
+const RegisterPage   = lazy(() => import('../pages/RegisterPage'));
 const DashboardPage  = lazy(() => import('../pages/DashboardPage'));
 const GameBoardPage  = lazy(() => import('../pages/GameBoardPage'));
+const MonitoringPage = lazy(() => import('../pages/MonitoringPage'));
 
 function AppRoutes() {
     return (
@@ -18,8 +19,9 @@ function AppRoutes() {
 
                 <Route element={<ProtectedRoute />}>
                     <Route element={<ProtectedLayout />}>
-                        <Route path="/dashboard" element={<DashboardPage />} />
-                        <Route path="/board"     element={<GameBoardPage />} />
+                        <Route path="/dashboard"  element={<DashboardPage />} />
+                        <Route path="/board"      element={<GameBoardPage />} />
+                        <Route path="/monitoring" element={<MonitoringPage />} />
                     </Route>
                 </Route>
             </Routes>
