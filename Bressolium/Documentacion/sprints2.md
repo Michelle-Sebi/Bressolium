@@ -95,8 +95,10 @@ El criterio de ordenación dentro de cada sprint es: primero las tareas sin bloq
 **Arranca cuando T19 y T44 estén listas:**
 - Tarea 51: `[Feat] Pueblo Tile: Center Placement + Tech Tree Access` (Fullstack - Michelle) [Talla: M]
   - *Bloqueado por: T19, T44*
-- Tarea 53: `[Fix] Tech Tree Modal — Tecnologías no visibles al abrir desde casilla Pueblo` (Frontend - Michelle) [Talla: M]
+- Tarea 53: `[Fix] Tech Tree Modal — Tecnologías no visibles al abrir desde casilla Pueblo` (Frontend - Michelle) [Talla: M] [TERMINADA]
   - *Bloqueado por: T19, T51*
+- Tarea 54: `[Fix] VotingPanel — Inventos construibles solo una vez` (Frontend - Michelle) [Talla: XS] [TERMINADA]
+  - *Bloqueado por: T12, T48*
 
 > ⚠️ T13 es XL y es probable que se extienda al Sprint 5. Considerar dividir T13 en subtareas internas para poder hacer seguimiento.
 
@@ -120,7 +122,7 @@ El criterio de ordenación dentro de cada sprint es: primero las tareas sin bloq
 - Tarea 37: `[Feat] Cache Service` (Backend - Bárbara) [Talla: S]
   - *Bloqueado por: T25*
 - Tarea 35: `[Docs] Documentación de Arquitectura` (Documentación - Bárbara) [Talla: S]
-- Tarea 46: `[Feat] Monitoreo y Métricas` (DevOps - Michelle) [Talla: S]
+- Tarea 46: `[Feat] Monitoreo y Métricas` (DevOps - Michelle) [Talla: S] [TERMINADA]
 
 **Arranca cuando T33 esté lista:**
 - Tarea 34: `[Feat] Tests E2E` (Testing - Michelle) [Talla: L]
@@ -184,5 +186,5 @@ T9✅, T18✅ (ya completadas — T30 y T31 adaptarán su código al cliente cen
 | S1 ✅ | T1(S), T14(M) | T2(M), T4(M), T6(S) |
 | S2 ✅ | T3(L), T20(S), T5(M), T22(M), T7(L), T8(L) | T17(S), T21(M), T24(S), T9(XL), T18(S), T23(L) |
 | S3 | T25(M), T27(M), T40(S), T48(M) | T26(M), T28(S), T30(S), T36(XS), T38(S), T41(XS), T49(S) |
-| S4 | T10(M), T11(M), T12(L), T29(L), T31(M), T33(M), T42(M), T43(M), T44(S) | T13(XL), T19(M), T39(M), T50(S), T51(M), T52(XS), T53(M) |
+| S4 | T10(M), T11(M), T12(L), T29(L), T31(M), T33(M), T42(M), T43(M), T44(S) | T13(XL), T19(M), T39(M), T50(S), T51(M), T52(XS), T53(M), T54(XS) |
 | S5 | T35(S), T37(S), T45(M), T47(S) | T15(S), T16(S), T32(L), T34(L), T46(S) |

@@ -275,7 +275,7 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
   - **Frontend:** en `BoardGrid` (T9), detectar el click sobre la casilla pueblo y abrir el modal del árbol tecnológico (T19) en lugar de disparar `exploreTileThunk` o `upgradeTileThunk`. Aplicar estilo visual diferenciado siguiendo la guía brutalista. Actualizar tests de `Epica2_Front.test.jsx` para cubrir la apertura del modal desde la casilla central.
 - **DoD**: La casilla `(7, 7)` del tablero es siempre `base_type=pueblo`. Las acciones de explorar y mejorar sobre esa casilla lanzan una excepción 422. En el frontend, hacer clic sobre la casilla pueblo abre el modal del árbol tecnológico. Los tests de backend y frontend cubren todos los casos.
 
-### Tarea 53
+### Tarea 53 [TERMINADA]
 - **Título**: `[Fix] Tech Tree Modal — Tecnologías no visibles al abrir desde casilla Pueblo`
 - **Estimación**: M
 - **Área**: [FRONTEND]
@@ -284,6 +284,16 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **HUs**: 4.1
 - **Descripción**: Al hacer clic sobre la casilla pueblo `(7, 7)`, el modal del árbol tecnológico se abre pero no muestra ningún contenido: ni tecnologías investigadas, ni disponibles, ni bloqueadas. La causa es que el modal no recibe ni consume correctamente los datos de progreso tecnológico del sync. Implementar la hidratación del modal desde el estado RTK Query (sync) y renderizar las tres categorías con su estado correcto.
 - **DoD**: El modal muestra tres secciones diferenciadas: (1) **Investigadas** — tecnologías con `is_active=true`, resaltadas; (2) **Disponibles** — prerrequisitos y recursos cumplidos, botón de voto activo; (3) **Bloqueadas** — en gris con indicación de qué falta y en qué cantidad. Los datos se leen del sync vía RTK Query. Los tests de `Epica2_Front.test.jsx` (T19) cubren las tres categorías de visualización.
+
+### Tarea 54 [TERMINADA]
+- **Título**: `[Fix] VotingPanel — Inventos construibles solo una vez`
+- **Estimación**: XS
+- **Área**: [FRONTEND]
+- **Asignado a**: Michelle
+- **Bloqueado por**: Tarea 12, Tarea 48
+- **Rama git**: `fix/T54-voting-panel-multi-invento`
+- **Descripción**: El `VotingPanel` usaba `canVote: i.quantity === 0`, impidiendo votar para construir un invento si ya se tenía al menos uno. El sistema de prerrequisitos soporta cantidades (`quantity > 1`) — la Nave de Asentamiento Interestelar necesita Acero ×2 y Vidrio ×2 — por lo que los inventos deben poder construirse múltiples veces. Cambiar la condición a `canVote: missing.length === 0` para que el botón esté activo siempre que los requisitos estén cubiertos, independientemente de cuántas unidades ya se tengan. Añadir badge `×N` en verde para mostrar la cantidad actual de cada invento construido.
+- **DoD**: `canVote` para inventos se activa cuando `missing.length === 0`, sin importar la cantidad ya construida. El panel muestra `×N` en verde para inventos con más de una unidad. Los tests existentes de VotingPanel siguen en verde.
 
 ### Tarea 15 ⚙️
 - **Título**: `[Feat] End of Game (Terraforming)`
@@ -476,7 +486,7 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Descripción**: Configurar despliegue del backend en contenedor Docker (php-fpm + nginx) y del frontend como estáticos. Asegurar **HTTPS** en producción (certbot o equivalente). Configurar **CORS** estricto en Laravel para que solo el dominio del frontend acceda a la API. Variables de entorno separadas dev/prod (`.env.production`).
 - **DoD**: El backend despliega correctamente en contenedor Docker con php-fpm + nginx. El frontend sirve como estáticos. HTTPS está activo con certbot o equivalente. CORS en Laravel restringe el acceso al dominio del frontend. Las variables de entorno de producción están separadas en `.env.production`.
 
-### Tarea 46
+### Tarea 46 [TERMINADA]
 - **Título**: `[Feat] Monitoreo y Métricas`
 - **Estimación**: S
 - **Área**: [DEVOPS]
@@ -553,9 +563,10 @@ y e
 | T38 | Actualización de Seeders | S | ✅ Terminada |
 | T39 | Eventos y Listeners de Dominio | M | Pendiente |
 | T41 | Middleware Global (Force JSON + Logging) | XS | ✅ Terminada |
-| T46 | Monitoreo y Métricas | S | Pendiente |
+| T46 | Monitoreo y Métricas | S | ✅ Terminada |
 | T49 | Docs ER V6 + Evolución Tecnológica | S | Pendiente |
 | T50 | Inventory Panel: Inventions Section | S | ✅ Terminada |
 | T51 | Pueblo Tile + Tech Tree Access | M | Pendiente |
 | T52 | Inventory Panel — Grid 4 Columnas | XS | ✅ Terminada |
-| T53 | Tech Tree Modal — Tecnologías no visibles | M | Pendiente |
+| T53 | Tech Tree Modal — Tecnologías no visibles | M | ✅ Terminada |
+| T54 | VotingPanel — Inventos construibles solo una vez | XS | ✅ Terminada |

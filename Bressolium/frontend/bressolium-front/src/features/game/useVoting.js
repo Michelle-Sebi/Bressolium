@@ -26,10 +26,11 @@ export function useVoting(gameId) {
     }));
 
     const inventions = rawInvs.map((i) => ({
-        id:      i.id,
-        name:    i.name,
-        canVote: i.quantity === 0,
-        missing: i.missing ?? [],
+        id:       i.id,
+        name:     i.name,
+        quantity: i.quantity,
+        canVote:  i.missing.length === 0,
+        missing:  i.missing ?? [],
     }));
 
     const userActions = data?.user_actions?.actions_spent ?? 0;
