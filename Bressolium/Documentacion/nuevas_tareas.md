@@ -147,6 +147,17 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Descripción**: El panel de inventario mostraba materiales e inventos en columna única, desaprovechando el espacio del panel lateral. Cambiar el layout de cada sección a un grid de 4 columnas para que los iconos se dispongan en rejilla compacta.
 - **DoD**: Materiales e inventos se muestran en un grid de 4 columnas (`repeat(4, 1fr)`). El panel mantiene su scroll vertical. Los tests existentes de `InventoryPanel` siguen en verde.
 
+### Tarea 54
+- **Título**: `[Fix] VotingPanel — Inventos construibles solo una vez`
+- **Estimación**: XS
+- **Área**: [FRONTEND]
+- **Asignado a**: Michelle
+- **Bloqueado por**: Tarea 12, Tarea 48
+- **HUs**: 3.1
+- **Rama**: `fix/T54-voting-panel-multi-invento`
+- **Descripción**: El `VotingPanel` usaba `canVote: i.quantity === 0`, impidiendo votar para construir un invento si ya se tenía al menos uno. El sistema de prerrequisitos soporta cantidades (`quantity > 1`) — la Nave de Asentamiento Interestelar necesita Acero ×2 y Vidrio ×2 — por lo que los inventos deben poder construirse múltiples veces.
+- **DoD**: `canVote` para inventos se activa cuando `missing.length === 0`, sin importar la cantidad ya construida. El panel muestra `×N` en verde para inventos con más de una unidad. Los tests existentes de VotingPanel siguen en verde.
+
 ### Tarea 55
 - **Título**: `[Fix] Inventory Panel — Nombres de materiales e iconos de inventos`
 - **Estimación**: XS
@@ -570,4 +581,5 @@ y e
 | T51 | Pueblo Tile + Tech Tree Access | M | Pendiente |
 | T52 | Inventory Panel — Grid 4 Columnas | XS | ✅ Terminada |
 | T53 | Tech Tree Modal — Tecnologías no visibles | M | Pendiente |
+| T54 | VotingPanel — Inventos construibles solo una vez | XS | Pendiente |
 | T55 | Inventory Panel — Nombres materiales e iconos inventos | XS | En revisión |
