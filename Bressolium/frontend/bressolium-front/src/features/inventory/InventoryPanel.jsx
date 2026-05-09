@@ -87,6 +87,9 @@ function MaterialItem({ material }) {
                     alt={material.name}
                     style={{ width: '32px', height: '32px', objectFit: 'contain' }}
                 />
+                <span style={{ fontSize: '9px', color: '#8B7355', textAlign: 'center', lineHeight: 1.2 }}>
+                    {material.name}
+                </span>
                 {isActive && (
                     <Badge
                         count={material.quantity}
@@ -100,27 +103,52 @@ function MaterialItem({ material }) {
 
 /** @type {Record<string, string>} Mapeo de nombre de invento a ruta de icono */
 const INVENTION_ICON_MAP = {
-    'acero':             new URL('../../assets/icons/inventions/acero.png',             import.meta.url).href,
-    'acueducto':         new URL('../../assets/icons/inventions/acueducto.png',         import.meta.url).href,
-    'arado':             new URL('../../assets/icons/inventions/arado.png',             import.meta.url).href,
-    'arco':              new URL('../../assets/icons/inventions/arco.png',              import.meta.url).href,
-    'avion':             new URL('../../assets/icons/inventions/avion.png',             import.meta.url).href,
-    'barco':             new URL('../../assets/icons/inventions/barco.png',             import.meta.url).href,
-    'bateria':           new URL('../../assets/icons/inventions/bateria.png',           import.meta.url).href,
-    'bombilla':          new URL('../../assets/icons/inventions/bombilla.png',          import.meta.url).href,
-    'brujula':           new URL('../../assets/icons/inventions/brujula.png',           import.meta.url).href,
-    'carro':             new URL('../../assets/icons/inventions/carro.png',             import.meta.url).href,
-    'ceramica':          new URL('../../assets/icons/inventions/ceramica.png',          import.meta.url).href,
-    'cuchillo':          new URL('../../assets/icons/inventions/cuchillo.png',          import.meta.url).href,
-    'cuerda':            new URL('../../assets/icons/inventions/cuerda.png',            import.meta.url).href,
-    'estacion-espacial': new URL('../../assets/icons/inventions/estacion-espacial.png', import.meta.url).href,
-    'fibra-optica':      new URL('../../assets/icons/inventions/fibra-optica.png',      import.meta.url).href,
-    'hacha':             new URL('../../assets/icons/inventions/hacha.png',             import.meta.url).href,
-    'imprenta':          new URL('../../assets/icons/inventions/imprenta.png',          import.meta.url).href,
-    'lanza':             new URL('../../assets/icons/inventions/lanza.png',             import.meta.url).href,
-    'laser':             new URL('../../assets/icons/inventions/laser.png',             import.meta.url).href,
-    'microscopio':       new URL('../../assets/icons/inventions/microscopio.png',       import.meta.url).href,
+    'acero':                        new URL('../../assets/icons/inventions/acero.png',                        import.meta.url).href,
+    'acueducto':                    new URL('../../assets/icons/inventions/acueducto.png',                    import.meta.url).href,
+    'arado':                        new URL('../../assets/icons/inventions/arado.png',                        import.meta.url).href,
+    'arco':                         new URL('../../assets/icons/inventions/arco.png',                         import.meta.url).href,
+    'avion':                        new URL('../../assets/icons/inventions/avion.png',                        import.meta.url).href,
+    'barco':                        new URL('../../assets/icons/inventions/barco.png',                        import.meta.url).href,
+    'bateria':                      new URL('../../assets/icons/inventions/bateria.png',                      import.meta.url).href,
+    'bombilla':                     new URL('../../assets/icons/inventions/bombilla.png',                     import.meta.url).href,
+    'brujula':                      new URL('../../assets/icons/inventions/brujula.png',                      import.meta.url).href,
+    'carro':                        new URL('../../assets/icons/inventions/carro.png',                        import.meta.url).href,
+    'ceramica':                     new URL('../../assets/icons/inventions/ceramica.png',                     import.meta.url).href,
+    'cuchillo':                     new URL('../../assets/icons/inventions/cuchillo.png',                     import.meta.url).href,
+    'cuerda':                       new URL('../../assets/icons/inventions/cuerda.png',                       import.meta.url).href,
+    'estacion-espacial':            new URL('../../assets/icons/inventions/estacion-espacial.png',            import.meta.url).href,
+    'fibra-optica':                 new URL('../../assets/icons/inventions/fibra-optica.png',                 import.meta.url).href,
+    'hacha':                        new URL('../../assets/icons/inventions/hacha.png',                        import.meta.url).href,
+    'imprenta':                     new URL('../../assets/icons/inventions/imprenta.png',                     import.meta.url).href,
+    'lanza':                        new URL('../../assets/icons/inventions/lanza.png',                        import.meta.url).href,
+    'laser':                        new URL('../../assets/icons/inventions/laser.png',                        import.meta.url).href,
+    'microscopio':                  new URL('../../assets/icons/inventions/microscopio.png',                  import.meta.url).href,
+    'molino':                       new URL('../../assets/icons/inventions/molino.png',                       import.meta.url).href,
+    'moneda':                       new URL('../../assets/icons/inventions/moneda.png',                       import.meta.url).href,
+    'nave-asentamiento-interestelar': new URL('../../assets/icons/inventions/nave-asentamiento-interestelar.png', import.meta.url).href,
+    'papel':                        new URL('../../assets/icons/inventions/papel.png',                        import.meta.url).href,
+    'penicilina':                   new URL('../../assets/icons/inventions/penicilina.png',                   import.meta.url).href,
+    'refugio':                      new URL('../../assets/icons/inventions/refugio.png',                      import.meta.url).href,
+    'reloj':                        new URL('../../assets/icons/inventions/reloj.png',                        import.meta.url).href,
+    'rueda':                        new URL('../../assets/icons/inventions/rueda.png',                        import.meta.url).href,
+    'satelite':                     new URL('../../assets/icons/inventions/satelite.png',                     import.meta.url).href,
+    'tela':                         new URL('../../assets/icons/inventions/tela.png',                         import.meta.url).href,
+    'telefono-movil':               new URL('../../assets/icons/inventions/telefono-movil.png',               import.meta.url).href,
+    'telescopio':                   new URL('../../assets/icons/inventions/telescopio.png',                   import.meta.url).href,
+    'trampa':                       new URL('../../assets/icons/inventions/trampa.png',                       import.meta.url).href,
+    'vidrio':                       new URL('../../assets/icons/inventions/vidrio.png',                       import.meta.url).href,
 };
+
+function inventionNameToKey(name) {
+    return name
+        .toLowerCase()
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/\bde\b\s*/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/arcos/, 'arco')
+        .replace(/refugios/, 'refugio');
+}
 
 /**
  * Cabecera visual de sección dentro del panel de inventario.
@@ -152,7 +180,7 @@ function InventorySectionHeader({ label }) {
 function InventionItem({ invention }) {
     const isActive   = invention.quantity > 0;
     const stateClass = isActive ? 'invention--active' : 'invention--inactive';
-    const iconKey    = invention.icon?.replace('.png', '') ?? '';
+    const iconKey    = inventionNameToKey(invention.name);
     const iconSrc    = INVENTION_ICON_MAP[iconKey] ?? '';
 
     return (
