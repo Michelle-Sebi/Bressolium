@@ -15,7 +15,10 @@ import { bressoliumApi } from '../../services/bressoliumApi';
  * @returns {{ completed: TechItem[], available: TechItem[], blocked: TechItem[], isLoading: boolean }}
  */
 export function useTechTree(gameId) {
-    const { data, isLoading } = bressoliumApi.useGetSyncQuery(gameId, { skip: !gameId });
+    const { data, isLoading } = bressoliumApi.useGetSyncQuery(gameId, {
+        skip:                    !gameId,
+        refetchOnMountOrArgChange: true,
+    });
 
     const technologies = data?.progress?.technologies ?? [];
 

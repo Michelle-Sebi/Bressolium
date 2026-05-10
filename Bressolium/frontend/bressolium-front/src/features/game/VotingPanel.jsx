@@ -57,7 +57,7 @@ function VoteItem({ name, canVote, missing, quantity, onClick }) {
 }
 
 function VotingPanel({ gameId }) {
-    const { technologies, inventions, userActions, currentRound, isLoading, hasVoted, votedName, vote, abstain } = useVoting(gameId);
+    const { technologies, inventions, userActions, currentRound, lastRoundResult, isLoading, hasVoted, votedName, vote, abstain } = useVoting(gameId);
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px', overflowY: 'auto' }}>
@@ -79,6 +79,23 @@ function VotingPanel({ gameId }) {
                 <span>Acciones: {userActions}</span>
                 {currentRound && <span>Jornada {currentRound.number}</span>}
             </div>
+
+            {/* Resultado de la jornada anterior: empate resuelto al azar */}
+            {lastRoundResult?.no_consensus && (
+                <div style={{
+                    padding:         '6px 8px',
+                    backgroundColor: '#fff3e0',
+                    border:          '1px solid #e6961a',
+                    borderLeft:      '3px solid #e6961a',
+                    fontSize:        '10px',
+                    fontWeight:      'bold',
+                    color:           '#b85e00',
+                    textTransform:   'uppercase',
+                    letterSpacing:   '0.05em',
+                }}>
+                    Sin consenso — se construyó {lastRoundResult.built_name} al azar
+                </div>
+            )}
 
             {/* Confirmación de voto */}
             {hasVoted && (

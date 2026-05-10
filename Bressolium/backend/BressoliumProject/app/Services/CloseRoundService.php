@@ -68,7 +68,10 @@ class CloseRoundService
             return false;
         }
 
+        $isTie = $this->repository->hasInventionVoteTie($round);
+
         $this->repository->buildInvention($game, $invention);
+        $this->repository->markRoundResult($round, $inventionId, $isTie);
         InventionBuilt::dispatch($game, $invention);
 
         if ($invention->is_final) {

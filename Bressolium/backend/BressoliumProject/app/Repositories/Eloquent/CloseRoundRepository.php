@@ -62,7 +62,7 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
 
     public function inventionPrerequisitesMet(Game $game, Invention $invention): bool
     {
-        $activeTechIds = $game->technologies()->wherePivot('is_active', true)->pluck('id');
+        $activeTechIds = $game->technologies()->wherePivot('is_active', true)->get()->pluck('id');
 
         foreach ($invention->inventionPrerequisites as $prerequisite) {
             if ($prerequisite->prereq_type === 'invention') {
@@ -198,6 +198,33 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
                 $game->users()->updateExistingPivot($user->id, ['is_afk' => true]);
             }
         }
+    }
+
+    public function hasInventionVoteTie(Round $round): bool
+    {
+        $results = DB::table('votes')
+            ->where('round_id', $round->id)
+            ->whereNotNull('invention_id')
+            ->select('invention_id', DB::raw('count(*) as vote_count'))
+            ->groupBy('invention_id')
+            ->orderByDesc('vote_count')
+            ->get();
+
+        if ($results->count() < 2) {
+            return false;
+        }
+
+        return $results[0]->vote_count === $results[1]->vote_count;
+    }
+
+    public function markRoundResult(Round $round, string $inventionId, bool $noConsensus): void
+    {
+        DB::table('rounds')
+            ->where('id', $round->id)
+            ->update([
+                'no_consensus'             => $noConsensus,
+                'last_built_invention_id'  => $inventionId,
+            ]);
     }
 
     public function allNonAfkPlayersHaveVoted(Round $round, Game $game): bool

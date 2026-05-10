@@ -7,6 +7,7 @@ use App\Models\Invention;
 use App\Models\Round;
 use App\Models\Technology;
 use App\Repositories\Contracts\SyncRepositoryInterface;
+use Illuminate\Support\Facades\DB;
 
 class SyncRepository implements SyncRepositoryInterface
 {
@@ -80,7 +81,7 @@ class SyncRepository implements SyncRepositoryInterface
         $allInvs = Invention::with(['inventionCosts.resource', 'inventionPrerequisites'])->get();
         $gameInvMap = $game->inventions()->get()->keyBy('id');
         $matMap = $game->materials()->get()->keyBy('id');
-        $activeTechIds = $game->technologies()->wherePivot('is_active', true)->pluck('id');
+        $activeTechIds = $game->technologies()->wherePivot('is_active', true)->get()->pluck('id');
 
         return $allInvs->map(function ($inv) use ($gameInvMap, $allInvs, $matMap, $activeTechIds) {
             $quantity = $gameInvMap->has($inv->id) ? (int) $gameInvMap[$inv->id]->pivot->quantity : 0;
@@ -136,5 +137,34 @@ class SyncRepository implements SyncRepositoryInterface
                 'missing' => $missing,
             ];
         })->values()->toArray();
+    }
+
+    public function hasVotedThisRound(Round $round, string $userId): bool
+    {
+        return DB::table('votes')
+            ->where('round_id', $round->id)
+            ->where('user_id', $userId)
+            ->exists();
+    }
+
+    public function getLastRoundResult(Round $currentRound): array
+    {
+        $prev = DB::table('rounds')
+            ->where('game_id', $currentRound->game_id)
+            ->where('number', $currentRound->number - 1)
+            ->first();
+
+        if (! $prev || ! $prev->no_consensus || ! $prev->last_built_invention_id) {
+            return [];
+        }
+
+        $name = DB::table('inventions')
+            ->where('id', $prev->last_built_invention_id)
+            ->value('name');
+
+        return [
+            'no_consensus' => true,
+            'built_name'   => $name ?? 'Invento desconocido',
+        ];
     }
 }
