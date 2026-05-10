@@ -34,6 +34,12 @@ class SyncService
                     inventory: $this->syncRepository->getInventory($game),
                     technologies: $this->syncRepository->getTechnologies($game),
                     inventions: $this->syncRepository->getInventions($game),
+                    hasVoted: $round
+                        ? $this->syncRepository->hasVotedThisRound($round, $userId)
+                        : false,
+                    lastRoundResult: $round
+                        ? $this->syncRepository->getLastRoundResult($round)
+                        : [],
                 );
             },
         );

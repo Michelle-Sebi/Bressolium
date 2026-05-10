@@ -37,4 +37,8 @@ interface CloseRoundRepositoryInterface
     public function markAfkPlayers(Round $round, Game $game): void;
 
     public function allNonAfkPlayersHaveVoted(Round $round, Game $game): bool;
+
+    public function hasInventionVoteTie(Round $round): bool;
+
+    public function markRoundResult(Round $round, string $inventionId, bool $noConsensus): void;
 }
