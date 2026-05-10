@@ -18,4 +18,6 @@ interface SyncRepositoryInterface
     public function getInventions(Game $game): array;
 
     public function hasVotedThisRound(Round $round, string $userId): bool;
+
+    public function getLastRoundResult(Round $currentRound): array;
 }

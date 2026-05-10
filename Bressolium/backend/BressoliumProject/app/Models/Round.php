@@ -20,6 +20,8 @@ class Round extends Model
         'number',
         'start_date',
         'ended_at',
+        'no_consensus',
+        'last_built_invention_id',
     ];
 
     /**

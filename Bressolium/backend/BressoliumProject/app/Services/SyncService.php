@@ -32,6 +32,9 @@ class SyncService
             hasVoted: $round
                 ? $this->syncRepository->hasVotedThisRound($round, $userId)
                 : false,
+            lastRoundResult: $round
+                ? $this->syncRepository->getLastRoundResult($round)
+                : [],
         );
     }
 }

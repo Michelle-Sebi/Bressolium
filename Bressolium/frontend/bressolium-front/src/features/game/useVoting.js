@@ -14,9 +14,10 @@ export function useVoting(gameId) {
     const [votedRound, setVotedRound] = useState(null);
     const [votedName, setVotedName]   = useState(null);
 
-    const rawTechs     = data?.progress?.technologies ?? [];
-    const rawInvs      = data?.progress?.inventions   ?? [];
-    const currentRound = data?.current_round ?? null;
+    const rawTechs       = data?.progress?.technologies ?? [];
+    const rawInvs        = data?.progress?.inventions   ?? [];
+    const currentRound   = data?.current_round ?? null;
+    const lastRoundResult = data?.last_round_result ?? null;
 
     // Server is authoritative; local state gives immediate feedback before the next poll
     const hasVoted = (data?.has_voted ?? false) || votedRound === currentRound?.number;
@@ -64,5 +65,5 @@ export function useVoting(gameId) {
         return closeRoundMutation(gameId);
     }
 
-    return { technologies, inventions, userActions, currentRound, isLoading, isClosing, hasVoted, votedName, vote, abstain, closeRound };
+    return { technologies, inventions, userActions, currentRound, lastRoundResult, isLoading, isClosing, hasVoted, votedName, vote, abstain, closeRound };
 }

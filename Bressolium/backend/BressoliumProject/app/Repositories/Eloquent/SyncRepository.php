@@ -146,4 +146,25 @@ class SyncRepository implements SyncRepositoryInterface
             ->where('user_id', $userId)
             ->exists();
     }
+
+    public function getLastRoundResult(Round $currentRound): array
+    {
+        $prev = DB::table('rounds')
+            ->where('game_id', $currentRound->game_id)
+            ->where('number', $currentRound->number - 1)
+            ->first();
+
+        if (! $prev || ! $prev->no_consensus || ! $prev->last_built_invention_id) {
+            return [];
+        }
+
+        $name = DB::table('inventions')
+            ->where('id', $prev->last_built_invention_id)
+            ->value('name');
+
+        return [
+            'no_consensus' => true,
+            'built_name'   => $name ?? 'Invento desconocido',
+        ];
+    }
 }
