@@ -130,7 +130,7 @@ test('explorar gasta 1 acción y revela la casilla', function () {
     $this->tile->refresh();
 
     expect($actionsSpent)->toBe(1)
-        ->and($this->tile->explored)->toBe(1);
+        ->and($this->tile->explored)->toBeTrue();
 });
 
 test('explorar registra explored_by_player_id y explored_at en la casilla', function () {

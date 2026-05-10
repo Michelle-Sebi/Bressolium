@@ -133,11 +133,17 @@ test('game.players es un array', function () {
 // ─── Resiliencia — BD desconectada ────────────────────────────────────────────
 
 test('GET /api/v1/stats reporta system.database "error" cuando la BD no responde', function () {
+    $originalPassword = config('database.connections.mysql.password');
+
     DB::disconnect();
     DB::purge('mysql');
     config(['database.connections.mysql.password' => 'wrong-password-for-test']);
 
     $response = $this->getJson('/api/v1/stats');
+
+    // Restore valid connection so RefreshDatabase teardown can rollback
+    config(['database.connections.mysql.password' => $originalPassword]);
+    DB::purge('mysql');
 
     $response->assertStatus(200);
     $database = $response->json('data.system.database');

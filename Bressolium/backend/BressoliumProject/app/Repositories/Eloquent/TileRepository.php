@@ -8,6 +8,7 @@ use App\Models\Technology;
 use App\Models\Tile;
 use App\Models\TileType;
 use App\Repositories\Contracts\TileRepositoryInterface;
+use Illuminate\Support\Collection;
 
 class TileRepository implements TileRepositoryInterface
 {
@@ -65,6 +66,34 @@ class TileRepository implements TileRepositoryInterface
             ->first();
     }
 
+    public function getUpgradeCosts(TileType $nextType): Collection
+    {
+        return $nextType->materials;
+    }
+
+    public function hasSufficientMaterials(Game $game, Collection $costs): bool
+    {
+        foreach ($costs as $material) {
+            $required = $material->pivot->quantity;
+            $stock = $game->materials()->where('material_id', $material->id)->first();
+            if (! $stock || $stock->pivot->quantity < $required) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function deductMaterials(Game $game, Collection $costs): void
+    {
+        foreach ($costs as $material) {
+            $required = $material->pivot->quantity;
+            $stock = $game->materials()->where('material_id', $material->id)->first();
+            $newQty = $stock->pivot->quantity - $required;
+            $game->materials()->updateExistingPivot($material->id, ['quantity' => $newQty]);
+        }
+    }
+
     public function getRequiredTechnology(TileType $nextType): ?Technology
     {
         $material = $nextType->materials()->wherePivotNotNull('tech_required')->first();
@@ -82,6 +111,14 @@ class TileRepository implements TileRepositoryInterface
 
     public function isAdjacentToUserExplored(Tile $tile, string $userId): bool
     {
+        $hasAnyExplored = Tile::where('game_id', $tile->game_id)
+            ->where('explored_by_player_id', $userId)
+            ->exists();
+
+        if (! $hasAnyExplored) {
+            return true;
+        }
+
         return Tile::where('game_id', $tile->game_id)
             ->where('explored_by_player_id', $userId)
             ->where(function ($q) use ($tile) {

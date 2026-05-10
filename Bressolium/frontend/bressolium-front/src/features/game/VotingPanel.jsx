@@ -1,3 +1,4 @@
+import Button from '../../components/ui/Button';
 import { useVoting } from './useVoting';
 
 const SECTION_HEADER = {
@@ -57,7 +58,7 @@ function VoteItem({ name, canVote, missing, quantity, onClick }) {
 }
 
 function VotingPanel({ gameId }) {
-    const { technologies, inventions, userActions, currentRound, isLoading, hasVoted, votedName, vote, abstain } = useVoting(gameId);
+    const { technologies, inventions, userActions, currentRound, isLoading, isClosing, hasVoted, votedName, vote, abstain, closeRound } = useVoting(gameId);
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px', overflowY: 'auto' }}>
@@ -166,6 +167,10 @@ function VotingPanel({ gameId }) {
                     onClick={() => vote({ invention_id: inv.id }, inv.name)}
                 />
             ))}
+
+            <Button onClick={closeRound} disabled={isClosing} style={{ marginTop: '8px', width: '100%' }}>
+                Finalizar Turno
+            </Button>
 
         </div>
     );
