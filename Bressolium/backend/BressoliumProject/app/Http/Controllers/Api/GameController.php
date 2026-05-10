@@ -20,6 +20,25 @@ class GameController extends Controller
         protected ResponseBuilder $rb,
     ) {}
 
+    /**
+     * @OA\Post(
+     *     path="/game/create",
+     *     summary="Crea una nueva partida y se une el usuario actual",
+     *     description="El usuario que crea la partida queda automáticamente unido a ella. Genera el tablero, asigna casilla inicial e inicializa materiales.",
+     *     tags={"Game"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"team_name"},
+     *             @OA\Property(property="team_name", type="string", example="Los Vikingos")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Partida creada", @OA\JsonContent(ref="#/components/schemas/ApiResponse")),
+     *     @OA\Response(response=401, description="No autenticado", @OA\JsonContent(ref="#/components/schemas/ApiError")),
+     *     @OA\Response(response=422, description="Datos inválidos", @OA\JsonContent(ref="#/components/schemas/ApiError"))
+     * )
+     */
     public function create(CreateGameRequest $request)
     {
         try {
@@ -32,6 +51,24 @@ class GameController extends Controller
         }
     }
 
+    /**
+     * @OA\Post(
+     *     path="/game/join",
+     *     summary="Une al usuario a una partida existente por nombre de equipo",
+     *     tags={"Game"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"team_name"},
+     *             @OA\Property(property="team_name", type="string", example="Los Vikingos")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Unión correcta", @OA\JsonContent(ref="#/components/schemas/ApiResponse")),
+     *     @OA\Response(response=400, description="La partida ya tiene 5 jugadores", @OA\JsonContent(ref="#/components/schemas/ApiError")),
+     *     @OA\Response(response=404, description="Partida no encontrada", @OA\JsonContent(ref="#/components/schemas/ApiError"))
+     * )
+     */
     public function join(JoinGameRequest $request)
     {
         try {
@@ -50,6 +87,16 @@ class GameController extends Controller
         }
     }
 
+    /**
+     * @OA\Get(
+     *     path="/game/my",
+     *     summary="Lista las partidas del usuario autenticado",
+     *     tags={"Game"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(response=200, description="Listado de partidas", @OA\JsonContent(ref="#/components/schemas/ApiResponse")),
+     *     @OA\Response(response=401, description="No autenticado", @OA\JsonContent(ref="#/components/schemas/ApiError"))
+     * )
+     */
     public function myGames(Request $request)
     {
         try {
@@ -61,6 +108,16 @@ class GameController extends Controller
         }
     }
 
+    /**
+     * @OA\Get(
+     *     path="/game/all",
+     *     summary="Lista todas las partidas disponibles para unirse",
+     *     description="Devuelve partidas en estado WAITING con menos de 5 jugadores.",
+     *     tags={"Game"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(response=200, description="Listado de partidas disponibles", @OA\JsonContent(ref="#/components/schemas/ApiResponse"))
+     * )
+     */
     public function allGames()
     {
         try {
@@ -72,6 +129,16 @@ class GameController extends Controller
         }
     }
 
+    /**
+     * @OA\Post(
+     *     path="/game/join-random",
+     *     summary="Une al usuario a una partida disponible aleatoria",
+     *     tags={"Game"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(response=200, description="Unión correcta", @OA\JsonContent(ref="#/components/schemas/ApiResponse")),
+     *     @OA\Response(response=404, description="No hay partidas disponibles", @OA\JsonContent(ref="#/components/schemas/ApiError"))
+     * )
+     */
     public function joinRandom(Request $request)
     {
         try {

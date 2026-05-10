@@ -17,6 +17,48 @@ class SyncController extends Controller
         private ResponseBuilder $rb,
     ) {}
 
+    /**
+     * @OA\Get(
+     *     path="/game/{gameId}/sync",
+     *     summary="Estado completo del juego para el frontend",
+     *     description="Devuelve la jornada actual, acciones gastadas, inventario, tecnologías, inventos, estado de voto del jugador y el resultado de la última jornada. Es el endpoint que el frontend pollea cada 30 segundos.",
+     *     tags={"Sync"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="gameId",
+     *         in="path",
+     *         required=true,
+     *         description="UUID de la partida",
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Estado del juego",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="current_round", type="object",
+     *                     @OA\Property(property="number", type="integer", example=3),
+     *                     @OA\Property(property="start_date", type="string", format="date-time")
+     *                 ),
+     *                 @OA\Property(property="user_actions", type="object",
+     *                     @OA\Property(property="actions_spent", type="integer", example=1)
+     *                 ),
+     *                 @OA\Property(property="inventory", type="array", @OA\Items(type="object")),
+     *                 @OA\Property(property="progress", type="object",
+     *                     @OA\Property(property="technologies", type="array", @OA\Items(type="object")),
+     *                     @OA\Property(property="inventions", type="array", @OA\Items(type="object"))
+     *                 ),
+     *                 @OA\Property(property="has_voted", type="boolean", example=false),
+     *                 @OA\Property(property="last_round_result", type="object", nullable=true)
+     *             ),
+     *             @OA\Property(property="error", type="string", nullable=true)
+     *         )
+     *     ),
+     *     @OA\Response(response=403, description="No perteneces a esta partida", @OA\JsonContent(ref="#/components/schemas/ApiError")),
+     *     @OA\Response(response=404, description="Partida no encontrada", @OA\JsonContent(ref="#/components/schemas/ApiError"))
+     * )
+     */
     public function sync(SyncRequest $request, string $gameId): JsonResponse
     {
         $game = Game::find($gameId);
