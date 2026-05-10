@@ -2,6 +2,7 @@
 
 use App\DTOs\ExploreActionDTO;
 use App\DTOs\UpgradeActionDTO;
+use App\Exceptions\PuebloTileActionException;
 use App\Models\Game;
 use App\Models\Tile;
 use App\Models\TileType;
@@ -17,8 +18,8 @@ uses(RefreshDatabase::class);
 // ============================================================
 
 beforeEach(function () {
-    $this->user  = User::factory()->create();
-    $this->game  = Game::factory()->create();
+    $this->user = User::factory()->create();
+    $this->game = Game::factory()->create();
     $this->round = $this->game->rounds()->create(['number' => 1]);
     $this->game->users()->attach($this->user->id, ['is_afk' => false]);
     $this->round->users()->attach($this->user->id, ['actions_spent' => 0]);
@@ -75,31 +76,32 @@ test('generate crea exactamente 225 casillas (tablero 15x15 completo)', function
 test('explorar una casilla de tipo pueblo lanza PuebloTileActionException', function () {
     $puebloType = TileType::factory()->create(['base_type' => 'pueblo', 'level' => 1]);
     $tile = Tile::factory()->create([
-        'game_id'      => $this->game->id,
+        'game_id' => $this->game->id,
         'tile_type_id' => $puebloType->id,
-        'explored'     => false,
-        'coord_x'      => 7,
-        'coord_y'      => 7,
+        'explored' => false,
+        'coord_x' => 7,
+        'coord_y' => 7,
     ]);
 
     expect(fn () => app(ActionService::class)->explore(
         new ExploreActionDTO(tileId: $tile->id, userId: $this->user->id)
-    ))->toThrow(\App\Exceptions\PuebloTileActionException::class);
+    ))->toThrow(PuebloTileActionException::class);
 });
 
 test('intentar explorar la casilla pueblo no la marca como explorada', function () {
     $puebloType = TileType::factory()->create(['base_type' => 'pueblo', 'level' => 1]);
     $tile = Tile::factory()->create([
-        'game_id'      => $this->game->id,
+        'game_id' => $this->game->id,
         'tile_type_id' => $puebloType->id,
-        'explored'     => false,
+        'explored' => false,
     ]);
 
     try {
         app(ActionService::class)->explore(
             new ExploreActionDTO(tileId: $tile->id, userId: $this->user->id)
         );
-    } catch (\App\Exceptions\PuebloTileActionException) {}
+    } catch (PuebloTileActionException) {
+    }
 
     expect($tile->fresh()->explored)->toBeFalse();
 });
@@ -107,16 +109,17 @@ test('intentar explorar la casilla pueblo no la marca como explorada', function 
 test('intentar explorar la casilla pueblo no consume acciones del jugador', function () {
     $puebloType = TileType::factory()->create(['base_type' => 'pueblo', 'level' => 1]);
     $tile = Tile::factory()->create([
-        'game_id'      => $this->game->id,
+        'game_id' => $this->game->id,
         'tile_type_id' => $puebloType->id,
-        'explored'     => false,
+        'explored' => false,
     ]);
 
     try {
         app(ActionService::class)->explore(
             new ExploreActionDTO(tileId: $tile->id, userId: $this->user->id)
         );
-    } catch (\App\Exceptions\PuebloTileActionException) {}
+    } catch (PuebloTileActionException) {
+    }
 
     $pivot = $this->round->users()->where('user_id', $this->user->id)->first();
     expect((int) $pivot->pivot->actions_spent)->toBe(0);
@@ -129,31 +132,32 @@ test('intentar explorar la casilla pueblo no consume acciones del jugador', func
 test('evolucionar una casilla de tipo pueblo lanza PuebloTileActionException', function () {
     $puebloType = TileType::factory()->create(['base_type' => 'pueblo', 'level' => 1]);
     $tile = Tile::factory()->create([
-        'game_id'      => $this->game->id,
+        'game_id' => $this->game->id,
         'tile_type_id' => $puebloType->id,
-        'explored'     => true,
-        'coord_x'      => 7,
-        'coord_y'      => 7,
+        'explored' => true,
+        'coord_x' => 7,
+        'coord_y' => 7,
     ]);
 
     expect(fn () => app(ActionService::class)->upgrade(
         new UpgradeActionDTO(tileId: $tile->id, userId: $this->user->id)
-    ))->toThrow(\App\Exceptions\PuebloTileActionException::class);
+    ))->toThrow(PuebloTileActionException::class);
 });
 
 test('intentar evolucionar la casilla pueblo no consume acciones del jugador', function () {
     $puebloType = TileType::factory()->create(['base_type' => 'pueblo', 'level' => 1]);
     $tile = Tile::factory()->create([
-        'game_id'      => $this->game->id,
+        'game_id' => $this->game->id,
         'tile_type_id' => $puebloType->id,
-        'explored'     => true,
+        'explored' => true,
     ]);
 
     try {
         app(ActionService::class)->upgrade(
             new UpgradeActionDTO(tileId: $tile->id, userId: $this->user->id)
         );
-    } catch (\App\Exceptions\PuebloTileActionException) {}
+    } catch (PuebloTileActionException) {
+    }
 
     $pivot = $this->round->users()->where('user_id', $this->user->id)->first();
     expect((int) $pivot->pivot->actions_spent)->toBe(0);

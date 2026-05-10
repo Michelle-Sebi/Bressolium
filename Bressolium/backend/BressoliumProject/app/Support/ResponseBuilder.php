@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 
 class ResponseBuilder
@@ -10,8 +11,8 @@ class ResponseBuilder
     {
         return response()->json([
             'success' => true,
-            'data'    => $data,
-            'error'   => null,
+            'data' => $data,
+            'error' => null,
         ], $code);
     }
 
@@ -19,25 +20,25 @@ class ResponseBuilder
     {
         return response()->json([
             'success' => false,
-            'data'    => null,
-            'error'   => $message,
+            'data' => null,
+            'error' => $message,
         ], $code);
     }
 
-    public function paginated(\Illuminate\Database\Eloquent\Builder $query, int $code = 200): JsonResponse
+    public function paginated(Builder $query, int $code = 200): JsonResponse
     {
         $paginator = $query->paginate();
 
         return response()->json([
             'success' => true,
-            'data'    => [
-                'items'        => $paginator->items(),
+            'data' => [
+                'items' => $paginator->items(),
                 'current_page' => $paginator->currentPage(),
-                'last_page'    => $paginator->lastPage(),
-                'per_page'     => $paginator->perPage(),
-                'total'        => $paginator->total(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
             ],
-            'error'   => null,
+            'error' => null,
         ], $code);
     }
 }

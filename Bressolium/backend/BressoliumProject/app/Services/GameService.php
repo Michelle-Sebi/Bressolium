@@ -1,6 +1,8 @@
 <?php
+
 /**
  * @module GameService
+ *
  * @description Servicio para orquestar la creación y unión a partidas (equipos).
  */
 
@@ -8,17 +10,18 @@ namespace App\Services;
 
 use App\DTOs\CreateGameDTO;
 use App\DTOs\JoinGameDTO;
+use App\Models\Game;
 use App\Repositories\Contracts\GameRepositoryInterface;
 use App\Repositories\Contracts\RoundRepositoryInterface;
-use App\Models\Game;
-use App\Services\BoardGeneratorService;
-use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class GameService
 {
     protected $gameRepository;
+
     protected $roundRepository;
+
     protected $boardGenerator;
 
     public function __construct(
@@ -41,7 +44,7 @@ class GameService
         return DB::transaction(function () use ($dto) {
             $game = $this->gameRepository->create([
                 'name' => $dto->teamName,
-                'status' => 'WAITING'
+                'status' => 'WAITING',
             ]);
 
             $game->users()->attach($dto->userId, ['is_afk' => false]);
@@ -71,7 +74,7 @@ class GameService
     {
         $game = $this->gameRepository->findByName($dto->teamName);
 
-        if (!$game) {
+        if (! $game) {
             throw new Exception('Game not found');
         }
 
@@ -80,7 +83,7 @@ class GameService
         }
 
         return DB::transaction(function () use ($game, $dto) {
-            if (!$game->users()->where('user_id', $dto->userId)->exists()) {
+            if (! $game->users()->where('user_id', $dto->userId)->exists()) {
                 $game->users()->attach($dto->userId, ['is_afk' => false]);
 
                 $playerIndex = $game->users()->count() - 1;
@@ -98,21 +101,19 @@ class GameService
 
     /**
      * Une a un usuario a una partida aleatoria disponible.
-     * 
-     * @param string $userId
-     * @return Game
+     *
      * @throws Exception
      */
     public function joinRandomGame(string $userId): Game
     {
         $game = $this->gameRepository->findAvailableRandom();
 
-        if (!$game) {
+        if (! $game) {
             throw new Exception('No games available');
         }
 
         return DB::transaction(function () use ($game, $userId) {
-            if (!$game->users()->where('user_id', $userId)->exists()) {
+            if (! $game->users()->where('user_id', $userId)->exists()) {
                 $game->users()->attach($userId, ['is_afk' => false]);
 
                 $playerIndex = $game->users()->count() - 1;
@@ -144,4 +145,3 @@ class GameService
         return $this->gameRepository->getAllAvailableGames();
     }
 }
-?>

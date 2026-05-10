@@ -1,10 +1,16 @@
 <?php
 
+use App\DTOs\SyncResponseDTO;
+use App\Http\Requests\SyncRequest;
+use App\Http\Resources\SyncResource;
 use App\Models\Game;
 use App\Models\Invention;
 use App\Models\Material;
 use App\Models\Technology;
 use App\Models\User;
+use App\Repositories\Contracts\SyncRepositoryInterface;
+use App\Repositories\Eloquent\SyncRepository;
+use App\Services\SyncService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -18,7 +24,7 @@ beforeEach(function () {
     $this->user = User::factory()->create();
     $this->game = Game::factory()->create();
     $this->round = $this->game->rounds()->create([
-        'number'     => 1,
+        'number' => 1,
         'start_date' => now(),
     ]);
 
@@ -33,7 +39,7 @@ test('GET /api/v1/game/{id}/sync devuelve 401 sin sesión activa', function () {
     $this->app['auth']->forgetGuards();
 
     $this->getJson("/api/v1/game/{$this->game->id}/sync")
-         ->assertUnauthorized();
+        ->assertUnauthorized();
 });
 
 // ─── Autorización ─────────────────────────────────────────────────────────────
@@ -43,48 +49,48 @@ test('GET /api/v1/game/{id}/sync devuelve 403 si el usuario no pertenece a la pa
     $otherGame->rounds()->create(['number' => 1, 'start_date' => now()]);
 
     $this->getJson("/api/v1/game/{$otherGame->id}/sync")
-         ->assertForbidden();
+        ->assertForbidden();
 });
 
 // ─── Estructura de respuesta ──────────────────────────────────────────────────
 
 test('GET /api/v1/game/{id}/sync devuelve estructura {success, data, error}', function () {
     $this->getJson("/api/v1/game/{$this->game->id}/sync")
-         ->assertStatus(200)
-         ->assertJsonStructure(['success', 'data', 'error'])
-         ->assertJsonPath('success', true)
-         ->assertJsonPath('error', null);
+        ->assertStatus(200)
+        ->assertJsonStructure(['success', 'data', 'error'])
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('error', null);
 });
 
 test('GET /api/v1/game/{id}/sync devuelve la estructura completa de data', function () {
     $this->getJson("/api/v1/game/{$this->game->id}/sync")
-         ->assertStatus(200)
-         ->assertJsonStructure([
-             'success',
-             'data' => [
-                 'current_round' => ['number', 'start_date'],
-                 'user_actions'  => ['actions_spent'],
-                 'inventory'     => [
-                     '*' => ['id', 'name', 'quantity'],
-                 ],
-                 'progress' => [
-                     'technologies' => [
-                         '*' => ['id', 'name', 'is_active'],
-                     ],
-                     'inventions' => [
-                         '*' => ['id', 'name', 'quantity'],
-                     ],
-                 ],
-             ],
-             'error',
-         ]);
+        ->assertStatus(200)
+        ->assertJsonStructure([
+            'success',
+            'data' => [
+                'current_round' => ['number', 'start_date'],
+                'user_actions' => ['actions_spent'],
+                'inventory' => [
+                    '*' => ['id', 'name', 'quantity'],
+                ],
+                'progress' => [
+                    'technologies' => [
+                        '*' => ['id', 'name', 'is_active'],
+                    ],
+                    'inventions' => [
+                        '*' => ['id', 'name', 'quantity'],
+                    ],
+                ],
+            ],
+            'error',
+        ]);
 });
 
 // ─── Ronda actual ─────────────────────────────────────────────────────────────
 
 test('sync devuelve el número y fecha de la ronda actual', function () {
     $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
-                     ->assertStatus(200);
+        ->assertStatus(200);
 
     expect($response->json('data.current_round.number'))->toBe(1)
         ->and($response->json('data.current_round.start_date'))->not->toBeNull();
@@ -94,7 +100,7 @@ test('sync devuelve las acciones gastadas reales del usuario', function () {
     $this->round->users()->updateExistingPivot($this->user->id, ['actions_spent' => 2]);
 
     $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
-                     ->assertStatus(200);
+        ->assertStatus(200);
 
     expect($response->json('data.user_actions.actions_spent'))->toBe(2);
 });
@@ -106,7 +112,7 @@ test('sync devuelve los materiales del equipo con sus cantidades reales', functi
     $this->game->materials()->attach($material->id, ['quantity' => 7]);
 
     $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
-                     ->assertStatus(200);
+        ->assertStatus(200);
 
     $inventory = collect($response->json('data.inventory'));
     $roble = $inventory->firstWhere('name', 'Roble');
@@ -117,7 +123,7 @@ test('sync devuelve los materiales del equipo con sus cantidades reales', functi
 
 test('sync devuelve inventario vacío cuando el equipo no tiene materiales', function () {
     $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
-                     ->assertStatus(200);
+        ->assertStatus(200);
 
     expect($response->json('data.inventory'))->toBeArray()->toBeEmpty();
 });
@@ -129,7 +135,7 @@ test('sync devuelve las tecnologías del equipo con is_active correcto', functio
     $this->game->technologies()->attach($tech->id, ['is_active' => true]);
 
     $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
-                     ->assertStatus(200);
+        ->assertStatus(200);
 
     $technologies = collect($response->json('data.progress.technologies'));
     $found = $technologies->firstWhere('name', 'Herramientas de Piedra');
@@ -143,7 +149,7 @@ test('sync devuelve is_active false para tecnologías no investigadas', function
     $this->game->technologies()->attach($tech->id, ['is_active' => false]);
 
     $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
-                     ->assertStatus(200);
+        ->assertStatus(200);
 
     $technologies = collect($response->json('data.progress.technologies'));
     $found = $technologies->firstWhere('name', 'Control del Fuego');
@@ -154,7 +160,7 @@ test('sync devuelve is_active false para tecnologías no investigadas', function
 
 test('sync devuelve tecnologías vacías cuando el equipo no tiene ninguna', function () {
     $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
-                     ->assertStatus(200);
+        ->assertStatus(200);
 
     expect($response->json('data.progress.technologies'))->toBeArray()->toBeEmpty();
 });
@@ -162,12 +168,12 @@ test('sync devuelve tecnologías vacías cuando el equipo no tiene ninguna', fun
 // ─── Progreso: Inventos (con quantity de T48) ─────────────────────────────────
 
 test('sync devuelve los inventos del equipo con su quantity acumulada', function () {
-    $tech     = Technology::create(['name' => 'Herramientas de Piedra']);
-    $invento  = Invention::create(['name' => 'Hacha', 'technology_id' => $tech->id]);
+    $tech = Technology::create(['name' => 'Herramientas de Piedra']);
+    $invento = Invention::create(['name' => 'Hacha', 'technology_id' => $tech->id]);
     $this->game->inventions()->attach($invento->id, ['is_active' => true, 'quantity' => 3]);
 
     $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
-                     ->assertStatus(200);
+        ->assertStatus(200);
 
     $inventions = collect($response->json('data.progress.inventions'));
     $found = $inventions->firstWhere('name', 'Hacha');
@@ -177,12 +183,12 @@ test('sync devuelve los inventos del equipo con su quantity acumulada', function
 });
 
 test('sync devuelve quantity 0 para inventos sin construir', function () {
-    $tech    = Technology::create(['name' => 'Herramientas de Piedra']);
+    $tech = Technology::create(['name' => 'Herramientas de Piedra']);
     $invento = Invention::create(['name' => 'Lanza', 'technology_id' => $tech->id]);
     $this->game->inventions()->attach($invento->id, ['is_active' => false, 'quantity' => 0]);
 
     $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
-                     ->assertStatus(200);
+        ->assertStatus(200);
 
     $inventions = collect($response->json('data.progress.inventions'));
     $found = $inventions->firstWhere('name', 'Lanza');
@@ -193,7 +199,7 @@ test('sync devuelve quantity 0 para inventos sin construir', function () {
 
 test('sync devuelve inventos vacíos cuando el equipo no tiene ninguno', function () {
     $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
-                     ->assertStatus(200);
+        ->assertStatus(200);
 
     expect($response->json('data.progress.inventions'))->toBeArray()->toBeEmpty();
 });
@@ -205,7 +211,7 @@ test('sync incluye campo missing en cada tecnología (vacío cuando no hay prerr
     $this->game->technologies()->attach($tech->id, ['is_active' => false]);
 
     $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
-                     ->assertStatus(200);
+        ->assertStatus(200);
 
     $technologies = collect($response->json('data.progress.technologies'));
     $found = $technologies->firstWhere('name', 'Control del Fuego');
@@ -216,18 +222,18 @@ test('sync incluye campo missing en cada tecnología (vacío cuando no hay prerr
 
 test('sync indica missing cuando una tecnología tiene prerrequisito no activo', function () {
     $prereqTech = Technology::create(['name' => 'Fuego Controlado']);
-    $mainTech   = Technology::create(['name' => 'Metalurgia']);
+    $mainTech = Technology::create(['name' => 'Metalurgia']);
     $mainTech->technologyPrerequisites()->create([
         'prereq_type' => 'technology',
-        'prereq_id'   => $prereqTech->id,
-        'quantity'    => 1,
+        'prereq_id' => $prereqTech->id,
+        'quantity' => 1,
     ]);
 
     $this->game->technologies()->attach($prereqTech->id, ['is_active' => false]);
-    $this->game->technologies()->attach($mainTech->id,   ['is_active' => false]);
+    $this->game->technologies()->attach($mainTech->id, ['is_active' => false]);
 
     $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
-                     ->assertStatus(200);
+        ->assertStatus(200);
 
     $technologies = collect($response->json('data.progress.technologies'));
     $found = $technologies->firstWhere('name', 'Metalurgia');
@@ -239,18 +245,18 @@ test('sync indica missing cuando una tecnología tiene prerrequisito no activo',
 
 test('sync devuelve missing vacío cuando el prerrequisito ya está activo', function () {
     $prereqTech = Technology::create(['name' => 'Fuego Controlado']);
-    $mainTech   = Technology::create(['name' => 'Metalurgia']);
+    $mainTech = Technology::create(['name' => 'Metalurgia']);
     $mainTech->technologyPrerequisites()->create([
         'prereq_type' => 'technology',
-        'prereq_id'   => $prereqTech->id,
-        'quantity'    => 1,
+        'prereq_id' => $prereqTech->id,
+        'quantity' => 1,
     ]);
 
     $this->game->technologies()->attach($prereqTech->id, ['is_active' => true]);
-    $this->game->technologies()->attach($mainTech->id,   ['is_active' => false]);
+    $this->game->technologies()->attach($mainTech->id, ['is_active' => false]);
 
     $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
-                     ->assertStatus(200);
+        ->assertStatus(200);
 
     $technologies = collect($response->json('data.progress.technologies'));
     $found = $technologies->firstWhere('name', 'Metalurgia');
@@ -259,12 +265,12 @@ test('sync devuelve missing vacío cuando el prerrequisito ya está activo', fun
 });
 
 test('sync incluye campo missing en cada invento (vacío sin costes ni prerrequisitos)', function () {
-    $tech   = Technology::create(['name' => 'Herramientas de Piedra']);
-    $invento = \App\Models\Invention::create(['name' => 'Cuchillo', 'technology_id' => $tech->id]);
+    $tech = Technology::create(['name' => 'Herramientas de Piedra']);
+    $invento = Invention::create(['name' => 'Cuchillo', 'technology_id' => $tech->id]);
     $this->game->inventions()->attach($invento->id, ['is_active' => false, 'quantity' => 0]);
 
     $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
-                     ->assertStatus(200);
+        ->assertStatus(200);
 
     $inventions = collect($response->json('data.progress.inventions'));
     $found = $inventions->firstWhere('name', 'Cuchillo');
@@ -274,9 +280,9 @@ test('sync incluye campo missing en cada invento (vacío sin costes ni prerrequi
 });
 
 test('sync indica missing cuando faltan recursos para construir un invento', function () {
-    $tech     = Technology::create(['name' => 'Herramientas de Piedra']);
-    $material = \App\Models\Material::create(['name' => 'Silex', 'tier' => 0, 'group' => 'cantera']);
-    $invento  = \App\Models\Invention::create(['name' => 'Hacha', 'technology_id' => $tech->id]);
+    $tech = Technology::create(['name' => 'Herramientas de Piedra']);
+    $material = Material::create(['name' => 'Silex', 'tier' => 0, 'group' => 'cantera']);
+    $invento = Invention::create(['name' => 'Hacha', 'technology_id' => $tech->id]);
     $invento->inventionCosts()->create(['resource_id' => $material->id, 'quantity' => 5]);
 
     $this->game->inventions()->attach($invento->id, ['is_active' => false, 'quantity' => 0]);
@@ -284,7 +290,7 @@ test('sync indica missing cuando faltan recursos para construir un invento', fun
     $this->game->materials()->attach($material->id, ['quantity' => 2]);
 
     $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
-                     ->assertStatus(200);
+        ->assertStatus(200);
 
     $inventions = collect($response->json('data.progress.inventions'));
     $found = $inventions->firstWhere('name', 'Hacha');
@@ -297,16 +303,16 @@ test('sync indica missing cuando faltan recursos para construir un invento', fun
 });
 
 test('sync devuelve missing vacío cuando el equipo tiene recursos suficientes', function () {
-    $tech     = Technology::create(['name' => 'Herramientas de Piedra']);
-    $material = \App\Models\Material::create(['name' => 'Silex', 'tier' => 0, 'group' => 'cantera']);
-    $invento  = \App\Models\Invention::create(['name' => 'Hacha', 'technology_id' => $tech->id]);
+    $tech = Technology::create(['name' => 'Herramientas de Piedra']);
+    $material = Material::create(['name' => 'Silex', 'tier' => 0, 'group' => 'cantera']);
+    $invento = Invention::create(['name' => 'Hacha', 'technology_id' => $tech->id]);
     $invento->inventionCosts()->create(['resource_id' => $material->id, 'quantity' => 5]);
 
     $this->game->inventions()->attach($invento->id, ['is_active' => false, 'quantity' => 0]);
     $this->game->materials()->attach($material->id, ['quantity' => 5]);
 
     $response = $this->getJson("/api/v1/game/{$this->game->id}/sync")
-                     ->assertStatus(200);
+        ->assertStatus(200);
 
     $inventions = collect($response->json('data.progress.inventions'));
     $found = $inventions->firstWhere('name', 'Hacha');
@@ -317,25 +323,25 @@ test('sync devuelve missing vacío cuando el equipo tiene recursos suficientes',
 // ─── Arquitectura ────────────────────────────────────────────────────────────
 
 test('existe SyncRequest en Http/Requests', function () {
-    expect(class_exists(\App\Http\Requests\SyncRequest::class))->toBeTrue();
+    expect(class_exists(SyncRequest::class))->toBeTrue();
 });
 
 test('existe SyncDTO en DTOs', function () {
-    expect(class_exists(\App\DTOs\SyncResponseDTO::class))->toBeTrue();
+    expect(class_exists(SyncResponseDTO::class))->toBeTrue();
 });
 
 test('existe SyncResource en Http/Resources', function () {
-    expect(class_exists(\App\Http\Resources\SyncResource::class))->toBeTrue();
+    expect(class_exists(SyncResource::class))->toBeTrue();
 });
 
 test('existe contrato SyncRepositoryInterface', function () {
-    expect(interface_exists(\App\Repositories\Contracts\SyncRepositoryInterface::class))->toBeTrue();
+    expect(interface_exists(SyncRepositoryInterface::class))->toBeTrue();
 });
 
 test('existe implementación SyncRepository en Eloquent', function () {
-    expect(class_exists(\App\Repositories\Eloquent\SyncRepository::class))->toBeTrue();
+    expect(class_exists(SyncRepository::class))->toBeTrue();
 });
 
 test('existe SyncService en Services', function () {
-    expect(class_exists(\App\Services\SyncService::class))->toBeTrue();
+    expect(class_exists(SyncService::class))->toBeTrue();
 });

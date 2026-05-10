@@ -2,7 +2,6 @@
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
 
 // ==========================================
 // TEST FOR: TASK 36
@@ -78,7 +77,7 @@ test('POST /api/game/create devuelve 404 tras el versionado', function () {
 
 test('las rutas autenticadas llevan middleware throttle', function () {
     $authenticatedRoutes = collect(Route::getRoutes()->getRoutes())
-        ->filter(fn ($r) => str_starts_with($r->uri(), 'api/v1/') && !in_array($r->uri(), ['api/v1/register', 'api/v1/login']));
+        ->filter(fn ($r) => str_starts_with($r->uri(), 'api/v1/') && ! in_array($r->uri(), ['api/v1/register', 'api/v1/login']));
 
     expect($authenticatedRoutes)->not->toBeEmpty();
 
@@ -112,7 +111,7 @@ describe('rate limiting devuelve 429 (requiere DB)', function () {
         // Ejecuta 61 peticiones — la última debe ser 429
         for ($i = 0; $i <= 60; $i++) {
             $response = $this->postJson('/api/v1/login', [
-                'email'    => 'noexiste@test.com',
+                'email' => 'noexiste@test.com',
                 'password' => 'cualquier',
             ]);
         }
@@ -126,7 +125,7 @@ describe('rate limiting devuelve 429 (requiere DB)', function () {
 test('el archivo .env del frontend declara VITE_API_URL con /api/v1', function () {
     $envPath = base_path('../../../../frontend/bressolium-front/.env');
 
-    if (!file_exists($envPath)) {
+    if (! file_exists($envPath)) {
         $this->markTestSkipped('Archivo .env del frontend no encontrado.');
     }
 

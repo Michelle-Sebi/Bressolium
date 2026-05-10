@@ -1,13 +1,13 @@
 <?php
 
 use App\DTOs\CreateGameDTO;
-use App\DTOs\JoinGameDTO;
 use App\DTOs\ExploreActionDTO;
+use App\DTOs\JoinGameDTO;
 use App\DTOs\UpgradeActionDTO;
 use App\Http\Resources\GameResource;
-use App\Http\Resources\TileResource;
 use App\Http\Resources\MaterialResource;
 use App\Http\Resources\RoundResource;
+use App\Http\Resources\TileResource;
 use App\Http\Resources\UserResource;
 use App\Models\Game;
 use App\Models\Material;
@@ -76,22 +76,22 @@ test('UpgradeActionDTO transporta tileId y userId', function () {
 
 test('CreateGameDTO es inmutable: no se pueden modificar sus campos', function () {
     $dto = new CreateGameDTO(teamName: 'Test', userId: 'u-1');
-    expect(fn () => $dto->teamName = 'Otro')->toThrow(\Error::class);
+    expect(fn () => $dto->teamName = 'Otro')->toThrow(Error::class);
 });
 
 test('JoinGameDTO es inmutable: no se pueden modificar sus campos', function () {
     $dto = new JoinGameDTO(teamName: 'Test', userId: 'u-1');
-    expect(fn () => $dto->userId = 'otro')->toThrow(\Error::class);
+    expect(fn () => $dto->userId = 'otro')->toThrow(Error::class);
 });
 
 test('ExploreActionDTO es inmutable: no se pueden modificar sus campos', function () {
     $dto = new ExploreActionDTO(tileId: 't-1', userId: 'u-1');
-    expect(fn () => $dto->tileId = 'otro')->toThrow(\Error::class);
+    expect(fn () => $dto->tileId = 'otro')->toThrow(Error::class);
 });
 
 test('UpgradeActionDTO es inmutable: no se pueden modificar sus campos', function () {
     $dto = new UpgradeActionDTO(tileId: 't-1', userId: 'u-1');
-    expect(fn () => $dto->tileId = 'otro')->toThrow(\Error::class);
+    expect(fn () => $dto->tileId = 'otro')->toThrow(Error::class);
 });
 
 // ─── API Resources existen en App\Http\Resources ──────────────────────────────
@@ -153,13 +153,13 @@ test('GameResource expone id, name y status del modelo Game', function () {
 
 test('TileResource expone id, coord_x, coord_y, tile_type_id y explored', function () {
     $tileType = TileType::factory()->create(['base_type' => 'bosque', 'level' => 1]);
-    $game     = Game::factory()->create();
-    $tile     = Tile::factory()->create([
-        'game_id'      => $game->id,
+    $game = Game::factory()->create();
+    $tile = Tile::factory()->create([
+        'game_id' => $game->id,
         'tile_type_id' => $tileType->id,
-        'coord_x'      => 3,
-        'coord_y'      => 5,
-        'explored'     => true,
+        'coord_x' => 3,
+        'coord_y' => 5,
+        'explored' => true,
     ]);
 
     $array = (new TileResource($tile))->toArray(request());
@@ -182,7 +182,7 @@ test('MaterialResource expone id, name, tier y group', function () {
 });
 
 test('RoundResource expone id, number, start_date y ended_at', function () {
-    $game  = Game::factory()->create();
+    $game = Game::factory()->create();
     $round = $game->rounds()->create(['number' => 1, 'start_date' => now()]);
 
     $array = (new RoundResource($round))->toArray(request());
@@ -253,8 +253,8 @@ test('ActionService::upgrade acepta UpgradeActionDTO como único parámetro', fu
 
 test('AuthController::register envuelve el user en UserResource (sin password ni timestamps)', function () {
     $response = $this->postJson('/api/v1/register', [
-        'name'     => 'Bárbara',
-        'email'    => 'b@x.com',
+        'name' => 'Bárbara',
+        'email' => 'b@x.com',
         'password' => 'password123',
     ]);
 
@@ -268,7 +268,7 @@ test('AuthController::login envuelve el user en UserResource (sin password ni ti
     User::factory()->create(['email' => 'a@x.com', 'password' => bcrypt('password123')]);
 
     $response = $this->postJson('/api/v1/login', [
-        'email'    => 'a@x.com',
+        'email' => 'a@x.com',
         'password' => 'password123',
     ]);
 
@@ -313,7 +313,7 @@ test('GameController::join devuelve GameResource', function () {
 });
 
 test('GameController::myGames devuelve colección de GameResource', function () {
-    $user  = User::factory()->create();
+    $user = User::factory()->create();
     $game1 = Game::factory()->create();
     $game2 = Game::factory()->create();
     $user->games()->attach($game1->id);
@@ -373,10 +373,10 @@ test('TileController::explore devuelve TileResource (no modelo crudo)', function
     $round->users()->attach($user->id, ['actions_spent' => 0]);
 
     $tileType = TileType::factory()->create(['level' => 1, 'base_type' => 'bosque']);
-    $tile     = Tile::factory()->create([
-        'game_id'      => $game->id,
+    $tile = Tile::factory()->create([
+        'game_id' => $game->id,
         'tile_type_id' => $tileType->id,
-        'explored'     => false,
+        'explored' => false,
     ]);
 
     $response = $this->actingAs($user)->postJson("/api/v1/tiles/{$tile->id}/explore");
@@ -397,15 +397,15 @@ test('TileController::upgrade devuelve TileResource (no modelo crudo)', function
     $round->users()->attach($user->id, ['actions_spent' => 0]);
 
     $currentType = TileType::create(['name' => 'Bosque Nv1', 'level' => 1, 'base_type' => 'bosque']);
-    $nextType    = TileType::create(['name' => 'Bosque Nv2', 'level' => 2, 'base_type' => 'bosque']);
-    $material    = Material::create(['name' => 'Roble', 'tier' => 0, 'group' => 'Bosque']);
+    $nextType = TileType::create(['name' => 'Bosque Nv2', 'level' => 2, 'base_type' => 'bosque']);
+    $material = Material::create(['name' => 'Roble', 'tier' => 0, 'group' => 'Bosque']);
     $nextType->materials()->attach($material->id, ['quantity' => 5]);
     $game->materials()->attach($material->id, ['quantity' => 10]);
 
     $tile = Tile::factory()->create([
-        'game_id'      => $game->id,
+        'game_id' => $game->id,
         'tile_type_id' => $currentType->id,
-        'explored'     => true,
+        'explored' => true,
     ]);
 
     $response = $this->actingAs($user)->postJson("/api/v1/tiles/{$tile->id}/upgrade");

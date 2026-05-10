@@ -13,7 +13,7 @@ return new class extends Migration
             $table->uuid('game_id');
             $table->uuid('material_id');
             $table->integer('quantity')->default(0);
-            
+
             $table->foreign('game_id')->references('id')->on('games')->onDelete('cascade');
             $table->foreign('material_id')->references('id')->on('materials')->onDelete('cascade');
             $table->timestamps();

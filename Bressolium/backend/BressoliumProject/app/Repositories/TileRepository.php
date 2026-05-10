@@ -6,6 +6,7 @@ use App\Models\Game;
 use App\Models\Round;
 use App\Models\Tile;
 use App\Models\TileType;
+use Illuminate\Support\Collection;
 
 class TileRepository
 {
@@ -32,6 +33,7 @@ class TileRepository
     public function getActionsSpent(Round $round, string $userId): int
     {
         $pivot = $round->users()->where('user_id', $userId)->first();
+
         return $pivot ? (int) $pivot->pivot->actions_spent : 0;
     }
 
@@ -44,16 +46,16 @@ class TileRepository
     public function markExplored(Tile $tile, string $userId): void
     {
         $tile->update([
-            'explored'              => true,
+            'explored' => true,
             'explored_by_player_id' => $userId,
-            'explored_at'           => now(),
+            'explored_at' => now(),
         ]);
     }
 
     public function findNextTileType(Tile $tile): ?TileType
     {
         $current = TileType::find($tile->tile_type_id);
-        if (!$current) {
+        if (! $current) {
             return null;
         }
 
@@ -62,29 +64,30 @@ class TileRepository
             ->first();
     }
 
-    public function getUpgradeCosts(TileType $nextType): \Illuminate\Support\Collection
+    public function getUpgradeCosts(TileType $nextType): Collection
     {
         return $nextType->materials;
     }
 
-    public function hasSufficientMaterials(Game $game, \Illuminate\Support\Collection $costs): bool
+    public function hasSufficientMaterials(Game $game, Collection $costs): bool
     {
         foreach ($costs as $material) {
             $required = $material->pivot->quantity;
-            $stock    = $game->materials()->where('material_id', $material->id)->first();
-            if (!$stock || $stock->pivot->quantity < $required) {
+            $stock = $game->materials()->where('material_id', $material->id)->first();
+            if (! $stock || $stock->pivot->quantity < $required) {
                 return false;
             }
         }
+
         return true;
     }
 
-    public function deductMaterials(Game $game, \Illuminate\Support\Collection $costs): void
+    public function deductMaterials(Game $game, Collection $costs): void
     {
         foreach ($costs as $material) {
             $required = $material->pivot->quantity;
-            $stock    = $game->materials()->where('material_id', $material->id)->first();
-            $newQty   = $stock->pivot->quantity - $required;
+            $stock = $game->materials()->where('material_id', $material->id)->first();
+            $newQty = $stock->pivot->quantity - $required;
             $game->materials()->updateExistingPivot($material->id, ['quantity' => $newQty]);
         }
     }

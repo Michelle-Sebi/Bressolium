@@ -12,8 +12,8 @@ class MaterialFactory extends Factory
     public function definition(): array
     {
         return [
-            'name'  => $this->faker->unique()->word(),
-            'tier'  => $this->faker->numberBetween(0, 5),
+            'name' => $this->faker->unique()->word(),
+            'tier' => $this->faker->numberBetween(0, 5),
             'group' => $this->faker->randomElement(['Bosque', 'Cantera', 'Río', 'Prado', 'Mina']),
         ];
     }

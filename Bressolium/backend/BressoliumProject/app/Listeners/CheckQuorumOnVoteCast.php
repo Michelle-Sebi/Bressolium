@@ -12,7 +12,7 @@ class CheckQuorumOnVoteCast
 
     public function handle(VoteCast $event): void
     {
-        $game  = $this->repository->findGameWithUsers($event->gameId);
+        $game = $this->repository->findGameWithUsers($event->gameId);
         $round = $this->repository->getLatestRound($game);
 
         if ($this->repository->allNonAfkPlayersHaveVoted($round, $game)) {

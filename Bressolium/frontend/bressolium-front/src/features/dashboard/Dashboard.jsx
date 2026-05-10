@@ -20,7 +20,7 @@ import {
 const Dashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { availableGames = [], myGames = [], status, error } = useSelector((state) => state.game || {});
+  const { availableGames = [], myGames = [], error } = useSelector((state) => state.game || {});
   
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);

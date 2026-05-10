@@ -1,19 +1,20 @@
 <?php
 
-use App\Repositories\Contracts\GameRepositoryInterface;
-use App\Repositories\Contracts\UserRepositoryInterface;
-use App\Repositories\Contracts\RoundRepositoryInterface;
+use App\Providers\RepositoryServiceProvider;
 use App\Repositories\Contracts\BoardRepositoryInterface;
+use App\Repositories\Contracts\GameRepositoryInterface;
+use App\Repositories\Contracts\RoundRepositoryInterface;
 use App\Repositories\Contracts\TileRepositoryInterface;
-use App\Repositories\Eloquent\GameRepository as EloquentGameRepository;
-use App\Repositories\Eloquent\UserRepository as EloquentUserRepository;
-use App\Repositories\Eloquent\RoundRepository as EloquentRoundRepository;
+use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Eloquent\BoardRepository as EloquentBoardRepository;
+use App\Repositories\Eloquent\GameRepository as EloquentGameRepository;
+use App\Repositories\Eloquent\RoundRepository as EloquentRoundRepository;
 use App\Repositories\Eloquent\TileRepository as EloquentTileRepository;
-use App\Services\GameService;
+use App\Repositories\Eloquent\UserRepository as EloquentUserRepository;
+use App\Services\ActionService;
 use App\Services\AuthService;
 use App\Services\BoardService;
-use App\Services\ActionService;
+use App\Services\GameService;
 
 // ==========================================
 // TEST FOR: TASK 25
@@ -212,10 +213,10 @@ test('ActionService inyecta TileRepositoryInterface', function () {
 // ─── RepositoryServiceProvider registrado y activo ────────────────────────────
 
 test('RepositoryServiceProvider existe como clase', function () {
-    expect(class_exists(\App\Providers\RepositoryServiceProvider::class))->toBeTrue();
+    expect(class_exists(RepositoryServiceProvider::class))->toBeTrue();
 });
 
 test('RepositoryServiceProvider está cargado en el contenedor de Laravel', function () {
     $loaded = array_keys(app()->getLoadedProviders());
-    expect($loaded)->toContain(\App\Providers\RepositoryServiceProvider::class);
+    expect($loaded)->toContain(RepositoryServiceProvider::class);
 });

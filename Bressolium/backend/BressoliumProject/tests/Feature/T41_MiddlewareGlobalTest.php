@@ -1,9 +1,13 @@
 <?php
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\ForceJsonMiddleware;
+use App\Http\Middleware\RequestLoggingMiddleware;
 use App\Models\User;
+use Illuminate\Foundation\Http\Kernel;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Log;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 uses(RefreshDatabase::class);
 
@@ -15,11 +19,11 @@ uses(RefreshDatabase::class);
 // ─── 1. Clases de middleware existen ─────────────────────────────────────────
 
 test('ForceJsonMiddleware existe en App\Http\Middleware', function () {
-    expect(class_exists(\App\Http\Middleware\ForceJsonMiddleware::class))->toBeTrue();
+    expect(class_exists(ForceJsonMiddleware::class))->toBeTrue();
 });
 
 test('RequestLoggingMiddleware existe en App\Http\Middleware', function () {
-    expect(class_exists(\App\Http\Middleware\RequestLoggingMiddleware::class))->toBeTrue();
+    expect(class_exists(RequestLoggingMiddleware::class))->toBeTrue();
 });
 
 // ─── 2. ForceJson — añade Accept: application/json ───────────────────────────
@@ -61,7 +65,7 @@ test('ForceJsonMiddleware está registrado en el pipeline de API, no solo en rut
     // lo comprobamos verificando que su clase existe y que el comportamiento
     // de forzar JSON se aplica sin necesidad de añadirlo ruta a ruta
     $app = app();
-    $kernel = $app->make(\Illuminate\Foundation\Http\Kernel::class);
+    $kernel = $app->make(Kernel::class);
 
     $middlewareGroups = $kernel->getMiddlewareGroups();
 
@@ -78,7 +82,7 @@ test('ForceJsonMiddleware está registrado en el pipeline de API, no solo en rut
     // Si no está en grupos, puede estar en el pipeline global del app
     if (! $forceJsonPresent) {
         $reflection = new ReflectionClass($kernel);
-        $property   = $reflection->getProperty('middleware');
+        $property = $reflection->getProperty('middleware');
         $property->setAccessible(true);
         $globalMiddleware = $property->getValue($kernel);
 
@@ -150,9 +154,9 @@ test('RequestLoggingMiddleware registra null como usuario en peticiones sin aute
 // ─── 5. Los middlewares son independientes de Sanctum y throttle ──────────────
 
 test('ForceJsonMiddleware y RequestLoggingMiddleware son clases distintas a Sanctum y throttle', function () {
-    expect(\App\Http\Middleware\ForceJsonMiddleware::class)
-        ->not->toBe(\Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class);
+    expect(ForceJsonMiddleware::class)
+        ->not->toBe(EnsureFrontendRequestsAreStateful::class);
 
-    expect(\App\Http\Middleware\RequestLoggingMiddleware::class)
-        ->not->toBe(\Illuminate\Routing\Middleware\ThrottleRequests::class);
+    expect(RequestLoggingMiddleware::class)
+        ->not->toBe(ThrottleRequests::class);
 });

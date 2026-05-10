@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
-const srcDir = path.resolve(__dirname, './src')
+const srcDir = path.resolve(import.meta.dirname, './src')
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -24,7 +24,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: [path.resolve(__dirname, './src/setupTests.js')],
+    setupFiles: [path.resolve(import.meta.dirname, './src/setupTests.js')],
     include: [
       // Tests JSX (con componentes React) en la carpeta hermana /tests
       '../tests/**/*.test.jsx',

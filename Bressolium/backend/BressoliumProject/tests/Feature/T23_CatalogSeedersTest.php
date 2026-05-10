@@ -1,11 +1,10 @@
 <?php
 
+use App\Models\Invention;
+use App\Models\Technology;
+use App\Models\TileType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
-use App\Models\Material;
-use App\Models\TileType;
-use App\Models\Technology;
-use App\Models\Invention;
 
 uses(RefreshDatabase::class);
 
@@ -30,7 +29,7 @@ test('ResourcesSeeder carga los recursos base con tier y group correctos', funct
 
     // Recursos Río
     $this->assertDatabaseHas('materials', ['name' => 'agua',           'group' => 'rio', 'tier' => 0]);
-    $this->assertDatabaseHas('materials', ['name' => 'tierras-fertiles','group' => 'rio', 'tier' => 0]);
+    $this->assertDatabaseHas('materials', ['name' => 'tierras-fertiles', 'group' => 'rio', 'tier' => 0]);
 
     // Recursos Prado
     $this->assertDatabaseHas('materials', ['name' => 'lino', 'group' => 'prado', 'tier' => 0]);
@@ -123,7 +122,7 @@ test('TileLevelResourcesSeeder registra tech_required e invention_required donde
 
     // Río Nv4 requiere Agricultura (tech), sin invento requisito
     $rioNv4 = TileType::where('base_type', 'rio')->where('level', 4)->first();
-    $pivot  = $rioNv4->materials()->first()?->pivot;
+    $pivot = $rioNv4->materials()->first()?->pivot;
 
     expect($pivot)->not->toBeNull()
         ->and($pivot->tech_required)->not->toBeNull()
@@ -164,7 +163,7 @@ test('TechnologiesSeeder registra prerequisitos entre tecnologías', function ()
     Artisan::call('db:seed', ['--class' => 'TechnologiesSeeder']);
 
     // Cerámica y Alfarería requiere Control del Fuego como prereq tecnológico
-    $ceramica     = Technology::where('name', 'Cerámica y Alfarería')->first();
+    $ceramica = Technology::where('name', 'Cerámica y Alfarería')->first();
     $controlFuego = Technology::where('name', 'Control del Fuego')->first();
 
     expect($ceramica->technologyPrerequisites)->not->toBeEmpty();
@@ -176,7 +175,7 @@ test('TechnologiesSeeder registra prerequisitos entre tecnologías', function ()
 test('TechnologiesSeeder registra desbloqueos en technology_unlocks', function () {
     Artisan::call('db:seed', ['--class' => 'TechnologiesSeeder']);
 
-    $total = \DB::table('technology_unlocks')->count();
+    $total = DB::table('technology_unlocks')->count();
     expect($total)->toBeGreaterThan(0);
 
     // Herramientas de Piedra desbloquea algo
@@ -187,7 +186,7 @@ test('TechnologiesSeeder registra desbloqueos en technology_unlocks', function (
 test('TechnologiesSeeder registra bonificadores en technology_bonuses', function () {
     Artisan::call('db:seed', ['--class' => 'TechnologiesSeeder']);
 
-    $total = \DB::table('technology_bonuses')->count();
+    $total = DB::table('technology_bonuses')->count();
     expect($total)->toBeGreaterThan(0);
 
     // Al menos una tecnología tiene bonificador registrado
@@ -249,7 +248,7 @@ test('InventionsSeeder vincula prerequisitos de invento sin consumirlos', functi
 test('InventionsSeeder registra bonificadores en invention_bonuses', function () {
     Artisan::call('db:seed', ['--class' => 'InventionsSeeder']);
 
-    $total = \DB::table('invention_bonuses')->count();
+    $total = DB::table('invention_bonuses')->count();
     expect($total)->toBeGreaterThan(0);
 
     $conBonos = Invention::has('inventionBonuses')->count();
@@ -259,7 +258,7 @@ test('InventionsSeeder registra bonificadores en invention_bonuses', function ()
 test('InventionsSeeder registra desbloqueos en invention_unlocks', function () {
     Artisan::call('db:seed', ['--class' => 'InventionsSeeder']);
 
-    $total = \DB::table('invention_unlocks')->count();
+    $total = DB::table('invention_unlocks')->count();
     expect($total)->toBeGreaterThan(0);
 
     // Rueda desbloquea algo
@@ -272,7 +271,7 @@ test('InventionsSeeder no incluye costes que sean otros inventos (solo recursos 
 
     // invention_costs.resource_id debe apuntar a materials, nunca a inventions
     $inventionIds = Invention::pluck('id')->toArray();
-    $costesConInventoComoRecurso = \DB::table('invention_costs')
+    $costesConInventoComoRecurso = DB::table('invention_costs')
         ->whereIn('resource_id', $inventionIds)
         ->count();
 

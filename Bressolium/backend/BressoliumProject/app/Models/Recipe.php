@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Recipe extends Model
 {
@@ -17,12 +19,12 @@ class Recipe extends Model
         'quantity',
     ];
 
-    public function recipeable(): \Illuminate\Database\Eloquent\Relations\MorphTo
+    public function recipeable(): MorphTo
     {
         return $this->morphTo();
     }
 
-    public function material(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function material(): BelongsTo
     {
         return $this->belongsTo(Material::class);
     }

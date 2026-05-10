@@ -14,10 +14,10 @@ use Tests\TestCase;
 uses(TestCase::class, RefreshDatabase::class);
 
 test('UserRepository::create persiste un usuario en BD con password hasheada', function () {
-    $repo = new UserRepository();
+    $repo = new UserRepository;
     $user = $repo->create([
-        'name'     => 'Bárbara',
-        'email'    => 'b@test.com',
+        'name' => 'Bárbara',
+        'email' => 'b@test.com',
         'password' => 'secret123',
     ]);
 
@@ -29,7 +29,7 @@ test('UserRepository::create persiste un usuario en BD con password hasheada', f
 });
 
 test('UserRepository::create persiste el usuario en la BD', function () {
-    $repo = new UserRepository();
+    $repo = new UserRepository;
     $repo->create(['name' => 'Test', 'email' => 'test@x.com', 'password' => 'pass']);
 
     expect(User::count())->toBe(1);
@@ -39,7 +39,7 @@ test('UserRepository::findByEmail devuelve el usuario con ese email', function (
     User::factory()->create(['email' => 'target@x.com']);
     User::factory()->create(['email' => 'other@x.com']);
 
-    $repo   = new UserRepository();
+    $repo = new UserRepository;
     $result = $repo->findByEmail('target@x.com');
 
     expect($result)->toBeInstanceOf(User::class)
@@ -47,6 +47,6 @@ test('UserRepository::findByEmail devuelve el usuario con ese email', function (
 });
 
 test('UserRepository::findByEmail devuelve null si el email no existe', function () {
-    $repo = new UserRepository();
+    $repo = new UserRepository;
     expect($repo->findByEmail('noexiste@x.com'))->toBeNull();
 });

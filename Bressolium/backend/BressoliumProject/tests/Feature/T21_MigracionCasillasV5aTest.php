@@ -1,12 +1,12 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Game;
 use App\Models\Material;
-use App\Models\TileType;
 use App\Models\Tile;
+use App\Models\TileType;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 
 uses(RefreshDatabase::class);
 
@@ -37,8 +37,8 @@ test('base_type acepta los cinco biomas y el tipo pueblo especial', function () 
 
     foreach ($biomas as $bioma) {
         $tileType = TileType::create([
-            'name'      => "Casilla $bioma",
-            'level'     => 1,
+            'name' => "Casilla $bioma",
+            'level' => 1,
             'base_type' => $bioma,
         ]);
         $this->assertDatabaseHas('tile_types', ['id' => $tileType->id, 'base_type' => $bioma]);
@@ -46,17 +46,17 @@ test('base_type acepta los cinco biomas y el tipo pueblo especial', function () 
 });
 
 test('explored_by_player_id es nullable: una tile no explorada no requiere jugador', function () {
-    $game     = Game::factory()->create();
+    $game = Game::factory()->create();
     $tileType = TileType::create(['name' => 'Bosque Nv1', 'level' => 1, 'base_type' => 'bosque']);
 
     $tile = Tile::create([
-        'game_id'               => $game->id,
-        'tile_type_id'          => $tileType->id,
-        'coord_x'               => 0,
-        'coord_y'               => 0,
-        'explored'              => false,
+        'game_id' => $game->id,
+        'tile_type_id' => $tileType->id,
+        'coord_x' => 0,
+        'coord_y' => 0,
+        'explored' => false,
         'explored_by_player_id' => null,
-        'explored_at'           => null,
+        'explored_at' => null,
     ]);
 
     expect($tile->explored_by_player_id)->toBeNull()
@@ -64,18 +64,18 @@ test('explored_by_player_id es nullable: una tile no explorada no requiere jugad
 });
 
 test('explored_by_player_id acepta FK a users cuando la casilla es explorada', function () {
-    $user     = User::factory()->create();
-    $game     = Game::factory()->create();
+    $user = User::factory()->create();
+    $game = Game::factory()->create();
     $tileType = TileType::create(['name' => 'Cantera Nv1', 'level' => 1, 'base_type' => 'cantera']);
 
     $tile = Tile::create([
-        'game_id'               => $game->id,
-        'tile_type_id'          => $tileType->id,
-        'coord_x'               => 1,
-        'coord_y'               => 1,
-        'explored'              => true,
+        'game_id' => $game->id,
+        'tile_type_id' => $tileType->id,
+        'coord_x' => 1,
+        'coord_y' => 1,
+        'explored' => true,
         'explored_by_player_id' => $user->id,
-        'explored_at'           => now(),
+        'explored_at' => now(),
     ]);
 
     expect($tile->explored_by_player_id)->toBe($user->id)
@@ -97,8 +97,8 @@ test('tech_required e invention_required en material_tile_type son nullable por 
     $material = Material::create(['name' => 'Lino', 'tier' => 0, 'group' => 'Prado']);
 
     $tileType->materials()->attach($material->id, [
-        'quantity'           => 8,
-        'tech_required'      => null,
+        'quantity' => 8,
+        'tech_required' => null,
         'invention_required' => null,
     ]);
 

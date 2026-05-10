@@ -34,6 +34,7 @@ class TileRepository implements TileRepositoryInterface
     public function getActionsSpent(Round $round, string $userId): int
     {
         $pivot = $round->users()->where('user_id', $userId)->first();
+
         return $pivot ? (int) $pivot->pivot->actions_spent : 0;
     }
 
@@ -46,16 +47,16 @@ class TileRepository implements TileRepositoryInterface
     public function markExplored(Tile $tile, string $userId): void
     {
         $tile->update([
-            'explored'              => true,
+            'explored' => true,
             'explored_by_player_id' => $userId,
-            'explored_at'           => now(),
+            'explored_at' => now(),
         ]);
     }
 
     public function findNextTileType(Tile $tile): ?TileType
     {
         $current = TileType::find($tile->tile_type_id);
-        if (!$current) {
+        if (! $current) {
             return null;
         }
 
@@ -67,9 +68,10 @@ class TileRepository implements TileRepositoryInterface
     public function getRequiredTechnology(TileType $nextType): ?Technology
     {
         $material = $nextType->materials()->wherePivotNotNull('tech_required')->first();
-        if (!$material) {
+        if (! $material) {
             return null;
         }
+
         return Technology::find($material->pivot->tech_required);
     }
 
@@ -85,10 +87,10 @@ class TileRepository implements TileRepositoryInterface
             ->where(function ($q) use ($tile) {
                 $q->where(function ($q2) use ($tile) {
                     $q2->where('coord_x', $tile->coord_x)
-                       ->whereIn('coord_y', [$tile->coord_y - 1, $tile->coord_y + 1]);
+                        ->whereIn('coord_y', [$tile->coord_y - 1, $tile->coord_y + 1]);
                 })->orWhere(function ($q2) use ($tile) {
                     $q2->where('coord_y', $tile->coord_y)
-                       ->whereIn('coord_x', [$tile->coord_x - 1, $tile->coord_x + 1]);
+                        ->whereIn('coord_x', [$tile->coord_x - 1, $tile->coord_x + 1]);
                 });
             })
             ->exists();

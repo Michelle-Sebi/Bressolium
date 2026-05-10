@@ -1,13 +1,12 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Game;
+use App\Models\Invention;
 use App\Models\Material;
 use App\Models\Technology;
-use App\Models\Invention;
-use App\Models\Recipe;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schema;
 
 uses(RefreshDatabase::class);
 
@@ -44,7 +43,7 @@ test('los modelos Technology e Invention implementan sus relaciones derivadas de
     // Crear una tech que requiere la base
     $techAvanzada = Technology::create([
         'name' => 'Tech Avanzada',
-        'prerequisite_id' => $techBase->id
+        'prerequisite_id' => $techBase->id,
     ]);
 
     // Relación Technology -> Prerequisite
@@ -53,7 +52,7 @@ test('los modelos Technology e Invention implementan sus relaciones derivadas de
     // Crear un invento hijo de la tech avanzada
     $invento = Invention::create([
         'name' => 'Invento Práctico',
-        'technology_id' => $techAvanzada->id
+        'technology_id' => $techAvanzada->id,
     ]);
 
     // Relación Technology -> Inventions y Invention -> Technology
@@ -70,13 +69,13 @@ test('el modelo Recipe implementa la relacion polimorfica para Invention y Techn
     // Asignar receta a Technology
     $tech->recipes()->create([
         'material_id' => $material->id,
-        'quantity' => 10
+        'quantity' => 10,
     ]);
 
     // Asignar receta a Invention
     $invento->recipes()->create([
         'material_id' => $material->id,
-        'quantity' => 5
+        'quantity' => 5,
     ]);
 
     expect($tech->recipes)->toHaveCount(1)

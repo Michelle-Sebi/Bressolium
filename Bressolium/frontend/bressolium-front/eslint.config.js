@@ -23,7 +23,30 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]', caughtErrorsIgnorePattern: '^_' }],
+    },
+  },
+  {
+    files: ['**/*Context.{js,jsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+  {
+    files: ['**/*.test.{js,jsx}', '**/*.spec.{js,jsx}'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        describe:   'readonly',
+        it:         'readonly',
+        test:       'readonly',
+        expect:     'readonly',
+        beforeEach: 'readonly',
+        afterEach:  'readonly',
+        beforeAll:  'readonly',
+        afterAll:   'readonly',
+        vi:         'readonly',
+      },
     },
   },
 ])

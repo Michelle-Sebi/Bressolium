@@ -22,13 +22,14 @@ use App\Models\TileType;
 use App\Repositories\Contracts\TileRepositoryInterface;
 use App\Services\ActionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class);
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function mockTileObj(string $gameId = 'game-1', bool $explored = false): \Mockery\MockInterface
+function mockTileObj(string $gameId = 'game-1', bool $explored = false): MockInterface
 {
     $tile = Mockery::mock(Tile::class);
     $tile->shouldReceive('getAttribute')->with('game_id')->andReturn($gameId);
@@ -36,6 +37,7 @@ function mockTileObj(string $gameId = 'game-1', bool $explored = false): \Mocker
     $tile->shouldReceive('getAttribute')->with('type')->andReturn(null);
     $tile->shouldReceive('refresh')->andReturnSelf();
     $tile->shouldReceive('load')->andReturnSelf();
+
     return $tile;
 }
 
@@ -47,7 +49,7 @@ function makeAction($tileRepo): ActionService
 // ─── explore: excepciones ─────────────────────────────────────────────────────
 
 test('explore: lanza UserNotInGameException si el usuario no pertenece a la partida', function () {
-    $dto  = new ExploreActionDTO(tileId: 'tile-1', userId: 'user-1');
+    $dto = new ExploreActionDTO(tileId: 'tile-1', userId: 'user-1');
     $tile = mockTileObj('game-1');
 
     $repo = Mockery::mock(TileRepositoryInterface::class);
@@ -59,8 +61,8 @@ test('explore: lanza UserNotInGameException si el usuario no pertenece a la part
 });
 
 test('explore: lanza ActionLimitExceededException cuando actions_spent >= 2', function () {
-    $dto   = new ExploreActionDTO(tileId: 'tile-1', userId: 'user-1');
-    $tile  = mockTileObj('game-1');
+    $dto = new ExploreActionDTO(tileId: 'tile-1', userId: 'user-1');
+    $tile = mockTileObj('game-1');
     $round = Mockery::mock(Round::class);
 
     $repo = Mockery::mock(TileRepositoryInterface::class);
@@ -74,8 +76,8 @@ test('explore: lanza ActionLimitExceededException cuando actions_spent >= 2', fu
 });
 
 test('explore: lanza TileAlreadyExploredException si la casilla ya fue explorada', function () {
-    $dto   = new ExploreActionDTO(tileId: 'tile-1', userId: 'user-1');
-    $tile  = mockTileObj('game-1', explored: true);
+    $dto = new ExploreActionDTO(tileId: 'tile-1', userId: 'user-1');
+    $tile = mockTileObj('game-1', explored: true);
     $round = Mockery::mock(Round::class);
 
     $repo = Mockery::mock(TileRepositoryInterface::class);
@@ -91,8 +93,8 @@ test('explore: lanza TileAlreadyExploredException si la casilla ya fue explorada
 // ─── explore: camino feliz ────────────────────────────────────────────────────
 
 test('explore: llama a markExplored e incrementActionsSpent en el camino feliz', function () {
-    $dto   = new ExploreActionDTO(tileId: 'tile-1', userId: 'user-1');
-    $tile  = mockTileObj('game-1', explored: false);
+    $dto = new ExploreActionDTO(tileId: 'tile-1', userId: 'user-1');
+    $tile = mockTileObj('game-1', explored: false);
     $round = Mockery::mock(Round::class);
 
     $repo = Mockery::mock(TileRepositoryInterface::class);
@@ -109,8 +111,8 @@ test('explore: llama a markExplored e incrementActionsSpent en el camino feliz',
 });
 
 test('explore: lanza TileNotAdjacentException si la casilla no es adyacente al territorio del jugador', function () {
-    $dto   = new ExploreActionDTO(tileId: 'tile-1', userId: 'user-1');
-    $tile  = mockTileObj('game-1', explored: false);
+    $dto = new ExploreActionDTO(tileId: 'tile-1', userId: 'user-1');
+    $tile = mockTileObj('game-1', explored: false);
     $round = Mockery::mock(Round::class);
 
     $repo = Mockery::mock(TileRepositoryInterface::class);
@@ -127,7 +129,7 @@ test('explore: lanza TileNotAdjacentException si la casilla no es adyacente al t
 // ─── upgrade: excepciones antes de Game::find ────────────────────────────────
 
 test('upgrade: lanza UserNotInGameException si el usuario no pertenece a la partida', function () {
-    $dto  = new UpgradeActionDTO(tileId: 'tile-1', userId: 'user-1');
+    $dto = new UpgradeActionDTO(tileId: 'tile-1', userId: 'user-1');
     $tile = mockTileObj('game-1', explored: true);
 
     $repo = Mockery::mock(TileRepositoryInterface::class);
@@ -139,8 +141,8 @@ test('upgrade: lanza UserNotInGameException si el usuario no pertenece a la part
 });
 
 test('upgrade: lanza ActionLimitExceededException cuando actions_spent >= 2', function () {
-    $dto   = new UpgradeActionDTO(tileId: 'tile-1', userId: 'user-1');
-    $tile  = mockTileObj('game-1', explored: true);
+    $dto = new UpgradeActionDTO(tileId: 'tile-1', userId: 'user-1');
+    $tile = mockTileObj('game-1', explored: true);
     $round = Mockery::mock(Round::class);
 
     $repo = Mockery::mock(TileRepositoryInterface::class);
@@ -154,8 +156,8 @@ test('upgrade: lanza ActionLimitExceededException cuando actions_spent >= 2', fu
 });
 
 test('upgrade: lanza TileNotExploredException si la casilla no fue explorada', function () {
-    $dto   = new UpgradeActionDTO(tileId: 'tile-1', userId: 'user-1');
-    $tile  = mockTileObj('game-1', explored: false);
+    $dto = new UpgradeActionDTO(tileId: 'tile-1', userId: 'user-1');
+    $tile = mockTileObj('game-1', explored: false);
     $round = Mockery::mock(Round::class);
 
     $repo = Mockery::mock(TileRepositoryInterface::class);
@@ -169,8 +171,8 @@ test('upgrade: lanza TileNotExploredException si la casilla no fue explorada', f
 });
 
 test('upgrade: lanza TileNotExploredException si no hay siguiente nivel de mejora', function () {
-    $dto   = new UpgradeActionDTO(tileId: 'tile-1', userId: 'user-1');
-    $tile  = mockTileObj('game-1', explored: true);
+    $dto = new UpgradeActionDTO(tileId: 'tile-1', userId: 'user-1');
+    $tile = mockTileObj('game-1', explored: true);
     $round = Mockery::mock(Round::class);
 
     $repo = Mockery::mock(TileRepositoryInterface::class);
@@ -189,11 +191,11 @@ test('upgrade: lanza TileNotExploredException si no hay siguiente nivel de mejor
 test('upgrade: lanza InsufficientMaterialsException si no hay materiales suficientes', function () {
     $game = Game::factory()->create();
 
-    $dto      = new UpgradeActionDTO(tileId: 'tile-1', userId: 'user-1');
-    $tile     = mockTileObj($game->id, explored: true);
-    $round    = Mockery::mock(Round::class);
+    $dto = new UpgradeActionDTO(tileId: 'tile-1', userId: 'user-1');
+    $tile = mockTileObj($game->id, explored: true);
+    $round = Mockery::mock(Round::class);
     $nextType = Mockery::mock(TileType::class);
-    $costs    = collect([]);
+    $costs = collect([]);
 
     $repo = Mockery::mock(TileRepositoryInterface::class);
     $repo->shouldReceive('find')->andReturn($tile);
@@ -213,11 +215,11 @@ test('upgrade: lanza InsufficientMaterialsException si no hay materiales suficie
 test('upgrade: deduce materiales, mejora la casilla e incrementa acciones en camino feliz', function () {
     $game = Game::factory()->create();
 
-    $dto      = new UpgradeActionDTO(tileId: 'tile-1', userId: 'user-1');
-    $tile     = mockTileObj($game->id, explored: true);
-    $round    = Mockery::mock(Round::class);
+    $dto = new UpgradeActionDTO(tileId: 'tile-1', userId: 'user-1');
+    $tile = mockTileObj($game->id, explored: true);
+    $round = Mockery::mock(Round::class);
     $nextType = Mockery::mock(TileType::class);
-    $costs    = collect([]);
+    $costs = collect([]);
 
     $repo = Mockery::mock(TileRepositoryInterface::class);
     $repo->shouldReceive('find')->andReturn($tile);

@@ -2,7 +2,6 @@
 
 namespace App\Repositories\Contracts;
 
-use App\Models\Round;
 use App\Models\Vote;
 
 interface VoteRepositoryInterface

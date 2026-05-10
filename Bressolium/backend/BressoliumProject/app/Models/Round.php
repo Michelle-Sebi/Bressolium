@@ -2,13 +2,17 @@
 
 namespace App\Models;
 
+use Database\Factories\RoundFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Round extends Model
 {
-    /** @use HasFactory<\Database\Factories\RoundFactory> */
+    /** @use HasFactory<RoundFactory> */
     use HasFactory, HasUuids;
 
     protected $fillable = [
@@ -21,7 +25,7 @@ class Round extends Model
     /**
      * Relación: una jornada pertenece a una partida.
      */
-    public function game(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function game(): BelongsTo
     {
         return $this->belongsTo(Game::class);
     }
@@ -29,7 +33,7 @@ class Round extends Model
     /**
      * Relación con los usuarios (M:N via round_user).
      */
-    public function users(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class)->withPivot('actions_spent')->withTimestamps();
     }
@@ -37,7 +41,7 @@ class Round extends Model
     /**
      * Relación: una jornada recibe muchos votos.
      */
-    public function votes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function votes(): HasMany
     {
         return $this->hasMany(Vote::class);
     }

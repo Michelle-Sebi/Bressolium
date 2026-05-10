@@ -15,18 +15,18 @@ test('post a /api/register devuelve token y usuario en standar JSON', function (
     $response = $this->postJson('/api/v1/register', [
         'name' => 'Jugador1',
         'email' => 'jugador1@bressolium.com',
-        'password' => 'password123'
+        'password' => 'password123',
     ]);
 
     $response->assertStatus(200)
         ->assertJsonStructure([
-        'success',
-        'data' => [
-            'user' => ['id', 'name', 'email'],
-            'token'
-        ],
-        'error'
-    ]);
+            'success',
+            'data' => [
+                'user' => ['id', 'name', 'email'],
+                'token',
+            ],
+            'error',
+        ]);
 
     expect($response->json('success'))->toBeTrue();
 });
@@ -35,13 +35,13 @@ test('post a /api/login con datos correctos devuelve HTTP 200 y token', function
     // Preparación
     $user = User::factory()->create([
         'email' => 'test@auth.com',
-        'password' => bcrypt('authpass')
+        'password' => bcrypt('authpass'),
     ]);
 
     // Ejecución
     $response = $this->postJson('/api/v1/login', [
         'email' => 'test@auth.com',
-        'password' => 'authpass'
+        'password' => 'authpass',
     ]);
 
     // Aserción
@@ -64,7 +64,7 @@ test('post a /api/register con datos inválidos devuelve errores en standar JSON
         ->assertJsonStructure([
             'success',
             'data',
-            'error'
+            'error',
         ]);
 
     expect($response->json('success'))->toBeFalse()
@@ -75,19 +75,19 @@ test('post a /api/register con datos inválidos devuelve errores en standar JSON
 test('post a /api/login con credenciales incorrectas devuelve error en standar JSON', function () {
     User::factory()->create([
         'email' => 'test@auth.com',
-        'password' => bcrypt('authpass')
+        'password' => bcrypt('authpass'),
     ]);
 
     $response = $this->postJson('/api/v1/login', [
         'email' => 'test@auth.com',
-        'password' => 'wrongpass'
+        'password' => 'wrongpass',
     ]);
 
     $response->assertStatus(401)
         ->assertJsonStructure([
             'success',
             'data',
-            'error'
+            'error',
         ]);
 
     expect($response->json('success'))->toBeFalse()

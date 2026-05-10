@@ -1,8 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 uses(RefreshDatabase::class);
 
@@ -38,7 +39,7 @@ test('el seeder de produccion inserta cantidades en material_tile_type', functio
     Artisan::call('db:seed', ['--class' => 'ResourcesSeeder']);
     Artisan::call('db:seed', ['--class' => 'TileLevelResourcesSeeder']);
 
-    $count = \Illuminate\Support\Facades\DB::table('material_tile_type')
+    $count = DB::table('material_tile_type')
         ->where('quantity', '>', 0)
         ->count();
 

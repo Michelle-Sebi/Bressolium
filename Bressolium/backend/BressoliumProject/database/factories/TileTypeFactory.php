@@ -12,8 +12,8 @@ class TileTypeFactory extends Factory
     public function definition(): array
     {
         return [
-            'name'      => $this->faker->word(),
-            'level'     => $this->faker->numberBetween(1, 5),
+            'name' => $this->faker->word(),
+            'level' => $this->faker->numberBetween(1, 5),
             'base_type' => $this->faker->randomElement(['bosque', 'cantera', 'rio', 'prado', 'mina', 'pueblo']),
         ];
     }

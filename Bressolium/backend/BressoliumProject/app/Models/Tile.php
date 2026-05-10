@@ -33,12 +33,12 @@ class Tile extends Model
 
     public function type()
     {
-        return $this->belongsTo(TileType::class , 'tile_type_id');
+        return $this->belongsTo(TileType::class, 'tile_type_id');
     }
 
     public function user()
     {
-        return $this->belongsTo(User::class , 'assigned_player');
+        return $this->belongsTo(User::class, 'assigned_player');
     }
 
     public function exploredBy()

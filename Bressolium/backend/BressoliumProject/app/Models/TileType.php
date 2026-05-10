@@ -20,6 +20,6 @@ class TileType extends Model
     public function materials()
     {
         return $this->belongsToMany(Material::class, 'material_tile_type')
-                    ->withPivot('quantity', 'tech_required', 'invention_required');
+            ->withPivot('quantity', 'tech_required', 'invention_required');
     }
 }

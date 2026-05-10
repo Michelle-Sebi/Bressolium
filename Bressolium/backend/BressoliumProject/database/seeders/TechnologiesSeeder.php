@@ -2,12 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 use App\Models\Technology;
-use App\Models\TechnologyPrerequisite;
 use App\Models\TechnologyBonus;
+use App\Models\TechnologyPrerequisite;
 use App\Models\TechnologyUnlock;
+use Illuminate\Database\Seeder;
 
 class TechnologiesSeeder extends Seeder
 {
@@ -32,8 +31,8 @@ class TechnologiesSeeder extends Seeder
             foreach ($data['prereqs_tech'] as $prereqSlug) {
                 TechnologyPrerequisite::firstOrCreate([
                     'technology_id' => $tech->id,
-                    'prereq_type'   => 'technology',
-                    'prereq_id'     => $techs[$prereqSlug]->id,
+                    'prereq_type' => 'technology',
+                    'prereq_id' => $techs[$prereqSlug]->id,
                 ]);
             }
             // Prerequisitos tech → invento se completan en InventionsSeeder (necesitan el UUID del invento)
@@ -42,8 +41,8 @@ class TechnologiesSeeder extends Seeder
             foreach ($data['bonuses'] as $bonus) {
                 TechnologyBonus::firstOrCreate([
                     'technology_id' => $tech->id,
-                    'bonus_type'    => $bonus['type'],
-                    'bonus_target'  => $bonus['target'],
+                    'bonus_type' => $bonus['type'],
+                    'bonus_target' => $bonus['target'],
                 ], [
                     'bonus_value' => $bonus['value'],
                 ]);
@@ -53,8 +52,8 @@ class TechnologiesSeeder extends Seeder
             foreach ($data['unlocks_tech'] as $unlockedSlug) {
                 TechnologyUnlock::firstOrCreate([
                     'technology_id' => $tech->id,
-                    'unlock_type'   => 'technology',
-                    'unlock_id'     => $techs[$unlockedSlug]->id,
+                    'unlock_type' => 'technology',
+                    'unlock_id' => $techs[$unlockedSlug]->id,
                 ]);
             }
 
@@ -63,8 +62,8 @@ class TechnologiesSeeder extends Seeder
             if (! empty($data['unlocks_inv'])) {
                 TechnologyUnlock::firstOrCreate([
                     'technology_id' => $tech->id,
-                    'unlock_type'   => 'invention',
-                    'unlock_id'     => null,
+                    'unlock_type' => 'invention',
+                    'unlock_id' => null,
                 ]);
             }
 
@@ -72,8 +71,8 @@ class TechnologiesSeeder extends Seeder
             foreach ($data['unlocks_tile'] as $tileDesc) {
                 TechnologyUnlock::firstOrCreate([
                     'technology_id' => $tech->id,
-                    'unlock_type'   => 'tile_level',
-                    'unlock_id'     => null,
+                    'unlock_type' => 'tile_level',
+                    'unlock_id' => null,
                 ]);
             }
         }
@@ -83,212 +82,212 @@ class TechnologiesSeeder extends Seeder
     {
         return [
             'herr-piedra' => [
-                'name'         => 'Herramientas de Piedra',
+                'name' => 'Herramientas de Piedra',
                 'prereqs_tech' => [],
-                'bonuses'      => [],
+                'bonuses' => [],
                 'unlocks_tech' => [],
-                'unlocks_inv'  => ['Lanza', 'Hacha', 'Rueda', 'Carro'],
+                'unlocks_inv' => ['Lanza', 'Hacha', 'Rueda', 'Carro'],
                 'unlocks_tile' => [],
             ],
             'control-fuego' => [
-                'name'         => 'Control del Fuego',
+                'name' => 'Control del Fuego',
                 'prereqs_tech' => [],
-                'bonuses'      => [['type' => 'production_tile', 'value' => 20, 'target' => 'bosque']],
+                'bonuses' => [['type' => 'production_tile', 'value' => 20, 'target' => 'bosque']],
                 'unlocks_tech' => ['fermentacion'],
-                'unlocks_inv'  => ['Cerámica'],
+                'unlocks_inv' => ['Cerámica'],
                 'unlocks_tile' => [],
             ],
             'ganaderia' => [
-                'name'         => 'Ganadería',
+                'name' => 'Ganadería',
                 'prereqs_tech' => [],
-                'bonuses'      => [],
+                'bonuses' => [],
                 'unlocks_tech' => [],
-                'unlocks_inv'  => [],
+                'unlocks_inv' => [],
                 'unlocks_tile' => ['Nv4 Bosque', 'Nv4 Prado'],
             ],
             'ceramica-alfareria' => [
-                'name'         => 'Cerámica y Alfarería',
+                'name' => 'Cerámica y Alfarería',
                 'prereqs_tech' => ['control-fuego'],
-                'bonuses'      => [],
+                'bonuses' => [],
                 'unlocks_tech' => [],
-                'unlocks_inv'  => ['Vidrio'],
+                'unlocks_inv' => ['Vidrio'],
                 'unlocks_tile' => ['Nv4 Cantera'],
             ],
             'tejido' => [
-                'name'         => 'Tejido',
+                'name' => 'Tejido',
                 'prereqs_tech' => [],
-                'bonuses'      => [['type' => 'production_tile', 'value' => 20, 'target' => 'prado']],
+                'bonuses' => [['type' => 'production_tile', 'value' => 20, 'target' => 'prado']],
                 'unlocks_tech' => [],
-                'unlocks_inv'  => [],
+                'unlocks_inv' => [],
                 'unlocks_tile' => ['Nv5 Prado'],
             ],
             'agricultura' => [
-                'name'         => 'Agricultura',
+                'name' => 'Agricultura',
                 'prereqs_tech' => [],
-                'bonuses'      => [],
+                'bonuses' => [],
                 'unlocks_tech' => [],
-                'unlocks_inv'  => ['Barco', 'Molino', 'Acueducto', 'Arado'],
+                'unlocks_inv' => ['Barco', 'Molino', 'Acueducto', 'Arado'],
                 'unlocks_tile' => ['Nv4 Río'],
             ],
             'fermentacion' => [
-                'name'         => 'Fermentación',
+                'name' => 'Fermentación',
                 'prereqs_tech' => ['ceramica-alfareria'],
-                'bonuses'      => [['type' => 'production_global', 'value' => 10, 'target' => '']],
+                'bonuses' => [['type' => 'production_global', 'value' => 10, 'target' => '']],
                 'unlocks_tech' => ['conservacion'],
-                'unlocks_inv'  => [],
+                'unlocks_inv' => [],
                 'unlocks_tile' => [],
             ],
             'metalurgia' => [
-                'name'         => 'Metalurgia y Aleaciones',
+                'name' => 'Metalurgia y Aleaciones',
                 'prereqs_tech' => [],
-                'bonuses'      => [],
+                'bonuses' => [],
                 'unlocks_tech' => [],
-                'unlocks_inv'  => ['Acero', 'Moneda', 'Brújula', 'Reloj'],
+                'unlocks_inv' => ['Acero', 'Moneda', 'Brújula', 'Reloj'],
                 'unlocks_tile' => ['Nv3 Mina', 'Nv4 Mina'],
             ],
             'conservacion' => [
-                'name'         => 'Conservación de Alimentos',
+                'name' => 'Conservación de Alimentos',
                 'prereqs_tech' => ['fermentacion'],
-                'bonuses'      => [['type' => 'event_mitigation', 'value' => -25, 'target' => '']],
+                'bonuses' => [['type' => 'event_mitigation', 'value' => -25, 'target' => '']],
                 'unlocks_tech' => [],
-                'unlocks_inv'  => [],
+                'unlocks_inv' => [],
                 'unlocks_tile' => ['Nv5 Prado'],
             ],
             'quimica' => [
-                'name'         => 'Química',
+                'name' => 'Química',
                 'prereqs_tech' => [],
-                'bonuses'      => [],
+                'bonuses' => [],
                 'unlocks_tech' => [],
-                'unlocks_inv'  => ['Papel', 'Microscopio', 'Penicilina', 'Bombilla'],
+                'unlocks_inv' => ['Papel', 'Microscopio', 'Penicilina', 'Bombilla'],
                 'unlocks_tile' => ['Nv5 Bosque', 'Nv5 Río'],
             ],
             'escritura' => [
-                'name'         => 'Escritura',
+                'name' => 'Escritura',
                 'prereqs_tech' => [],
-                'bonuses'      => [],
+                'bonuses' => [],
                 'unlocks_tech' => [],
-                'unlocks_inv'  => ['Imprenta'],
+                'unlocks_inv' => ['Imprenta'],
                 'unlocks_tile' => [],
             ],
             'fotografia' => [
-                'name'         => 'Fotografía',
+                'name' => 'Fotografía',
                 'prereqs_tech' => ['escritura'],
-                'bonuses'      => [['type' => 'production_tile', 'value' => 15, 'target' => 'cantera']],
+                'bonuses' => [['type' => 'production_tile', 'value' => 15, 'target' => 'cantera']],
                 'unlocks_tech' => [],
-                'unlocks_inv'  => ['Telescopio'],
+                'unlocks_inv' => ['Telescopio'],
                 'unlocks_tile' => [],
             ],
             'electricidad' => [
-                'name'         => 'Electricidad',
+                'name' => 'Electricidad',
                 'prereqs_tech' => [],
-                'bonuses'      => [],
+                'bonuses' => [],
                 'unlocks_tech' => [],
-                'unlocks_inv'  => ['Láser', 'Fibra Óptica'],
+                'unlocks_inv' => ['Láser', 'Fibra Óptica'],
                 'unlocks_tile' => [],
             ],
             'computacion' => [
-                'name'         => 'Computación',
+                'name' => 'Computación',
                 // Reloj es un invento, no una tech; se registra en InventionsSeeder
                 'prereqs_tech' => ['electricidad'],
-                'bonuses'      => [['type' => 'production_tile', 'value' => 20, 'target' => 'cantera']],
+                'bonuses' => [['type' => 'production_tile', 'value' => 20, 'target' => 'cantera']],
                 'unlocks_tech' => ['comunicaciones', 'gps'],
-                'unlocks_inv'  => ['Teléfono Móvil'],
+                'unlocks_inv' => ['Teléfono Móvil'],
                 'unlocks_tile' => [],
             ],
             'comunicaciones' => [
-                'name'         => 'Comunicaciones Inalámbricas',
+                'name' => 'Comunicaciones Inalámbricas',
                 'prereqs_tech' => ['computacion'],
-                'bonuses'      => [],
+                'bonuses' => [],
                 'unlocks_tech' => ['internet'],
-                'unlocks_inv'  => [],
+                'unlocks_inv' => [],
                 'unlocks_tile' => [],
             ],
             'gps' => [
-                'name'         => 'GPS',
+                'name' => 'GPS',
                 'prereqs_tech' => ['computacion'],
-                'bonuses'      => [],
+                'bonuses' => [],
                 'unlocks_tech' => [],
-                'unlocks_inv'  => [],
+                'unlocks_inv' => [],
                 'unlocks_tile' => [],
             ],
             'internet' => [
-                'name'         => 'Internet',
+                'name' => 'Internet',
                 'prereqs_tech' => ['comunicaciones'],
-                'bonuses'      => [],
+                'bonuses' => [],
                 'unlocks_tech' => ['ia'],
-                'unlocks_inv'  => [],
+                'unlocks_inv' => [],
                 'unlocks_tile' => [],
             ],
             'ia' => [
-                'name'         => 'Inteligencia Artificial',
+                'name' => 'Inteligencia Artificial',
                 'prereqs_tech' => ['internet', 'computacion'],
-                'bonuses'      => [['type' => 'production_global', 'value' => 15, 'target' => '']],
+                'bonuses' => [['type' => 'production_global', 'value' => 15, 'target' => '']],
                 'unlocks_tech' => ['robotica', 'sistemas-autonomos'],
-                'unlocks_inv'  => [],
+                'unlocks_inv' => [],
                 'unlocks_tile' => [],
             ],
             'energias-renovables' => [
-                'name'         => 'Energías Renovables',
+                'name' => 'Energías Renovables',
                 'prereqs_tech' => ['electricidad'],
-                'bonuses'      => [['type' => 'production_global', 'value' => 30, 'target' => '']],
+                'bonuses' => [['type' => 'production_global', 'value' => 30, 'target' => '']],
                 'unlocks_tech' => [],
-                'unlocks_inv'  => ['Avión', 'Satélite', 'Estación Espacial'],
+                'unlocks_inv' => ['Avión', 'Satélite', 'Estación Espacial'],
                 'unlocks_tile' => [],
             ],
             'robotica' => [
-                'name'         => 'Robótica',
+                'name' => 'Robótica',
                 'prereqs_tech' => ['ia'],
-                'bonuses'      => [],
+                'bonuses' => [],
                 'unlocks_tech' => ['sistemas-autonomos'],
-                'unlocks_inv'  => [],
+                'unlocks_inv' => [],
                 'unlocks_tile' => [],
             ],
             'nanotecnologia' => [
-                'name'         => 'Nanotecnología',
+                'name' => 'Nanotecnología',
                 'prereqs_tech' => ['fotografia'],
-                'bonuses'      => [['type' => 'production_tile', 'value' => 25, 'target' => 'bosque']],
+                'bonuses' => [['type' => 'production_tile', 'value' => 25, 'target' => 'bosque']],
                 'unlocks_tech' => ['edicion-genetica'],
-                'unlocks_inv'  => [],
+                'unlocks_inv' => [],
                 'unlocks_tile' => [],
             ],
             'edicion-genetica' => [
-                'name'         => 'Edición Genética',
+                'name' => 'Edición Genética',
                 'prereqs_tech' => ['nanotecnologia'],
-                'bonuses'      => [['type' => 'production_tile', 'value' => 20, 'target' => 'prado']],
+                'bonuses' => [['type' => 'production_tile', 'value' => 20, 'target' => 'prado']],
                 'unlocks_tech' => ['biotecnologia'],
-                'unlocks_inv'  => [],
+                'unlocks_inv' => [],
                 'unlocks_tile' => [],
             ],
             'biotecnologia' => [
-                'name'         => 'Biotecnología',
+                'name' => 'Biotecnología',
                 'prereqs_tech' => ['edicion-genetica'],
-                'bonuses'      => [['type' => 'event_mitigation', 'value' => -30, 'target' => '']],
+                'bonuses' => [['type' => 'event_mitigation', 'value' => -30, 'target' => '']],
                 'unlocks_tech' => ['terraformacion'],
-                'unlocks_inv'  => [],
+                'unlocks_inv' => [],
                 'unlocks_tile' => [],
             ],
             'sistemas-autonomos' => [
-                'name'         => 'Sistemas Autónomos',
+                'name' => 'Sistemas Autónomos',
                 'prereqs_tech' => ['robotica', 'ia'],
-                'bonuses'      => [['type' => 'invention_cost_reduction', 'value' => -15, 'target' => '']],
+                'bonuses' => [['type' => 'invention_cost_reduction', 'value' => -15, 'target' => '']],
                 'unlocks_tech' => ['terraformacion'],
-                'unlocks_inv'  => [],
+                'unlocks_inv' => [],
                 'unlocks_tile' => [],
             ],
             'tecnologia-espacial' => [
-                'name'         => 'Tecnología Espacial',
+                'name' => 'Tecnología Espacial',
                 'prereqs_tech' => ['gps'],
-                'bonuses'      => [],
+                'bonuses' => [],
                 'unlocks_tech' => [],
-                'unlocks_inv'  => ['Nave de Asentamiento Interestelar'],
+                'unlocks_inv' => ['Nave de Asentamiento Interestelar'],
                 'unlocks_tile' => [],
             ],
             'terraformacion' => [
-                'name'         => 'Terraformación',
+                'name' => 'Terraformación',
                 'prereqs_tech' => ['tecnologia-espacial', 'biotecnologia', 'sistemas-autonomos'],
-                'bonuses'      => [],
+                'bonuses' => [],
                 'unlocks_tech' => [],
-                'unlocks_inv'  => ['Nave de Asentamiento Interestelar'],
+                'unlocks_inv' => ['Nave de Asentamiento Interestelar'],
                 'unlocks_tile' => [],
             ],
         ];

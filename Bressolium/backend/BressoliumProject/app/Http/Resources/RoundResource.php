@@ -9,10 +9,10 @@ class RoundResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'id'         => $this->id,
-            'number'     => $this->number,
+            'id' => $this->id,
+            'number' => $this->number,
             'start_date' => $this->start_date,
-            'ended_at'   => $this->ended_at,
+            'ended_at' => $this->ended_at,
         ];
     }
 }

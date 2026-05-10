@@ -1,20 +1,20 @@
 <?php
+
 /**
  * @module GameRepository
+ *
  * @description Repositorio para la gestión de datos del modelo Game (Equipos/Partidas).
  */
 
 namespace App\Repositories;
 
 use App\Models\Game;
+use Illuminate\Database\Eloquent\Collection;
 
 class GameRepository
 {
     /**
      * Crea un nuevo juego/equipo.
-     * 
-     * @param array $data
-     * @return Game
      */
     public function create(array $data): Game
     {
@@ -23,9 +23,6 @@ class GameRepository
 
     /**
      * Busca una partida por nombre exacto.
-     * 
-     * @param string $name
-     * @return Game|null
      */
     public function findByName(string $name): ?Game
     {
@@ -34,8 +31,6 @@ class GameRepository
 
     /**
      * Busca una partida aleatoria con menos de 5 miembros.
-     * 
-     * @return Game|null
      */
     public function findAvailableRandom(): ?Game
     {
@@ -46,8 +41,8 @@ class GameRepository
 
     /**
      * Obtiene todas las partidas disponibles (menos de 5 usuarios).
-     * 
-     * @return \Illuminate\Database\Eloquent\Collection
+     *
+     * @return Collection
      */
     public function getAllAvailableGames()
     {
@@ -58,9 +53,8 @@ class GameRepository
 
     /**
      * Obtiene las partidas de un usuario específico.
-     * 
-     * @param string $userId
-     * @return \Illuminate\Database\Eloquent\Collection
+     *
+     * @return Collection
      */
     public function getGamesByUserId(string $userId)
     {

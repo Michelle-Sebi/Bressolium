@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class InventionCost extends Model
 {
@@ -18,7 +19,7 @@ class InventionCost extends Model
     /**
      * Invento al que pertenece este coste.
      */
-    public function invention(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function invention(): BelongsTo
     {
         return $this->belongsTo(Invention::class);
     }
@@ -26,7 +27,7 @@ class InventionCost extends Model
     /**
      * Material (recurso) que se consume como coste.
      */
-    public function resource(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function resource(): BelongsTo
     {
         return $this->belongsTo(Material::class, 'resource_id');
     }

@@ -39,18 +39,18 @@ class BoardGeneratorService
             for ($y = 0; $y <= 14; $y++) {
                 if ($x === 7 && $y === 7 && $puebloType) {
                     $tiles[] = [
-                        'game_id'      => $gameId,
+                        'game_id' => $gameId,
                         'tile_type_id' => $puebloType->id,
-                        'coord_x'      => $x,
-                        'coord_y'      => $y,
-                        'explored'     => true,
+                        'coord_x' => $x,
+                        'coord_y' => $y,
+                        'explored' => true,
                     ];
                 } else {
                     $tiles[] = [
-                        'game_id'      => $gameId,
+                        'game_id' => $gameId,
                         'tile_type_id' => $nonPuebloTypeIds[array_rand($nonPuebloTypeIds)],
-                        'coord_x'      => $x,
-                        'coord_y'      => $y,
+                        'coord_x' => $x,
+                        'coord_y' => $y,
                     ];
                 }
             }

@@ -21,6 +21,7 @@ class SyncRepository implements SyncRepositoryInterface
     public function getActionsSpent(Round $round, string $userId): int
     {
         $pivot = $round->users()->where('user_id', $userId)->first();
+
         return $pivot?->pivot->actions_spent ?? 0;
     }
 
@@ -28,9 +29,9 @@ class SyncRepository implements SyncRepositoryInterface
     {
         return $game->materials()
             ->get()
-            ->map(fn($m) => [
-                'id'       => $m->id,
-                'name'     => $m->name,
+            ->map(fn ($m) => [
+                'id' => $m->id,
+                'name' => $m->name,
                 'quantity' => $m->pivot->quantity,
             ])
             ->values()
@@ -39,7 +40,7 @@ class SyncRepository implements SyncRepositoryInterface
 
     public function getTechnologies(Game $game): array
     {
-        $allTechs    = Technology::with('technologyPrerequisites')->get();
+        $allTechs = Technology::with('technologyPrerequisites')->get();
         $gameTechMap = $game->technologies()->get()->keyBy('id');
 
         return $allTechs->map(function ($tech) use ($gameTechMap, $allTechs) {
@@ -53,12 +54,12 @@ class SyncRepository implements SyncRepositoryInterface
                     continue;
                 }
 
-                $prereqEntry  = $gameTechMap->get($prereq->prereq_id);
+                $prereqEntry = $gameTechMap->get($prereq->prereq_id);
                 $prereqActive = $prereqEntry ? (bool) $prereqEntry->pivot->is_active : false;
 
                 if (! $prereqActive) {
                     $prereqInfo = $allTechs->firstWhere('id', $prereq->prereq_id);
-                    $missing[]  = [
+                    $missing[] = [
                         'type' => 'technology',
                         'name' => $prereqInfo?->name ?? 'Desconocido',
                     ];
@@ -66,36 +67,36 @@ class SyncRepository implements SyncRepositoryInterface
             }
 
             return [
-                'id'        => $tech->id,
-                'name'      => $tech->name,
+                'id' => $tech->id,
+                'name' => $tech->name,
                 'is_active' => $isActive,
-                'missing'   => $missing,
+                'missing' => $missing,
             ];
         })->values()->toArray();
     }
 
     public function getInventions(Game $game): array
     {
-        $allInvs       = Invention::with(['inventionCosts.resource', 'inventionPrerequisites'])->get();
-        $gameInvMap    = $game->inventions()->get()->keyBy('id');
-        $matMap        = $game->materials()->get()->keyBy('id');
+        $allInvs = Invention::with(['inventionCosts.resource', 'inventionPrerequisites'])->get();
+        $gameInvMap = $game->inventions()->get()->keyBy('id');
+        $matMap = $game->materials()->get()->keyBy('id');
         $activeTechIds = $game->technologies()->wherePivot('is_active', true)->pluck('id');
 
         return $allInvs->map(function ($inv) use ($gameInvMap, $allInvs, $matMap, $activeTechIds) {
             $quantity = $gameInvMap->has($inv->id) ? (int) $gameInvMap[$inv->id]->pivot->quantity : 0;
-            $missing  = [];
+            $missing = [];
 
             foreach ($inv->inventionCosts as $cost) {
-                $mat    = $matMap->get($cost->resource_id);
-                $have   = $mat ? (int) $mat->pivot->quantity : 0;
+                $mat = $matMap->get($cost->resource_id);
+                $have = $mat ? (int) $mat->pivot->quantity : 0;
                 $needed = (int) $cost->quantity;
 
                 if ($have < $needed) {
                     $missing[] = [
-                        'type'     => 'resource',
-                        'name'     => $cost->resource?->name ?? 'Recurso',
+                        'type' => 'resource',
+                        'name' => $cost->resource?->name ?? 'Recurso',
                         'required' => $needed,
-                        'have'     => $have,
+                        'have' => $have,
                     ];
                 }
             }
@@ -103,36 +104,36 @@ class SyncRepository implements SyncRepositoryInterface
             foreach ($inv->inventionPrerequisites as $prereq) {
                 if ($prereq->prereq_type === 'invention') {
                     $prereqEntry = $gameInvMap->get($prereq->prereq_id);
-                    $have        = $prereqEntry ? (int) $prereqEntry->pivot->quantity : 0;
-                    $needed      = (int) ($prereq->quantity ?? 1);
+                    $have = $prereqEntry ? (int) $prereqEntry->pivot->quantity : 0;
+                    $needed = (int) ($prereq->quantity ?? 1);
 
                     if ($have < $needed) {
                         $prereqInfo = $allInvs->firstWhere('id', $prereq->prereq_id);
-                        $missing[]  = [
-                            'type'     => 'invention',
-                            'name'     => $prereqInfo?->name ?? 'Invento',
+                        $missing[] = [
+                            'type' => 'invention',
+                            'name' => $prereqInfo?->name ?? 'Invento',
                             'required' => $needed,
-                            'have'     => $have,
+                            'have' => $have,
                         ];
                     }
                 } elseif ($prereq->prereq_type === 'technology') {
-                    if (!$activeTechIds->contains($prereq->prereq_id)) {
-                        $techInfo  = \App\Models\Technology::find($prereq->prereq_id);
+                    if (! $activeTechIds->contains($prereq->prereq_id)) {
+                        $techInfo = Technology::find($prereq->prereq_id);
                         $missing[] = [
-                            'type'     => 'technology',
-                            'name'     => $techInfo?->name ?? 'Tecnología',
+                            'type' => 'technology',
+                            'name' => $techInfo?->name ?? 'Tecnología',
                             'required' => 1,
-                            'have'     => 0,
+                            'have' => 0,
                         ];
                     }
                 }
             }
 
             return [
-                'id'       => $inv->id,
-                'name'     => $inv->name,
+                'id' => $inv->id,
+                'name' => $inv->name,
                 'quantity' => $quantity,
-                'missing'  => $missing,
+                'missing' => $missing,
             ];
         })->values()->toArray();
     }

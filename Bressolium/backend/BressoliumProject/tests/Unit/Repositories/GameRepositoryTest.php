@@ -14,7 +14,7 @@ use Tests\TestCase;
 uses(TestCase::class, RefreshDatabase::class);
 
 test('GameRepository::create persiste una partida en BD', function () {
-    $repo = new GameRepository();
+    $repo = new GameRepository;
     $game = $repo->create(['name' => 'Los Vikingos', 'status' => 'WAITING']);
 
     expect($game)->toBeInstanceOf(Game::class)
@@ -27,7 +27,7 @@ test('GameRepository::findByName devuelve la partida con ese nombre exacto', fun
     Game::factory()->create(['name' => 'Equipo A']);
     Game::factory()->create(['name' => 'Equipo B']);
 
-    $repo   = new GameRepository();
+    $repo = new GameRepository;
     $result = $repo->findByName('Equipo A');
 
     expect($result)->toBeInstanceOf(Game::class)
@@ -35,7 +35,7 @@ test('GameRepository::findByName devuelve la partida con ese nombre exacto', fun
 });
 
 test('GameRepository::findByName devuelve null si no existe', function () {
-    $repo = new GameRepository();
+    $repo = new GameRepository;
     expect($repo->findByName('NoExiste'))->toBeNull();
 });
 
@@ -43,7 +43,7 @@ test('GameRepository::findAvailableRandom devuelve una partida con menos de 5 us
     $free = Game::factory()->hasUsers(2)->create();
     Game::factory()->hasUsers(5)->create(); // llena
 
-    $repo   = new GameRepository();
+    $repo = new GameRepository;
     $result = $repo->findAvailableRandom();
 
     expect($result)->toBeInstanceOf(Game::class)
@@ -53,7 +53,7 @@ test('GameRepository::findAvailableRandom devuelve una partida con menos de 5 us
 test('GameRepository::findAvailableRandom devuelve null si todas están llenas', function () {
     Game::factory()->hasUsers(5)->create();
 
-    $repo = new GameRepository();
+    $repo = new GameRepository;
     expect($repo->findAvailableRandom())->toBeNull();
 });
 
@@ -62,14 +62,14 @@ test('GameRepository::getAllAvailableGames devuelve solo partidas con menos de 5
     Game::factory()->hasUsers(3)->create();
     Game::factory()->hasUsers(5)->create(); // llena, no debe aparecer
 
-    $repo    = new GameRepository();
+    $repo = new GameRepository;
     $results = $repo->getAllAvailableGames();
 
     expect($results)->toHaveCount(2);
 });
 
 test('GameRepository::getGamesByUserId devuelve solo las partidas del usuario dado', function () {
-    $user  = User::factory()->create();
+    $user = User::factory()->create();
     $other = User::factory()->create();
     $game1 = Game::factory()->create();
     $game2 = Game::factory()->create();
@@ -79,7 +79,7 @@ test('GameRepository::getGamesByUserId devuelve solo las partidas del usuario da
     $game2->users()->attach($user->id);
     $game3->users()->attach($other->id);
 
-    $repo    = new GameRepository();
+    $repo = new GameRepository;
     $results = $repo->getGamesByUserId($user->id);
 
     expect($results)->toHaveCount(2)

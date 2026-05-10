@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Game;
 use App\Models\Round;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,7 +19,7 @@ class RoundFactory extends Factory
     public function definition(): array
     {
         return [
-            'game_id' => \App\Models\Game::factory(),
+            'game_id' => Game::factory(),
             'number' => $this->faker->numberBetween(1, 10),
             'start_date' => now(),
             'ended_at' => null,
