@@ -57,7 +57,7 @@ function VoteItem({ name, canVote, missing, quantity, onClick }) {
 }
 
 function VotingPanel({ gameId }) {
-    const { technologies, inventions, userActions, currentRound, isLoading, hasVoted, votedName, vote } = useVoting(gameId);
+    const { technologies, inventions, userActions, currentRound, isLoading, hasVoted, votedName, vote, abstain } = useVoting(gameId);
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px', overflowY: 'auto' }}>
@@ -105,8 +105,15 @@ function VotingPanel({ gameId }) {
                 </div>
             )}
             {!isLoading && technologies.length === 0 && (
-                <div style={{ fontSize: '11px', color: '#b0a898', padding: '4px 8px', fontStyle: 'italic' }}>
-                    Sin tecnologías disponibles
+                <div style={{
+                    fontSize:        '10px',
+                    color:           '#458B74',
+                    padding:         '4px 8px',
+                    fontStyle:       'italic',
+                    borderLeft:      '3px solid #458B74',
+                    backgroundColor: '#f0f9f5',
+                }}>
+                    Todas las tecnologías investigadas
                 </div>
             )}
             {technologies.map((tech) => (
@@ -118,6 +125,29 @@ function VotingPanel({ gameId }) {
                     onClick={() => vote({ technology_id: tech.id }, tech.name)}
                 />
             ))}
+            {!isLoading && technologies.length > 0 && !hasVoted && (
+                <button
+                    onClick={abstain}
+                    style={{
+                        width:           '100%',
+                        padding:         '5px 8px',
+                        textAlign:       'left',
+                        backgroundColor: '#f7f9f7',
+                        color:           '#8B7355',
+                        border:          '1px dashed #C1CDC1',
+                        borderLeft:      '3px dashed #C1CDC1',
+                        marginBottom:    '2px',
+                        cursor:          'pointer',
+                        fontSize:        '10px',
+                        fontWeight:      'normal',
+                        textTransform:   'uppercase',
+                        letterSpacing:   '0.05em',
+                        opacity:         0.8,
+                    }}
+                >
+                    Abstenerse — no investigar esta jornada
+                </button>
+            )}
 
             {/* Zona Inventos */}
             <SectionHeader label="Inventos" />

@@ -89,6 +89,8 @@ El criterio de ordenación dentro de cada sprint es: primero las tareas sin bloq
   - *Bloqueado por: T12, T48*
 - Tarea 55: `[Fix] Inventory Panel — Nombres de materiales e iconos de inventos` (Frontend - Michelle) [Talla: XS] [En revisión]
   - *Bloqueado por: T52*
+- Tarea 56: `[Fix] VotingPanel — Bloqueo de flujo al descubrir todas las tecnologías` (Frontend/Backend - Michelle) [Talla: S] [En revisión]
+  - *Bloqueado por: T11, T48*
 
 **Arranca cuando T11 esté lista:**
 - Tarea 12: `[Feat] Action & Decision Control Panel` (Frontend - Bárbara) [Talla: L] [TERMINADA]
@@ -190,5 +192,5 @@ T9✅, T18✅ (ya completadas — T30 y T31 adaptarán su código al cliente cen
 | S1 ✅ | T1(S), T14(M) | T2(M), T4(M), T6(S) |
 | S2 ✅ | T3(L), T20(S), T5(M), T22(M), T7(L), T8(L) | T17(S), T21(M), T24(S), T9(XL), T18(S), T23(L) |
 | S3 | T25(M), T27(M), T40(S), T48(M) | T26(M), T28(S), T30(S), T36(XS), T38(S), T41(XS), T49(S) |
-| S4 | T10(M), T11(M), T12(L), T29(L), T31(M), T33(M), T42(M), T43(M), T44(S) | T13(XL), T19(M), T39(M), T50(S), T51(M), T52(XS), T53(M), T54(XS), T55(XS) |
+| S4 | T10(M), T11(M), T12(L), T29(L), T31(M), T33(M), T42(M), T43(M), T44(S) | T13(XL), T19(M), T39(M), T50(S), T51(M), T52(XS), T53(M), T54(XS), T55(XS), T56(S) |
 | S5 | T35(S), T37(S), T45(M), T47(S) | T15(S), T16(S), T32(L), T34(L), T46(S) |
