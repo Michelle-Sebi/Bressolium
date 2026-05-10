@@ -76,11 +76,12 @@ class SyncRepository implements SyncRepositoryInterface
 
     public function getInventions(Game $game): array
     {
-        $allInvs    = Invention::with(['inventionCosts.resource', 'inventionPrerequisites'])->get();
-        $gameInvMap = $game->inventions()->get()->keyBy('id');
-        $matMap     = $game->materials()->get()->keyBy('id');
+        $allInvs       = Invention::with(['inventionCosts.resource', 'inventionPrerequisites'])->get();
+        $gameInvMap    = $game->inventions()->get()->keyBy('id');
+        $matMap        = $game->materials()->get()->keyBy('id');
+        $activeTechIds = $game->technologies()->wherePivot('is_active', true)->pluck('id');
 
-        return $allInvs->map(function ($inv) use ($gameInvMap, $allInvs, $matMap) {
+        return $allInvs->map(function ($inv) use ($gameInvMap, $allInvs, $matMap, $activeTechIds) {
             $quantity = $gameInvMap->has($inv->id) ? (int) $gameInvMap[$inv->id]->pivot->quantity : 0;
             $missing  = [];
 
@@ -100,22 +101,30 @@ class SyncRepository implements SyncRepositoryInterface
             }
 
             foreach ($inv->inventionPrerequisites as $prereq) {
-                if ($prereq->prereq_type !== 'invention') {
-                    continue;
-                }
+                if ($prereq->prereq_type === 'invention') {
+                    $prereqEntry = $gameInvMap->get($prereq->prereq_id);
+                    $have        = $prereqEntry ? (int) $prereqEntry->pivot->quantity : 0;
+                    $needed      = (int) ($prereq->quantity ?? 1);
 
-                $prereqEntry = $gameInvMap->get($prereq->prereq_id);
-                $have        = $prereqEntry ? (int) $prereqEntry->pivot->quantity : 0;
-                $needed      = (int) ($prereq->quantity ?? 1);
-
-                if ($have < $needed) {
-                    $prereqInfo = $allInvs->firstWhere('id', $prereq->prereq_id);
-                    $missing[]  = [
-                        'type'     => 'invention',
-                        'name'     => $prereqInfo?->name ?? 'Invento',
-                        'required' => $needed,
-                        'have'     => $have,
-                    ];
+                    if ($have < $needed) {
+                        $prereqInfo = $allInvs->firstWhere('id', $prereq->prereq_id);
+                        $missing[]  = [
+                            'type'     => 'invention',
+                            'name'     => $prereqInfo?->name ?? 'Invento',
+                            'required' => $needed,
+                            'have'     => $have,
+                        ];
+                    }
+                } elseif ($prereq->prereq_type === 'technology') {
+                    if (!$activeTechIds->contains($prereq->prereq_id)) {
+                        $techInfo  = \App\Models\Technology::find($prereq->prereq_id);
+                        $missing[] = [
+                            'type'     => 'technology',
+                            'name'     => $techInfo?->name ?? 'Tecnología',
+                            'required' => 1,
+                            'have'     => 0,
+                        ];
+                    }
                 }
             }
 

@@ -62,6 +62,8 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
 
     public function inventionPrerequisitesMet(Game $game, Invention $invention): bool
     {
+        $activeTechIds = $game->technologies()->wherePivot('is_active', true)->pluck('id');
+
         foreach ($invention->inventionPrerequisites as $prerequisite) {
             if ($prerequisite->prereq_type === 'invention') {
                 $gameInvention = $game->inventions()
@@ -71,6 +73,10 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
                 $currentQuantity = $gameInvention ? (int) $gameInvention->pivot->quantity : 0;
 
                 if ($currentQuantity < $prerequisite->quantity) {
+                    return false;
+                }
+            } elseif ($prerequisite->prereq_type === 'technology') {
+                if (!$activeTechIds->contains($prerequisite->prereq_id)) {
                     return false;
                 }
             }

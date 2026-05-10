@@ -169,6 +169,17 @@ Las tareas T1–T9 y T11, T17, T18, T23, T24 se mantienen sin modificación resp
 - **Descripción**: Dos correcciones visuales en `InventoryPanel.jsx`: (1) Añadir el nombre del material bajo su icono, igual que ya se mostraba en la sección de inventos. (2) Corregir la resolución del icono en `InventionItem`, que usaba el campo `icon` (inexistente en la respuesta del sync) en lugar de derivar la clave del mapa a partir del nombre con `inventionNameToKey`. Adicionalmente, se elimina de la BD el material `Madera` introducido manualmente que no forma parte del catálogo oficial.
 - **DoD**: Cada material del panel muestra nombre e icono. Los iconos de inventos se resuelven correctamente para los 34 inventos del catálogo. No existe el material `Madera` en la BD. Los tests existentes de `InventoryPanel` siguen en verde.
 
+### Tarea 56
+- **Título**: `[Fix] VotingPanel — Bloqueo de flujo al descubrir todas las tecnologías`
+- **Estimación**: S
+- **Área**: [FRONTEND] / [BACKEND]
+- **Asignado a**: Michelle
+- **Bloqueado por**: Tarea 11, Tarea 48
+- **HUs**: 3.1, 3.2
+- **Rama**: `fix/T56-voting-panel-tech-discovery-block`
+- **Descripción**: Conjunto de correcciones que resuelven el bloqueo del flujo de votaciones cuando todas las tecnologías han sido investigadas. (1) **Polling**: `useGetSyncQuery` carecía de `pollingInterval`, por lo que los jugadores que votaban antes del último nunca recibían el cambio de jornada, quedando bloqueados en "esperando". (2) **Filtrado de tecnologías**: el panel mostraba las 26 tecnologías ya investigadas como botones deshabilitados, confundiendo al jugador; ahora solo se muestran las pendientes. (3) **Canvote corregido**: en tecnologías se exigía solo `!is_active`, sin verificar prerrequisitos; en inventos se usaba `quantity === 0`, impidiendo construir un invento más de una vez. (4) **Prerrequisitos de tecnología en inventos**: `SyncRepository::getInventions()` ignoraba los prerrequisitos de tipo `technology` en el cálculo de `missing`, mostrando inventos como construibles cuando requerían una tecnología no investigada; `CloseRoundRepository::inventionPrerequisitesMet()` tenía el mismo defecto, permitiendo construir inventos sin la tecnología requerida. (5) **Abstención**: nueva opción en el panel para abstenerse de votar tecnología en una jornada, contando para el quórum sin avanzar ninguna investigación.
+- **DoD**: `useGetSyncQuery` usa `pollingInterval: 30000`. Solo las tecnologías no investigadas aparecen en el panel. `canVote` en tecnologías requiere `missing.length === 0`; en inventos usa `missing.length === 0` (permite múltiples construcciones). El botón "Abstenerse" aparece cuando hay tecnologías pendientes y el jugador no ha votado. `SyncRepository::getInventions()` y `CloseRoundRepository::inventionPrerequisitesMet()` verifican correctamente los prerrequisitos de tipo `technology`. Los tests existentes de VotingPanel siguen en verde.
+
 ---
 
 ## 🗳️ Épica 3: Mecánicas de Turno y Votos
@@ -593,3 +604,4 @@ y e
 | T53 | Tech Tree Modal — Tecnologías no visibles | M | Pendiente |
 | T54 | VotingPanel — Inventos construibles solo una vez | XS | Pendiente |
 | T55 | Inventory Panel — Nombres materiales e iconos inventos | XS | En revisión |
+| T56 | VotingPanel — Bloqueo al descubrir todas las tecnologías | S | En revisión |
