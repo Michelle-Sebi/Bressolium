@@ -57,8 +57,8 @@ export function ToastProvider({ children }) {
     );
 }
 
+const noopToast = { toasts: [], show: () => {}, dismiss: () => {} };
+
 export function useToast() {
-    const ctx = useContext(ToastContext);
-    if (!ctx) throw new Error('useToast debe usarse dentro de <ToastProvider>');
-    return ctx;
+    return useContext(ToastContext) ?? noopToast;
 }

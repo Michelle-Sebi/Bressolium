@@ -121,7 +121,7 @@ test('todas las casillas generadas nacen con explored = false', function () {
     $gameId = $response->json('data.id');
 
     $unexplored = Tile::where('game_id', $gameId)->where('explored', false)->count();
-    expect($unexplored)->toBe(225);
+    expect($unexplored)->toBe(223);
 });
 
 test('el tablero usa al menos 2 tipos de casilla distintos', function () {

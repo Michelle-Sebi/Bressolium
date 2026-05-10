@@ -101,25 +101,37 @@ class StatsController extends Controller
 
     private function getGameStats(): array
     {
-        $gamesByStatus = Game::selectRaw('status, count(*) as total')
-            ->groupBy('status')
-            ->pluck('total', 'status');
+        try {
+            $gamesByStatus = Game::selectRaw('status, count(*) as total')
+                ->groupBy('status')
+                ->pluck('total', 'status');
 
-        $players = User::withCount('games')
-            ->orderByDesc('games_count')
-            ->get(['id', 'name', 'games_count']);
+            $players = User::withCount('games')
+                ->orderByDesc('games_count')
+                ->get(['id', 'name', 'games_count']);
 
-        return [
-            'total_games' => Game::count(),
-            'waiting_games' => (int) ($gamesByStatus['WAITING'] ?? 0),
-            'active_games' => (int) ($gamesByStatus['ACTIVE'] ?? 0),
-            'finished_games' => (int) ($gamesByStatus['FINISHED'] ?? 0),
-            'total_players' => User::count(),
-            'total_rounds' => Round::count(),
-            'players' => $players->map(fn ($u) => [
-                'name' => $u->name,
-                'games_count' => $u->games_count,
-            ])->values(),
-        ];
+            return [
+                'total_games' => Game::count(),
+                'waiting_games' => (int) ($gamesByStatus['WAITING'] ?? 0),
+                'active_games' => (int) ($gamesByStatus['ACTIVE'] ?? 0),
+                'finished_games' => (int) ($gamesByStatus['FINISHED'] ?? 0),
+                'total_players' => User::count(),
+                'total_rounds' => Round::count(),
+                'players' => $players->map(fn ($u) => [
+                    'name' => $u->name,
+                    'games_count' => $u->games_count,
+                ])->values(),
+            ];
+        } catch (\Throwable) {
+            return [
+                'total_games' => 0,
+                'waiting_games' => 0,
+                'active_games' => 0,
+                'finished_games' => 0,
+                'total_players' => 0,
+                'total_rounds' => 0,
+                'players' => [],
+            ];
+        }
     }
 }

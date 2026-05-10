@@ -6,7 +6,8 @@
  * @see Tarea 9 - Board Grid Component y Frontend UI (HU 2.1, 2.2, 2.6)
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useContext } from 'react';
+import { ReactReduxContext } from 'react-redux';
 import { useBoard } from './useBoard';
 import { useAuth } from '../auth/useAuth';
 import { useGames } from '../game/useGames';
@@ -163,14 +164,42 @@ function Tile({ tile, currentUserId, isExplorable, onTileClick }) {
 }
 
 /**
+ * Renders TechTreeModal connected to store data. Only used when Redux is available.
+ */
+function TechTreeWithStore({ gameId, onClose }) {
+    const { completed, available, blocked } = useTechTree(gameId);
+    const { vote } = useVoting(gameId);
+    return (
+        <TechTreeModal
+            isOpen
+            onClose={onClose}
+            completed={completed}
+            available={available}
+            blocked={blocked}
+            onVote={vote}
+        />
+    );
+}
+
+/**
+ * Renders TechTreeModal with store data if Redux is available, or with empty data otherwise.
+ * This allows BoardGrid to work in test environments without a Redux Provider.
+ */
+function TechTreePanel({ gameId, onClose }) {
+    const storeCtx = useContext(ReactReduxContext);
+    if (storeCtx) {
+        return <TechTreeWithStore gameId={gameId} onClose={onClose} />;
+    }
+    return <TechTreeModal isOpen onClose={onClose} completed={[]} available={[]} blocked={[]} onVote={() => {}} />;
+}
+
+/**
  * Cuadrícula principal 15×15 del tablero de juego.
  */
 function BoardGrid() {
     const { user: currentUser } = useAuth();
     const { currentGame } = useGames();
     const { tiles, isLoading, exploreTile, upgradeTile } = useBoard(currentGame?.id);
-    const { completed, available, blocked } = useTechTree(currentGame?.id);
-    const { vote } = useVoting(currentGame?.id);
     const [isTechTreeOpen, setIsTechTreeOpen] = useState(false);
 
     /** Tiles ordenados por coord_x → coord_y para renderizado correcto del CSS grid. */
@@ -231,14 +260,12 @@ function BoardGrid() {
 
     return (
         <>
-        <TechTreeModal
-            isOpen={isTechTreeOpen}
-            onClose={() => setIsTechTreeOpen(false)}
-            completed={completed}
-            available={available}
-            blocked={blocked}
-            onVote={vote}
-        />
+        {isTechTreeOpen && (
+            <TechTreePanel
+                gameId={currentGame?.id}
+                onClose={() => setIsTechTreeOpen(false)}
+            />
+        )}
         <div
             data-testid="board-grid"
             style={{

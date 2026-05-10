@@ -22,15 +22,12 @@ export function useVoting(gameId) {
     // Server is authoritative; local state gives immediate feedback before the next poll
     const hasVoted = (data?.has_voted ?? false) || votedRound === currentRound?.number;
 
-    // Solo tecnologías pendientes de investigar
-    const technologies = rawTechs
-        .filter((t) => !t.is_active)
-        .map((t) => ({
-            id:      t.id,
-            name:    t.name,
-            canVote: (t.missing ?? []).length === 0,
-            missing: t.missing ?? [],
-        }));
+    const technologies = rawTechs.map((t) => ({
+        id:      t.id,
+        name:    t.name,
+        canVote: !t.is_active && (t.missing ?? []).length === 0,
+        missing: t.missing ?? [],
+    }));
 
     const inventions = rawInvs.map((i) => ({
         id:       i.id,

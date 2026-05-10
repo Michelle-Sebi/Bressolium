@@ -7,7 +7,10 @@ use Exception;
 
 class BoardService
 {
-    public function __construct(private BoardRepositoryInterface $boardRepository) {}
+    public function __construct(
+        private BoardRepositoryInterface $boardRepository,
+        private CacheService $cacheService,
+    ) {}
 
     public function getBoardForUser(string $gameId, string $userId)
     {
@@ -15,6 +18,9 @@ class BoardService
             throw new Exception('Forbidden', 403);
         }
 
-        return $this->boardRepository->getTilesByGameId($gameId);
+        return $this->cacheService->rememberBoard(
+            $gameId,
+            fn () => $this->boardRepository->getTilesByGameId($gameId),
+        );
     }
 }

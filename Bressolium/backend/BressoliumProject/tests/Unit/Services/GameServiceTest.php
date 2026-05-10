@@ -82,6 +82,7 @@ test('createGame: llama al repo con name y status WAITING', function () {
 
     $boardGen = Mockery::mock(BoardGeneratorService::class);
     $boardGen->shouldReceive('generate')->andReturn(null);
+    $boardGen->shouldReceive('assignStartingTile')->andReturn(null);
 
     DB::shouldReceive('transaction')->andReturnUsing(fn ($cb) => $cb());
 
@@ -105,6 +106,7 @@ test('createGame: crea ronda número 1 con el game_id correcto', function () {
 
     $boardGen = Mockery::mock(BoardGeneratorService::class);
     $boardGen->shouldReceive('generate')->andReturn(null);
+    $boardGen->shouldReceive('assignStartingTile')->andReturn(null);
 
     DB::shouldReceive('transaction')->andReturnUsing(fn ($cb) => $cb());
 
@@ -124,6 +126,7 @@ test('createGame: genera el tablero con el game_id correcto', function () {
 
     $boardGen = Mockery::mock(BoardGeneratorService::class);
     $boardGen->shouldReceive('generate')->with('gid-abc')->once()->andReturn(null);
+    $boardGen->shouldReceive('assignStartingTile')->andReturn(null);
 
     DB::shouldReceive('transaction')->andReturnUsing(fn ($cb) => $cb());
 
@@ -182,9 +185,12 @@ test('joinGame: adjunta al usuario si no pertenece ya a la partida', function ()
     $roundRepo = Mockery::mock(RoundRepositoryInterface::class);
     $roundRepo->shouldReceive('getLatestRoundForGame')->with('gid-open')->andReturn($round);
 
+    $boardGen = Mockery::mock(BoardGeneratorService::class);
+    $boardGen->shouldReceive('assignStartingTile')->andReturn(null);
+
     DB::shouldReceive('transaction')->andReturnUsing(fn ($cb) => $cb());
 
-    $result = makeGameService($gameRepo, $roundRepo)->joinGame($dto);
+    $result = makeGameService($gameRepo, $roundRepo, $boardGen)->joinGame($dto);
     expect($result)->toBe($game);
 });
 
@@ -226,6 +232,7 @@ test('joinRandomGame: adjunta al usuario a la partida disponible', function () {
     $rel->shouldReceive('where')->andReturnSelf();
     $rel->shouldReceive('exists')->andReturn(false);
     $rel->shouldReceive('attach')->with('user-rand', ['is_afk' => false])->once();
+    $rel->shouldReceive('count')->andReturn(1);
 
     $game = Mockery::mock(Game::class);
     $game->shouldReceive('getAttribute')->with('id')->andReturn('gid-rand');
@@ -242,9 +249,12 @@ test('joinRandomGame: adjunta al usuario a la partida disponible', function () {
     $roundRepo = Mockery::mock(RoundRepositoryInterface::class);
     $roundRepo->shouldReceive('getLatestRoundForGame')->andReturn($round);
 
+    $boardGen = Mockery::mock(BoardGeneratorService::class);
+    $boardGen->shouldReceive('assignStartingTile')->andReturn(null);
+
     DB::shouldReceive('transaction')->andReturnUsing(fn ($cb) => $cb());
 
-    $result = makeGameService($gameRepo, $roundRepo)->joinRandomGame('user-rand');
+    $result = makeGameService($gameRepo, $roundRepo, $boardGen)->joinRandomGame('user-rand');
     expect($result)->toBe($game);
 });
 

@@ -81,7 +81,7 @@ class SyncRepository implements SyncRepositoryInterface
         $allInvs = Invention::with(['inventionCosts.resource', 'inventionPrerequisites'])->get();
         $gameInvMap = $game->inventions()->get()->keyBy('id');
         $matMap = $game->materials()->get()->keyBy('id');
-        $activeTechIds = $game->technologies()->wherePivot('is_active', true)->get()->pluck('id');
+        $activeTechIds = $game->technologies()->wherePivot('is_active', true)->pluck('technologies.id');
 
         return $allInvs->map(function ($inv) use ($gameInvMap, $allInvs, $matMap, $activeTechIds) {
             $quantity = $gameInvMap->has($inv->id) ? (int) $gameInvMap[$inv->id]->pivot->quantity : 0;

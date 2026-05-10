@@ -10,31 +10,38 @@ class SyncService
 {
     public function __construct(
         private SyncRepositoryInterface $syncRepository,
+        private CacheService $cacheService,
     ) {}
 
     public function sync(Game $game, string $userId): SyncResponseDTO
     {
-        $round = $this->syncRepository->getCurrentRound($game->id);
+        return $this->cacheService->rememberSync(
+            $game->id,
+            $userId,
+            function () use ($game, $userId) {
+                $round = $this->syncRepository->getCurrentRound($game->id);
 
-        return new SyncResponseDTO(
-            currentRound: $round ? [
-                'number' => $round->number,
-                'start_date' => $round->start_date,
-            ] : [],
-            userActions: [
-                'actions_spent' => $round
-                    ? $this->syncRepository->getActionsSpent($round, $userId)
-                    : 0,
-            ],
-            inventory: $this->syncRepository->getInventory($game),
-            technologies: $this->syncRepository->getTechnologies($game),
-            inventions: $this->syncRepository->getInventions($game),
-            hasVoted: $round
-                ? $this->syncRepository->hasVotedThisRound($round, $userId)
-                : false,
-            lastRoundResult: $round
-                ? $this->syncRepository->getLastRoundResult($round)
-                : [],
+                return new SyncResponseDTO(
+                    currentRound: $round ? [
+                        'number' => $round->number,
+                        'start_date' => $round->start_date,
+                    ] : [],
+                    userActions: [
+                        'actions_spent' => $round
+                            ? $this->syncRepository->getActionsSpent($round, $userId)
+                            : 0,
+                    ],
+                    inventory: $this->syncRepository->getInventory($game),
+                    technologies: $this->syncRepository->getTechnologies($game),
+                    inventions: $this->syncRepository->getInventions($game),
+                    hasVoted: $round
+                        ? $this->syncRepository->hasVotedThisRound($round, $userId)
+                        : false,
+                    lastRoundResult: $round
+                        ? $this->syncRepository->getLastRoundResult($round)
+                        : [],
+                );
+            },
         );
     }
 }

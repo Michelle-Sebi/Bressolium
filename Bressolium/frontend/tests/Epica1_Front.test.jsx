@@ -21,6 +21,7 @@ import gameReducer from '../src/features/game/gameSlice';
 vi.mock('../src/services/authService', () => ({
   default: {
     login: vi.fn(),
+    getToken: vi.fn(() => null),
   },
 }));
 

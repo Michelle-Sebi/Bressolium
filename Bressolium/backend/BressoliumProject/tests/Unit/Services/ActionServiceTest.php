@@ -8,6 +8,7 @@
 // ==========================================
 
 use App\DTOs\ExploreActionDTO;
+use App\Services\CacheService;
 use App\DTOs\UpgradeActionDTO;
 use App\Exceptions\ActionLimitExceededException;
 use App\Exceptions\InsufficientMaterialsException;
@@ -41,9 +42,14 @@ function mockTileObj(string $gameId = 'game-1', bool $explored = false): MockInt
     return $tile;
 }
 
-function makeAction($tileRepo): ActionService
+function makeAction($tileRepo, $cache = null): ActionService
 {
-    return new ActionService($tileRepo);
+    if ($cache === null) {
+        $cache = Mockery::mock(CacheService::class);
+        $cache->shouldReceive('invalidateBoard')->andReturn(null);
+    }
+
+    return new ActionService($tileRepo, $cache);
 }
 
 // ─── explore: excepciones ─────────────────────────────────────────────────────
@@ -186,7 +192,30 @@ test('upgrade: lanza TileNotExploredException si no hay siguiente nivel de mejor
         ->toThrow(TileNotExploredException::class);
 });
 
-// ─── upgrade: excepciones post Game::find (necesitan DB para el Game) ─────────
+// ─── upgrade: tecnología requerida (necesita DB para Game::find) ─────────────
+
+test('upgrade: lanza TechnologyRequiredException si la tecnología requerida no está activa', function () {
+    $game = Game::factory()->create();
+
+    $dto = new UpgradeActionDTO(tileId: 'tile-1', userId: 'user-1');
+    $tile = mockTileObj($game->id, explored: true);
+    $round = Mockery::mock(Round::class);
+    $nextType = Mockery::mock(TileType::class);
+    $requiredTech = Mockery::mock(\App\Models\Technology::class);
+    $requiredTech->shouldReceive('getAttribute')->with('id')->andReturn('tech-required');
+    $requiredTech->shouldReceive('getAttribute')->with('name')->andReturn('Escritura');
+
+    $repo = Mockery::mock(TileRepositoryInterface::class);
+    $repo->shouldReceive('find')->andReturn($tile);
+    $repo->shouldReceive('isUserInGame')->andReturn(true);
+    $repo->shouldReceive('getCurrentRound')->andReturn($round);
+    $repo->shouldReceive('getActionsSpent')->andReturn(0);
+    $repo->shouldReceive('findNextTileType')->andReturn($nextType);
+    $repo->shouldReceive('getRequiredTechnology')->andReturn($requiredTech);
+
+    expect(fn () => makeAction($repo)->upgrade($dto))
+        ->toThrow(\App\Exceptions\TechnologyRequiredException::class);
+});
 
 test('upgrade: lanza InsufficientMaterialsException si no hay materiales suficientes', function () {
     $game = Game::factory()->create();
@@ -203,16 +232,15 @@ test('upgrade: lanza InsufficientMaterialsException si no hay materiales suficie
     $repo->shouldReceive('getCurrentRound')->andReturn($round);
     $repo->shouldReceive('getActionsSpent')->andReturn(0);
     $repo->shouldReceive('findNextTileType')->andReturn($nextType);
+    $repo->shouldReceive('getRequiredTechnology')->andReturn(null);
     $repo->shouldReceive('getUpgradeCosts')->andReturn($costs);
-    $repo->shouldReceive('hasSufficientMaterials')
-        ->withArgs(fn ($g, $c) => $g->id === $game->id)
-        ->andReturn(false);
+    $repo->shouldReceive('hasSufficientMaterials')->andReturn(false);
 
     expect(fn () => makeAction($repo)->upgrade($dto))
         ->toThrow(InsufficientMaterialsException::class);
 });
 
-test('upgrade: deduce materiales, mejora la casilla e incrementa acciones en camino feliz', function () {
+test('upgrade: mejora la casilla e incrementa acciones en camino feliz sin tecnología requerida', function () {
     $game = Game::factory()->create();
 
     $dto = new UpgradeActionDTO(tileId: 'tile-1', userId: 'user-1');
@@ -227,6 +255,7 @@ test('upgrade: deduce materiales, mejora la casilla e incrementa acciones en cam
     $repo->shouldReceive('getCurrentRound')->andReturn($round);
     $repo->shouldReceive('getActionsSpent')->andReturn(0);
     $repo->shouldReceive('findNextTileType')->andReturn($nextType);
+    $repo->shouldReceive('getRequiredTechnology')->andReturn(null);
     $repo->shouldReceive('getUpgradeCosts')->andReturn($costs);
     $repo->shouldReceive('hasSufficientMaterials')->andReturn(true);
     $repo->shouldReceive('deductMaterials')->once();
@@ -235,4 +264,91 @@ test('upgrade: deduce materiales, mejora la casilla e incrementa acciones en cam
 
     $result = makeAction($repo)->upgrade($dto);
     expect($result)->toBe($tile);
+});
+
+// ─── T37: invalidación de caché ───────────────────────────────────────────────
+
+test('explore: invalida la caché del tablero con el game_id correcto en el camino feliz', function () {
+    $dto = new ExploreActionDTO(tileId: 'tile-1', userId: 'user-1');
+    $tile = mockTileObj('game-cache-test', explored: false);
+    $round = Mockery::mock(Round::class);
+
+    $repo = Mockery::mock(TileRepositoryInterface::class);
+    $repo->shouldReceive('find')->andReturn($tile);
+    $repo->shouldReceive('isUserInGame')->andReturn(true);
+    $repo->shouldReceive('getCurrentRound')->andReturn($round);
+    $repo->shouldReceive('getActionsSpent')->andReturn(0);
+    $repo->shouldReceive('isAdjacentToUserExplored')->andReturn(true);
+    $repo->shouldReceive('markExplored')->once();
+    $repo->shouldReceive('incrementActionsSpent')->once();
+
+    $cache = Mockery::mock(CacheService::class);
+    $cache->shouldReceive('invalidateBoard')->with('game-cache-test')->once();
+
+    makeAction($repo, $cache)->explore($dto);
+});
+
+test('explore: no invalida la caché si la exploración falla por límite de acciones', function () {
+    $dto = new ExploreActionDTO(tileId: 'tile-1', userId: 'user-1');
+    $tile = mockTileObj('game-1', explored: false);
+    $round = Mockery::mock(Round::class);
+
+    $repo = Mockery::mock(TileRepositoryInterface::class);
+    $repo->shouldReceive('find')->andReturn($tile);
+    $repo->shouldReceive('isUserInGame')->andReturn(true);
+    $repo->shouldReceive('getCurrentRound')->andReturn($round);
+    $repo->shouldReceive('getActionsSpent')->andReturn(2);
+
+    $cache = Mockery::mock(CacheService::class);
+    $cache->shouldReceive('invalidateBoard')->never();
+
+    expect(fn () => makeAction($repo, $cache)->explore($dto))
+        ->toThrow(ActionLimitExceededException::class);
+});
+
+test('upgrade: invalida la caché del tablero con el game_id correcto en el camino feliz', function () {
+    $game = Game::factory()->create();
+
+    $dto = new UpgradeActionDTO(tileId: 'tile-1', userId: 'user-1');
+    $tile = mockTileObj($game->id, explored: true);
+    $round = Mockery::mock(Round::class);
+    $nextType = Mockery::mock(TileType::class);
+    $costs = collect([]);
+
+    $repo = Mockery::mock(TileRepositoryInterface::class);
+    $repo->shouldReceive('find')->andReturn($tile);
+    $repo->shouldReceive('isUserInGame')->andReturn(true);
+    $repo->shouldReceive('getCurrentRound')->andReturn($round);
+    $repo->shouldReceive('getActionsSpent')->andReturn(0);
+    $repo->shouldReceive('findNextTileType')->andReturn($nextType);
+    $repo->shouldReceive('getRequiredTechnology')->andReturn(null);
+    $repo->shouldReceive('getUpgradeCosts')->andReturn($costs);
+    $repo->shouldReceive('hasSufficientMaterials')->andReturn(true);
+    $repo->shouldReceive('deductMaterials')->once();
+    $repo->shouldReceive('upgradeTile')->with($tile, $nextType)->once();
+    $repo->shouldReceive('incrementActionsSpent')->with($round, 'user-1')->once();
+
+    $cache = Mockery::mock(CacheService::class);
+    $cache->shouldReceive('invalidateBoard')->with($game->id)->once();
+
+    makeAction($repo, $cache)->upgrade($dto);
+});
+
+test('upgrade: no invalida la caché si no hay siguiente nivel de mejora', function () {
+    $dto = new UpgradeActionDTO(tileId: 'tile-1', userId: 'user-1');
+    $tile = mockTileObj('game-1', explored: true);
+    $round = Mockery::mock(Round::class);
+
+    $repo = Mockery::mock(TileRepositoryInterface::class);
+    $repo->shouldReceive('find')->andReturn($tile);
+    $repo->shouldReceive('isUserInGame')->andReturn(true);
+    $repo->shouldReceive('getCurrentRound')->andReturn($round);
+    $repo->shouldReceive('getActionsSpent')->andReturn(0);
+    $repo->shouldReceive('findNextTileType')->andReturn(null);
+
+    $cache = Mockery::mock(CacheService::class);
+    $cache->shouldReceive('invalidateBoard')->never();
+
+    expect(fn () => makeAction($repo, $cache)->upgrade($dto))
+        ->toThrow(TileNotExploredException::class);
 });

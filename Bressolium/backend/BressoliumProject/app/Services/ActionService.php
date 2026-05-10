@@ -7,6 +7,7 @@ use App\DTOs\UpgradeActionDTO;
 use App\Events\TileExplored;
 use App\Events\TileUpgraded;
 use App\Exceptions\ActionLimitExceededException;
+use App\Exceptions\InsufficientMaterialsException;
 use App\Exceptions\PuebloTileActionException;
 use App\Exceptions\TechnologyRequiredException;
 use App\Exceptions\TileAlreadyExploredException;
@@ -19,7 +20,10 @@ use App\Repositories\Contracts\TileRepositoryInterface;
 
 class ActionService
 {
-    public function __construct(private TileRepositoryInterface $tileRepo) {}
+    public function __construct(
+        private TileRepositoryInterface $tileRepo,
+        private CacheService $cacheService,
+    ) {}
 
     public function explore(ExploreActionDTO $dto): Tile
     {
@@ -51,6 +55,7 @@ class ActionService
 
         $tile->refresh()->load('type');
         TileExplored::dispatch($tile, $dto->userId);
+        $this->cacheService->invalidateBoard($tile->game_id);
 
         return $tile;
     }
@@ -81,9 +86,10 @@ class ActionService
             throw new TileNotExploredException('No hay más niveles de mejora disponibles para esta casilla.');
         }
 
+        $game = Game::find($tile->game_id);
+
         $requiredTech = $this->tileRepo->getRequiredTechnology($nextType);
         if ($requiredTech !== null) {
-            $game = Game::find($tile->game_id);
             $isActive = $game->technologies()
                 ->where('technology_id', $requiredTech->id)
                 ->wherePivot('is_active', true)
@@ -93,11 +99,18 @@ class ActionService
             }
         }
 
+        $costs = $this->tileRepo->getUpgradeCosts($nextType);
+        if (! $this->tileRepo->hasSufficientMaterials($game, $costs)) {
+            throw new InsufficientMaterialsException;
+        }
+
+        $this->tileRepo->deductMaterials($game, $costs);
         $this->tileRepo->upgradeTile($tile, $nextType);
         $this->tileRepo->incrementActionsSpent($round, $dto->userId);
 
         $tile->refresh()->load('type');
         TileUpgraded::dispatch($tile, $dto->userId);
+        $this->cacheService->invalidateBoard($tile->game_id);
 
         return $tile;
     }

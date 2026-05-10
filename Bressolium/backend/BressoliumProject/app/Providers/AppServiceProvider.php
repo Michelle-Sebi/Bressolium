@@ -8,13 +8,17 @@ use App\Models\Game;
 use App\Models\Tile;
 use App\Policies\GamePolicy;
 use App\Policies\TilePolicy;
+use Illuminate\Cache\Repository;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
+    public function register(): void
+    {
+        $this->app->bind(Repository::class, fn () => $this->app['cache.store']);
+    }
 
     public function boot(): void
     {
