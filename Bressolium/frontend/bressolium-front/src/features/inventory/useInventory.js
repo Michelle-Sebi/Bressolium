@@ -5,6 +5,7 @@ export function useInventory(gameId) {
         skip:                    !gameId,
         pollingInterval:         30000,
         refetchOnMountOrArgChange: true,
+        refetchOnFocus:          true,
     });
     const materials  = data?.inventory               ?? [];
     const inventions = data?.progress?.inventions    ?? [];

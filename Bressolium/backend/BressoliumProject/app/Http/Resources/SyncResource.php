@@ -13,11 +13,12 @@ class SyncResource extends JsonResource
     {
         return [
             'current_round' => $this->dto->currentRound,
-            'user_actions' => $this->dto->userActions,
-            'inventory' => $this->dto->inventory,
-            'progress' => [
+            'user_actions'  => $this->dto->userActions,
+            'has_voted'     => $this->dto->hasVoted,
+            'inventory'     => $this->dto->inventory,
+            'progress'      => [
                 'technologies' => $this->dto->technologies,
-                'inventions' => $this->dto->inventions,
+                'inventions'   => $this->dto->inventions,
             ],
         ];
     }

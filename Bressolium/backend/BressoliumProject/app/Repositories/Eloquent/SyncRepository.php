@@ -7,6 +7,7 @@ use App\Models\Invention;
 use App\Models\Round;
 use App\Models\Technology;
 use App\Repositories\Contracts\SyncRepositoryInterface;
+use Illuminate\Support\Facades\DB;
 
 class SyncRepository implements SyncRepositoryInterface
 {
@@ -136,5 +137,13 @@ class SyncRepository implements SyncRepositoryInterface
                 'missing' => $missing,
             ];
         })->values()->toArray();
+    }
+
+    public function hasVotedThisRound(Round $round, string $userId): bool
+    {
+        return DB::table('votes')
+            ->where('round_id', $round->id)
+            ->where('user_id', $userId)
+            ->exists();
     }
 }

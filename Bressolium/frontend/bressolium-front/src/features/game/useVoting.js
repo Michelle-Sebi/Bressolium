@@ -6,6 +6,7 @@ export function useVoting(gameId) {
         skip:                    !gameId,
         pollingInterval:         30000,
         refetchOnMountOrArgChange: true,
+        refetchOnFocus:          true,
     });
     const [voteMutation]                                 = bressoliumApi.useVoteMutation();
     const [closeRoundMutation, { isLoading: isClosing }] = bressoliumApi.useCloseRoundMutation();
@@ -17,7 +18,8 @@ export function useVoting(gameId) {
     const rawInvs      = data?.progress?.inventions   ?? [];
     const currentRound = data?.current_round ?? null;
 
-    const hasVoted = votedRound === currentRound?.number;
+    // Server is authoritative; local state gives immediate feedback before the next poll
+    const hasVoted = (data?.has_voted ?? false) || votedRound === currentRound?.number;
 
     // Solo tecnologías pendientes de investigar
     const technologies = rawTechs
