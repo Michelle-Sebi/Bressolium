@@ -108,6 +108,12 @@ function Tile({ tile, currentUserId, isExplorable, onTileClick }) {
 
     const isPueblo = baseType === 'pueblo';
 
+    const tileLabel = isExplored
+        ? `Casilla ${baseType}${level > 0 ? `, nivel ${level}` : ''}, coordenadas ${tile.coord_x},${tile.coord_y}${isExplored ? '. Mejorable.' : ''}`
+        : isExplorable
+            ? `Casilla desconocida explorable, coordenadas ${tile.coord_x},${tile.coord_y}`
+            : `Casilla en niebla de guerra, coordenadas ${tile.coord_x},${tile.coord_y}`;
+
     return (
         <div
             data-testid="tile"
@@ -122,6 +128,9 @@ function Tile({ tile, currentUserId, isExplorable, onTileClick }) {
             <div
                 data-testid={`tile-${tile.coord_x}-${tile.coord_y}`}
                 {...specificTestIdAttributes}
+                role={isClickable ? 'button' : undefined}
+                tabIndex={isClickable ? 0 : -1}
+                aria-label={tileLabel}
                 style={{
                     position: 'relative',
                     width: '100%',
@@ -132,11 +141,18 @@ function Tile({ tile, currentUserId, isExplorable, onTileClick }) {
                     cursor: isClickable ? 'pointer' : 'default',
                 }}
                 onClick={() => onTileClick(tile, isOwnTile, isExplorable)}
+                onKeyDown={(e) => {
+                    if ((e.key === 'Enter' || e.key === ' ') && isClickable) {
+                        e.preventDefault();
+                        onTileClick(tile, isOwnTile, isExplorable);
+                    }
+                }}
             >
                 {tileIcon && (
                     <img
                         src={tileIcon}
-                        alt={baseType}
+                        alt=""
+                        aria-hidden="true"
                         style={{ width: '60%', height: '60%', objectFit: 'contain' }}
                     />
                 )}

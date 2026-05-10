@@ -84,7 +84,7 @@ function MaterialItem({ material }) {
                 <img
                     data-testid={`material-icon-${material.name}`}
                     src={iconSrc}
-                    alt={material.name}
+                    alt={`${material.name}, tier ${material.tier}`}
                     style={{ width: '32px', height: '32px', objectFit: 'contain' }}
                 />
                 <span style={{ fontSize: '9px', color: '#8B7355', textAlign: 'center', lineHeight: 1.2 }}>
@@ -94,6 +94,7 @@ function MaterialItem({ material }) {
                     <Badge
                         count={material.quantity}
                         data-testid={`material-badge-${material.name}`}
+                        aria-label={`Cantidad: ${material.quantity}`}
                     />
                 )}
             </div>
@@ -204,7 +205,7 @@ function InventionItem({ invention }) {
                 {iconSrc && (
                     <img
                         src={iconSrc}
-                        alt={invention.name}
+                        alt={`${invention.name}${isActive ? `, cantidad ${invention.quantity}` : ''}`}
                         style={{ width: '32px', height: '32px', objectFit: 'contain' }}
                     />
                 )}
@@ -213,6 +214,7 @@ function InventionItem({ invention }) {
                 </span>
                 {isActive && (
                     <span
+                        aria-label={`Cantidad: ${invention.quantity}`}
                         style={{
                             fontSize:        '11px',
                             fontWeight:      'bold',

@@ -321,7 +321,7 @@ describe('HU 2.4 — Panel lateral de inventario de materiales', () => {
         materials.forEach(mat => {
             const icon = screen.getByTestId(`material-icon-${mat.name}`);
             expect(icon.tagName).toBe('IMG');
-            expect(icon).toHaveAttribute('alt', mat.name);
+            expect(icon).toHaveAttribute('alt', `${mat.name}, tier ${mat.tier}`);
         });
     });
 
