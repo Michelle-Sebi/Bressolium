@@ -3,10 +3,11 @@
  * @typedef {{ name: string, type: string }} MissingItem
  */
 
+import { useEffect, useRef } from 'react';
 import Badge from '../../components/ui/Badge';
 
 // ─── Colores brutalistas del proyecto ────────────────────────────────────────
-const COLOR_BROWN   = '#8B7355';
+const COLOR_BROWN   = '#a0a0a0';
 const COLOR_GREEN   = '#458B74';
 const COLOR_BG      = '#f7f9f7';
 const COLOR_BLOCKED = '#C1CDC1';
@@ -33,6 +34,7 @@ function TechRow({ tech, showMissing, showVote, onVote }) {
                 {showVote && (
                     <button
                         onClick={() => onVote?.({ technology_id: tech.id }, tech.name)}
+                        aria-label={`Votar por ${tech.name}`}
                         style={{
                             background:    COLOR_BROWN,
                             color:         '#fff',
@@ -110,10 +112,43 @@ function SectionHeader({ label, color, count }) {
  * @param {{ isOpen: boolean, onClose: Function, completed: TechEntry[], available: TechEntry[], blocked: TechEntry[] }} props
  */
 function TechTreeModal({ isOpen, onClose, completed = [], available = [], blocked = [], onVote = () => {} }) {
+    const dialogRef = useRef(null);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        const dialog = dialogRef.current;
+        if (!dialog) return;
+
+        const previousFocus = document.activeElement;
+        const focusable = Array.from(dialog.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        ));
+        focusable[0]?.focus();
+
+        function handleKeyDown(e) {
+            if (e.key === 'Escape') { onClose(); return; }
+            if (e.key !== 'Tab' || focusable.length === 0) return;
+            const first = focusable[0];
+            const last  = focusable[focusable.length - 1];
+            if (e.shiftKey) {
+                if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+            } else {
+                if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+            }
+        }
+
+        dialog.addEventListener('keydown', handleKeyDown);
+        return () => {
+            dialog.removeEventListener('keydown', handleKeyDown);
+            previousFocus?.focus();
+        };
+    }, [isOpen, onClose]);
+
     if (!isOpen) return null;
 
     return (
         <div
+            ref={dialogRef}
             role="dialog"
             aria-modal="true"
             aria-label="Árbol Tecnológico"

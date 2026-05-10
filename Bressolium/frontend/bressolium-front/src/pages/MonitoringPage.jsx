@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import httpClient from '../lib/httpClient';
 
-const C_BROWN  = '#8B7355';
+const C_BROWN  = '#a0a0a0';
 const C_GREEN  = '#458B74';
 const C_RED    = '#CD4F39';
 const C_GRAY   = '#C1CDC1';

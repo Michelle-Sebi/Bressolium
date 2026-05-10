@@ -5,7 +5,7 @@
  * @see Tarea 5 - Game Lobby & Team Manager UI
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -25,6 +25,39 @@ const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newTeamName, setNewTeamName] = useState('');
+  const modalRef = useRef(null);
+
+  const closeModal = useCallback(() => setIsModalOpen(false), []);
+
+  useEffect(() => {
+    if (!isModalOpen) return;
+    const dialog = modalRef.current;
+    if (!dialog) return;
+
+    const previousFocus = document.activeElement;
+    const focusable = Array.from(dialog.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    ));
+    focusable[0]?.focus();
+
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') { closeModal(); return; }
+      if (e.key !== 'Tab' || focusable.length === 0) return;
+      const first = focusable[0];
+      const last  = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    }
+
+    dialog.addEventListener('keydown', handleKeyDown);
+    return () => {
+      dialog.removeEventListener('keydown', handleKeyDown);
+      previousFocus?.focus();
+    };
+  }, [isModalOpen, closeModal]);
 
   useEffect(() => {
     dispatch(fetchGamesThunk());
@@ -81,7 +114,7 @@ const Dashboard = () => {
           {/* Crear Nuevo */}
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="btn-primary bg-bbrown hover:bg-[#6e5b44]"
+            className="btn-primary bg-bbrown hover:bg-[#7a7a7a]"
           >
             CREAR EQUIPO NUEVO
           </button>
@@ -135,9 +168,13 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 gap-4 overflow-y-auto">
           {myGames.length > 0 ? (
             myGames.map(game => (
-              <div 
-                key={game.id} 
+              <div
+                key={game.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => handleGoToGame(game)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleGoToGame(game); } }}
+                aria-label={`Ir a la partida ${game.name}, estado ${game.status}`}
                 className="group cursor-pointer bg-bgray p-6 hover:bg-bbrown transition-all"
               >
                 <div className="flex justify-between items-center">
@@ -167,16 +204,23 @@ const Dashboard = () => {
 
       {/* MODAL CREACIÓN (Simulado con overlay plano) */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-bbrown/90 flex items-center justify-center p-4 z-50">
+        <div
+          ref={modalRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="create-team-title"
+          className="fixed inset-0 bg-bbrown/90 flex items-center justify-center p-4 z-50"
+        >
           <div className="bg-white w-full max-w-lg p-10 relative">
-            <button 
-              onClick={() => setIsModalOpen(false)}
+            <button
+              onClick={closeModal}
+              aria-label="Cerrar"
               className="absolute top-4 right-4 text-3xl font-black text-bbrown hover:text-bred"
             >
               ×
             </button>
             
-            <h3 className="text-3xl font-black text-bbrown mb-8">FUNDAR EQUIPO</h3>
+            <h3 id="create-team-title" className="text-3xl font-black text-bbrown mb-8">FUNDAR EQUIPO</h3>
             
             <form onSubmit={handleCreateTeam} className="space-y-6">
               <div>

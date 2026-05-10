@@ -3,7 +3,7 @@ import { useVoting } from './useVoting';
 
 const SECTION_HEADER = {
     padding:         '4px 8px',
-    backgroundColor: '#8B7355',
+    backgroundColor: '#a0a0a0',
     color:           '#fff',
     fontWeight:      'bold',
     textTransform:   'uppercase',
@@ -13,7 +13,7 @@ const SECTION_HEADER = {
 };
 
 function SectionHeader({ label }) {
-    return <div style={SECTION_HEADER}>{label}</div>;
+    return <div role="heading" aria-level={3} style={SECTION_HEADER}>{label}</div>;
 }
 
 function VoteItem({ name, canVote, missing, quantity, onClick }) {
@@ -26,7 +26,7 @@ function VoteItem({ name, canVote, missing, quantity, onClick }) {
                 padding:         '6px 8px',
                 textAlign:       'left',
                 backgroundColor: canVote ? '#f7f9f7' : '#e8e4df',
-                color:           canVote ? '#8B7355' : '#b0a898',
+                color:           canVote ? '#a0a0a0' : '#b0a898',
                 border:          '1px solid #C1CDC1',
                 borderLeft:      canVote ? '3px solid #458B74' : '3px solid #C1CDC1',
                 marginBottom:    '2px',
@@ -43,13 +43,19 @@ function VoteItem({ name, canVote, missing, quantity, onClick }) {
             <span>
                 {name}
                 {missing.length > 0 && (
-                    <span style={{ fontSize: '9px', color: '#c0826b', marginLeft: '6px', fontWeight: 'normal' }}>
+                    <span
+                        aria-label={`Faltan: ${missing.map((m) => m.name).join(', ')}`}
+                        style={{ fontSize: '9px', color: '#c0826b', marginLeft: '6px', fontWeight: 'normal' }}
+                    >
                         falta: {missing.map((m) => m.name).join(', ')}
                     </span>
                 )}
             </span>
             {quantity > 0 && (
-                <span style={{ fontSize: '10px', color: '#458B74', fontWeight: 'bold', marginLeft: '6px', flexShrink: 0 }}>
+                <span
+                    aria-label={`Cantidad: ${quantity}`}
+                    style={{ fontSize: '10px', color: '#458B74', fontWeight: 'bold', marginLeft: '6px', flexShrink: 0 }}
+                >
                     ×{quantity}
                 </span>
             )}
@@ -146,12 +152,13 @@ function VotingPanel({ gameId }) {
             {!isLoading && technologies.length > 0 && !hasVoted && (
                 <button
                     onClick={abstain}
+                    aria-label="Abstenerse: no investigar esta jornada"
                     style={{
                         width:           '100%',
                         padding:         '5px 8px',
                         textAlign:       'left',
                         backgroundColor: '#f7f9f7',
-                        color:           '#8B7355',
+                        color:           '#a0a0a0',
                         border:          '1px dashed #C1CDC1',
                         borderLeft:      '3px dashed #C1CDC1',
                         marginBottom:    '2px',
