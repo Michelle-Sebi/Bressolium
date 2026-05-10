@@ -1,0 +1,1200 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Bressolium API",
+        "description": "API REST del videojuego de estrategia colaborativa Bressolium. Todos los endpoints devuelven JSON con el formato unificado {success, data, error}.",
+        "contact": {
+            "name": "Equipo Bressolium"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost/api/v1",
+            "description": "Servidor de desarrollo local"
+        }
+    ],
+    "paths": {
+        "/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Registra un nuevo usuario",
+                "description": "Crea un usuario y devuelve un token Sanctum para empezar sesión inmediatamente.",
+                "operationId": "5d4fa5d5607ed675ba93907e1fc94534",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Bárbara"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "barbara@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Usuario registrado correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string",
+                                                            "example": "01HFG..."
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "Bárbara"
+                                                        },
+                                                        "email": {
+                                                            "type": "string",
+                                                            "example": "barbara@example.com"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "token": {
+                                                    "type": "string",
+                                                    "example": "1|abc123..."
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": null,
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Datos inválidos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error del servidor",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Inicia sesión y devuelve un token Sanctum",
+                "operationId": "67d6d0fdd54fba132e1b6f55ca254183",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "barbara@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login correcto",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "type": "object"
+                                                },
+                                                "token": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Credenciales inválidas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Datos inválidos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/board/{gameId}": {
+            "get": {
+                "tags": [
+                    "Board"
+                ],
+                "summary": "Obtiene el tablero completo de una partida",
+                "description": "Devuelve todas las casillas de la partida con su estado actual de exploración. La respuesta se cachea por game_id y se invalida cuando se realiza alguna acción sobre el tablero.",
+                "operationId": "5933a6e81cc72389aa3d69179c8930a6",
+                "parameters": [
+                    {
+                        "name": "gameId",
+                        "in": "path",
+                        "description": "UUID de la partida",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tablero de 15x15 casillas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "format": "uuid"
+                                                    },
+                                                    "coord_x": {
+                                                        "type": "integer"
+                                                    },
+                                                    "coord_y": {
+                                                        "type": "integer"
+                                                    },
+                                                    "explored": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "tile_type_id": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No perteneces a esta partida",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Partida no encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/game/create": {
+            "post": {
+                "tags": [
+                    "Game"
+                ],
+                "summary": "Crea una nueva partida y se une el usuario actual",
+                "description": "El usuario que crea la partida queda automáticamente unido a ella. Genera el tablero, asigna casilla inicial e inicializa materiales.",
+                "operationId": "1bfdb5cb0c9425774a2d783cac9349a5",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "team_name"
+                                ],
+                                "properties": {
+                                    "team_name": {
+                                        "type": "string",
+                                        "example": "Los Vikingos"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Partida creada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Datos inválidos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/game/join": {
+            "post": {
+                "tags": [
+                    "Game"
+                ],
+                "summary": "Une al usuario a una partida existente por nombre de equipo",
+                "operationId": "9d6da77a62e38629fe409ceaac84ec0b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "team_name"
+                                ],
+                                "properties": {
+                                    "team_name": {
+                                        "type": "string",
+                                        "example": "Los Vikingos"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Unión correcta",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "La partida ya tiene 5 jugadores",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Partida no encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/game/my": {
+            "get": {
+                "tags": [
+                    "Game"
+                ],
+                "summary": "Lista las partidas del usuario autenticado",
+                "operationId": "7d71c3f237e1b0f8a28231746dca5484",
+                "responses": {
+                    "200": {
+                        "description": "Listado de partidas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/game/all": {
+            "get": {
+                "tags": [
+                    "Game"
+                ],
+                "summary": "Lista todas las partidas disponibles para unirse",
+                "description": "Devuelve partidas en estado WAITING con menos de 5 jugadores.",
+                "operationId": "06ec943b5f7613e0f9d5909534756efb",
+                "responses": {
+                    "200": {
+                        "description": "Listado de partidas disponibles",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/game/join-random": {
+            "post": {
+                "tags": [
+                    "Game"
+                ],
+                "summary": "Une al usuario a una partida disponible aleatoria",
+                "operationId": "cca89a21936f5b099aecb90a83d17bf3",
+                "responses": {
+                    "200": {
+                        "description": "Unión correcta",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No hay partidas disponibles",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/game/{gameId}/close-round": {
+            "post": {
+                "tags": [
+                    "Round"
+                ],
+                "summary": "Cierra la jornada actual y genera la siguiente",
+                "description": "Resuelve los votos de tecnologías e inventos, activa los más votados, produce materiales según las casillas exploradas, marca jugadores AFK y crea la siguiente jornada.",
+                "operationId": "fce22117f788fe97b2e86669d116ac38",
+                "parameters": [
+                    {
+                        "name": "gameId",
+                        "in": "path",
+                        "description": "UUID de la partida",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Jornada cerrada correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Jornada cerrada correctamente."
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No perteneces a esta partida",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Partida no encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/stats": {
+            "get": {
+                "tags": [
+                    "Stats"
+                ],
+                "summary": "Métricas del sistema y del juego",
+                "description": "Endpoint público (no requiere autenticación). Devuelve métricas operativas del sistema (uptime, estado de la BD, requests/min, errores/min, latencia p95) y métricas de negocio (totales de partidas, jugadores y rondas).",
+                "operationId": "15f6e28f0b688dcb04049d2d7b3d64b8",
+                "responses": {
+                    "200": {
+                        "description": "Métricas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "system": {
+                                                    "properties": {
+                                                        "uptime": {
+                                                            "description": "Segundos desde la última modificación de artisan",
+                                                            "type": "integer"
+                                                        },
+                                                        "database": {
+                                                            "type": "string",
+                                                            "example": "ok",
+                                                            "enum": [
+                                                                "ok",
+                                                                "error"
+                                                            ]
+                                                        },
+                                                        "requests_per_minute": {
+                                                            "type": "integer"
+                                                        },
+                                                        "errors_per_minute": {
+                                                            "type": "integer"
+                                                        },
+                                                        "latency_p95": {
+                                                            "type": "number",
+                                                            "format": "float"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "game": {
+                                                    "properties": {
+                                                        "total_games": {
+                                                            "type": "integer"
+                                                        },
+                                                        "waiting_games": {
+                                                            "type": "integer"
+                                                        },
+                                                        "active_games": {
+                                                            "type": "integer"
+                                                        },
+                                                        "finished_games": {
+                                                            "type": "integer"
+                                                        },
+                                                        "total_players": {
+                                                            "type": "integer"
+                                                        },
+                                                        "total_rounds": {
+                                                            "type": "integer"
+                                                        },
+                                                        "players": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/game/{gameId}/sync": {
+            "get": {
+                "tags": [
+                    "Sync"
+                ],
+                "summary": "Estado completo del juego para el frontend",
+                "description": "Devuelve la jornada actual, acciones gastadas, inventario, tecnologías, inventos, estado de voto del jugador y el resultado de la última jornada. Es el endpoint que el frontend pollea cada 30 segundos.",
+                "operationId": "7cb6bdcf95fdb46e343e7da66d753095",
+                "parameters": [
+                    {
+                        "name": "gameId",
+                        "in": "path",
+                        "description": "UUID de la partida",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Estado del juego",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "current_round": {
+                                                    "properties": {
+                                                        "number": {
+                                                            "type": "integer",
+                                                            "example": 3
+                                                        },
+                                                        "start_date": {
+                                                            "type": "string",
+                                                            "format": "date-time"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "user_actions": {
+                                                    "properties": {
+                                                        "actions_spent": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "inventory": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "progress": {
+                                                    "properties": {
+                                                        "technologies": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "inventions": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object"
+                                                            }
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "has_voted": {
+                                                    "type": "boolean",
+                                                    "example": false
+                                                },
+                                                "last_round_result": {
+                                                    "type": "object",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No perteneces a esta partida",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Partida no encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/tiles/{id}/explore": {
+            "post": {
+                "tags": [
+                    "Tile"
+                ],
+                "summary": "Explora una casilla",
+                "description": "Marca una casilla como explorada por el usuario. Consume una acción de la jornada actual. La casilla debe ser adyacente a otra ya explorada por el jugador.",
+                "operationId": "ddf964b7a5daaf7772206e4ef46fafb1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "UUID de la casilla a explorar",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Casilla explorada correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "coord_x": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "coord_y": {
+                                                    "type": "integer",
+                                                    "example": 7
+                                                },
+                                                "explored": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "type": {
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "El usuario no pertenece a esta partida",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Casilla ya explorada / no adyacente / sin acciones / casilla pueblo",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/tiles/{id}/upgrade": {
+            "post": {
+                "tags": [
+                    "Tile"
+                ],
+                "summary": "Mejora una casilla al siguiente nivel",
+                "description": "Sube de nivel el tipo de la casilla. Requiere que la casilla esté explorada, que existan los materiales necesarios en la partida y, en algunos casos, que la tecnología requerida esté activa. Consume una acción.",
+                "operationId": "e9e4572af6ffb3c46b1444812f508cf3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "UUID de la casilla a mejorar",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Casilla mejorada correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "El usuario no pertenece a esta partida",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Materiales insuficientes / tecnología no disponible / sin acciones / casilla no explorada / sin niveles superiores",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/game/{gameId}/vote": {
+            "post": {
+                "tags": [
+                    "Vote"
+                ],
+                "summary": "Vota una tecnología o un invento en la jornada actual",
+                "description": "El usuario vota por la tecnología o invento que quiere investigar/construir. Si no se envía ni technology_id ni invention_id se considera abstención. Solo se puede votar una vez por jornada.",
+                "operationId": "1639536305c5cdbed4489448db130ed5",
+                "parameters": [
+                    {
+                        "name": "gameId",
+                        "in": "path",
+                        "description": "UUID de la partida",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "technology_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "example": "01HFG...",
+                                        "nullable": true
+                                    },
+                                    "invention_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "example": null,
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Voto registrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "vote_id": {
+                                                    "type": "string",
+                                                    "format": "uuid"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No perteneces a esta partida",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Partida no encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ApiResponse": {
+                "description": "Formato unificado de respuesta de la API",
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "data": {
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "error": {
+                        "type": "string",
+                        "example": null,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "ApiError": {
+                "description": "Respuesta de error estándar",
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "data": {
+                        "type": "object",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "error": {
+                        "type": "string",
+                        "example": "Mensaje de error"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Token de Laravel Sanctum obtenido al hacer login. Se envía en la cabecera Authorization: Bearer {token}.",
+                "bearerFormat": "Sanctum-Token",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Registro, login y logout de usuarios"
+        },
+        {
+            "name": "Game",
+            "description": "Creación, unión y consulta de partidas"
+        },
+        {
+            "name": "Board",
+            "description": "Consulta del tablero de juego"
+        },
+        {
+            "name": "Tile",
+            "description": "Acciones sobre casillas (explorar, mejorar)"
+        },
+        {
+            "name": "Sync",
+            "description": "Estado completo del juego para el frontend"
+        },
+        {
+            "name": "Vote",
+            "description": "Votación de tecnologías e inventos"
+        },
+        {
+            "name": "Round",
+            "description": "Cierre de jornada"
+        },
+        {
+            "name": "Stats",
+            "description": "Métricas del sistema y del juego"
+        }
+    ]
+}

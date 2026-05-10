@@ -15,6 +15,40 @@ class StatsController extends Controller
 {
     public function __construct(private ResponseBuilder $rb) {}
 
+    /**
+     * @OA\Get(
+     *     path="/stats",
+     *     summary="Métricas del sistema y del juego",
+     *     description="Endpoint público (no requiere autenticación). Devuelve métricas operativas del sistema (uptime, estado de la BD, requests/min, errores/min, latencia p95) y métricas de negocio (totales de partidas, jugadores y rondas).",
+     *     tags={"Stats"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Métricas",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="system", type="object",
+     *                     @OA\Property(property="uptime", type="integer", description="Segundos desde la última modificación de artisan"),
+     *                     @OA\Property(property="database", type="string", enum={"ok","error"}, example="ok"),
+     *                     @OA\Property(property="requests_per_minute", type="integer"),
+     *                     @OA\Property(property="errors_per_minute", type="integer"),
+     *                     @OA\Property(property="latency_p95", type="number", format="float")
+     *                 ),
+     *                 @OA\Property(property="game", type="object",
+     *                     @OA\Property(property="total_games", type="integer"),
+     *                     @OA\Property(property="waiting_games", type="integer"),
+     *                     @OA\Property(property="active_games", type="integer"),
+     *                     @OA\Property(property="finished_games", type="integer"),
+     *                     @OA\Property(property="total_players", type="integer"),
+     *                     @OA\Property(property="total_rounds", type="integer"),
+     *                     @OA\Property(property="players", type="array", @OA\Items(type="object"))
+     *                 )
+     *             ),
+     *             @OA\Property(property="error", type="string", nullable=true)
+     *         )
+     *     )
+     * )
+     */
     public function stats(): JsonResponse
     {
         return $this->rb->success([
