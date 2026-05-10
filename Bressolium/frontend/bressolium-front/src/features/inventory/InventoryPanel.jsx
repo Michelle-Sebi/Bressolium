@@ -87,7 +87,7 @@ function MaterialItem({ material }) {
                     alt={`${material.name}, tier ${material.tier}`}
                     style={{ width: '32px', height: '32px', objectFit: 'contain' }}
                 />
-                <span style={{ fontSize: '9px', color: '#8B7355', textAlign: 'center', lineHeight: 1.2 }}>
+                <span style={{ fontSize: '9px', color: '#a0a0a0', textAlign: 'center', lineHeight: 1.2 }}>
                     {material.name}
                 </span>
                 {isActive && (
@@ -160,7 +160,7 @@ function InventorySectionHeader({ label }) {
         <div
             style={{
                 padding:         '4px 8px',
-                backgroundColor: '#8B7355',
+                backgroundColor: '#a0a0a0',
                 color:           '#fff',
                 fontWeight:      'bold',
                 textTransform:   'uppercase',
@@ -209,7 +209,7 @@ function InventionItem({ invention }) {
                         style={{ width: '32px', height: '32px', objectFit: 'contain' }}
                     />
                 )}
-                <span style={{ fontSize: '9px', color: '#8B7355', textAlign: 'center', lineHeight: 1.2 }}>
+                <span style={{ fontSize: '9px', color: '#a0a0a0', textAlign: 'center', lineHeight: 1.2 }}>
                     {invention.name}
                 </span>
                 {isActive && (
@@ -219,7 +219,7 @@ function InventionItem({ invention }) {
                             fontSize:        '11px',
                             fontWeight:      'bold',
                             color:           '#fff',
-                            backgroundColor: '#8B7355',
+                            backgroundColor: '#a0a0a0',
                             padding:         '1px 5px',
                             minWidth:        '18px',
                             textAlign:       'center',
@@ -246,7 +246,7 @@ function InventoryPanel() {
                 data-testid="inventory-loading"
                 style={{
                     padding:       '16px',
-                    color:         '#8B7355',
+                    color:         '#a0a0a0',
                     fontWeight:    'bold',
                     textTransform: 'uppercase',
                     letterSpacing: '0.1em',

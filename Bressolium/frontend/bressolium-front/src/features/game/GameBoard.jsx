@@ -28,7 +28,6 @@ function GameBoard() {
             <div
                 style={{
                     backgroundColor: '#f7f9f7',
-                    border:          '2px solid #8B7355',
                     display:         'flex',
                     flexDirection:   'column',
                     overflow:        'hidden',
@@ -37,12 +36,13 @@ function GameBoard() {
                 <div
                     style={{
                         padding:         '10px 14px',
-                        backgroundColor: '#8B7355',
-                        color:           '#fff',
+                        backgroundColor: '#fff',
+                        color:           'rgba(0,0,0,0.8)',
                         fontWeight:      'bold',
                         textTransform:   'uppercase',
                         letterSpacing:   '0.08em',
                         fontSize:        '13px',
+                        borderBottom:    '3px solid #C1CDC1',
                     }}
                 >
                     Votaciones
@@ -55,8 +55,9 @@ function GameBoard() {
             {/* Centro — Tablero */}
             <div
                 style={{
-                    border:    '2px solid #8B7355',
-                    overflowY: 'auto',
+                    border:    '2px solid #fff',
+                    overflow:  'hidden',
+                    alignSelf: 'start',
                 }}
             >
                 <BoardGrid />
@@ -66,7 +67,6 @@ function GameBoard() {
             <div
                 style={{
                     backgroundColor: '#f7f9f7',
-                    border:          '2px solid #8B7355',
                     display:         'flex',
                     flexDirection:   'column',
                     overflow:        'hidden',
@@ -75,12 +75,13 @@ function GameBoard() {
                 <div
                     style={{
                         padding:         '10px 14px',
-                        backgroundColor: '#8B7355',
-                        color:           '#fff',
+                        backgroundColor: '#fff',
+                        color:           'rgba(0,0,0,0.8)',
                         fontWeight:      'bold',
                         textTransform:   'uppercase',
                         letterSpacing:   '0.08em',
                         fontSize:        '13px',
+                        borderBottom:    '3px solid #C1CDC1',
                     }}
                 >
                     Inventario

@@ -114,7 +114,7 @@ const Dashboard = () => {
           {/* Crear Nuevo */}
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="btn-primary bg-bbrown hover:bg-[#6e5b44]"
+            className="btn-primary bg-bbrown hover:bg-[#7a7a7a]"
           >
             CREAR EQUIPO NUEVO
           </button>

@@ -3,7 +3,7 @@ import { createContext, useContext } from 'react';
 const THEME = {
     colors: {
         primary:   '#458B74',
-        secondary: '#8B7355',
+        secondary: '#a0a0a0',
         light:     '#C1CDC1',
         resalt:    '#CD4F39',
         white:     '#ffffff',
@@ -15,7 +15,7 @@ const THEME = {
         rio:     '#4682B4',
         mina:    '#DAA520',
         pueblo:  '#C1CDC1',
-        fog:     '#8B7355',
+        fog:     '#a0a0a0',
     },
 };
 

@@ -7,7 +7,7 @@ import { setCurrentGame } from '../../features/game/gameSlice';
 /**
  * @component TopBar
  * @description Barra superior persistente con gestión de sesión y cambio rápido de partida.
- * Sigue la estética Brutalista: bloques sólidos, bordes marcados (#8B7355) y colores planos.
+ * Sigue la estética Brutalista: bloques sólidos, bordes marcados (#a0a0a0) y colores planos.
  */
 const TopBar = () => {
   const dispatch = useDispatch();
@@ -29,25 +29,25 @@ const TopBar = () => {
   };
 
   return (
-    <nav className="h-16 bg-white border-b-4 border-bbrown flex items-center justify-between px-6 z-40 relative">
+    <nav className="h-16 bg-white flex items-center justify-between px-6 z-40 relative">
       {/* Lado Izquierdo: Branding y Partida Actual */}
       <div className="flex items-center space-x-6">
-        <Link to="/dashboard" className="text-2xl font-black text-bbrown tracking-tighter hover:text-bgreen transition-colors">
+        <Link to="/dashboard" className="text-2xl font-black text-bgreen tracking-tighter hover:text-bgreen transition-colors">
           BRESSOLIUM
         </Link>
         
-        <div className="hidden md:flex items-center border-l-4 border-bgray pl-6 h-10">
+        <div className="hidden md:flex items-center pl-6 h-10">
           <div className="relative">
             <button 
               onClick={() => setIsSwitcherOpen(!isSwitcherOpen)}
-              className="flex items-center space-x-2 px-3 py-1 bg-bgray hover:bg-[#b0bcaf] transition-colors"
+              className="flex items-center space-x-2 px-3 py-1 bg-bgreen hover:bg-[#3b7864] transition-colors"
               aria-label="Cambiar partida"
             >
-              <span className="text-xs font-bold text-bbrown uppercase">
+              <span className="text-xs font-bold text-white uppercase">
                 {currentGame ? `EXPEDICIÓN: ${currentGame.name.toUpperCase()}` : 'SELECCIONAR PARTIDA'}
               </span>
-              <svg 
-                className={`w-4 h-4 text-bbrown transition-transform ${isSwitcherOpen ? 'rotate-180' : ''}`} 
+              <svg
+                className={`w-4 h-4 text-white transition-transform ${isSwitcherOpen ? 'rotate-180' : ''}`} 
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
@@ -60,7 +60,7 @@ const TopBar = () => {
             {isSwitcherOpen && (
               <div className="absolute top-full left-0 mt-1 w-64 bg-white border-4 border-bbrown shadow-none z-50">
                 <div className="p-2 border-b-4 border-bgray bg-bgray">
-                  <span className="text-[10px] font-black text-bbrown opacity-50 uppercase">Tus expediciones activas</span>
+                  <span className="text-[10px] font-black text-white uppercase">Tus expediciones activas</span>
                 </div>
                 <div className="max-h-60 overflow-y-auto">
                   {myGames.length > 0 ? (

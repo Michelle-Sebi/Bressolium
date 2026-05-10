@@ -33,9 +33,9 @@ const TILE_BG_COLORS = {
     pueblo:  '#C1CDC1',
 };
 
-const FOG_BG_COLOR       = '#8B7355';
-const EXPLORABLE_BORDER  = '2px solid rgba(255,255,255,0.6)';
-const DEFAULT_BORDER     = '1px solid rgba(0,0,0,0.15)';
+const FOG_BG_COLOR        = '#a0a0a0';
+const EXPLORABLE_BG_COLOR = '#c0c0c0';
+const DEFAULT_BORDER      = '2px solid #fff';
 
 /** @type {Record<string, string>} Icono por tipo de terreno base */
 const TILE_ICONS = {
@@ -95,9 +95,11 @@ function Tile({ tile, currentUserId, isExplorable, onTileClick }) {
     const level      = tile.type?.level ?? 0;
 
     const isClickable     = isOwnTile && (isExplored || isExplorable);
-    const backgroundColor = isExplored ? (TILE_BG_COLORS[baseType] ?? FOG_BG_COLOR) : FOG_BG_COLOR;
+    const backgroundColor = isExplored
+        ? (TILE_BG_COLORS[baseType] ?? FOG_BG_COLOR)
+        : isExplorable ? EXPLORABLE_BG_COLOR : FOG_BG_COLOR;
     const tileIcon        = isExplored ? TILE_ICONS[baseType] : null;
-    const borderStyle     = (!isExplored && isExplorable) ? EXPLORABLE_BORDER : DEFAULT_BORDER;
+    const borderStyle     = DEFAULT_BORDER;
 
     const specificTestIdAttributes = {
         'data-x':     tile.coord_x,
@@ -267,7 +269,7 @@ function BoardGrid() {
                 data-testid="board-loading"
                 className="flex items-center justify-center w-full h-full p-8"
             >
-                <span className="font-bold uppercase tracking-widest" style={{ color: '#8B7355' }}>
+                <span className="font-bold uppercase tracking-widest" style={{ color: '#a0a0a0' }}>
                     Cargando tablero…
                 </span>
             </div>

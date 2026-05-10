@@ -1,7 +1,7 @@
 const TYPE_COLORS = {
     success: '#458B74',
     error:   '#CD4F39',
-    info:    '#8B7355',
+    info:    '#a0a0a0',
 };
 
 function Toast({ message, type = 'info', onDismiss }) {

@@ -7,7 +7,7 @@ import { useEffect, useRef } from 'react';
 import Badge from '../../components/ui/Badge';
 
 // ─── Colores brutalistas del proyecto ────────────────────────────────────────
-const COLOR_BROWN   = '#8B7355';
+const COLOR_BROWN   = '#a0a0a0';
 const COLOR_GREEN   = '#458B74';
 const COLOR_BG      = '#f7f9f7';
 const COLOR_BLOCKED = '#C1CDC1';

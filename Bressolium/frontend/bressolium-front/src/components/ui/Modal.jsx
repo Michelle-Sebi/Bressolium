@@ -61,7 +61,7 @@ function Modal({ isOpen, onClose, title, children }) {
                         right:      '1rem',
                         fontSize:   '1.875rem',
                         fontWeight: 900,
-                        color:      '#8B7355',
+                        color:      '#a0a0a0',
                         background: 'none',
                         border:     'none',
                         cursor:     'pointer',
@@ -72,7 +72,7 @@ function Modal({ isOpen, onClose, title, children }) {
                     ×
                 </button>
                 {title && (
-                    <h3 id="modal-title" style={{ fontSize: '1.875rem', fontWeight: 900, color: '#8B7355', marginBottom: '2rem' }}>
+                    <h3 id="modal-title" style={{ fontSize: '1.875rem', fontWeight: 900, color: '#a0a0a0', marginBottom: '2rem' }}>
                         {title}
                     </h3>
                 )}
