@@ -17,8 +17,8 @@ return new class extends Migration
         Schema::table('tiles', function (Blueprint $table) {
             $table->uuid('explored_by_player_id')->nullable();
             $table->foreign('explored_by_player_id')
-                  ->references('id')->on('users')
-                  ->nullOnDelete();
+                ->references('id')->on('users')
+                ->nullOnDelete();
             $table->timestamp('explored_at')->nullable();
         });
 
@@ -26,12 +26,12 @@ return new class extends Migration
         Schema::table('material_tile_type', function (Blueprint $table) {
             $table->uuid('tech_required')->nullable();
             $table->foreign('tech_required')
-                  ->references('id')->on('technologies')
-                  ->nullOnDelete();
+                ->references('id')->on('technologies')
+                ->nullOnDelete();
             $table->uuid('invention_required')->nullable();
             $table->foreign('invention_required')
-                  ->references('id')->on('inventions')
-                  ->nullOnDelete();
+                ->references('id')->on('inventions')
+                ->nullOnDelete();
         });
 
         // materials: añadir tier y group para clasificación en el catálogo

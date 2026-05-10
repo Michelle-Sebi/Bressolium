@@ -21,8 +21,9 @@ class AuthController extends Controller
     {
         try {
             $data = $this->authService->register($request->validated());
+
             return $this->rb->success([
-                'user'  => (new UserResource($data['user']))->toArray($request),
+                'user' => (new UserResource($data['user']))->toArray($request),
                 'token' => $data['token'],
             ]);
         } catch (Exception $e) {
@@ -34,12 +35,14 @@ class AuthController extends Controller
     {
         try {
             $data = $this->authService->login($request->email, $request->password);
+
             return $this->rb->success([
-                'user'  => (new UserResource($data['user']))->toArray($request),
+                'user' => (new UserResource($data['user']))->toArray($request),
                 'token' => $data['token'],
             ]);
         } catch (Exception $e) {
             $status = ($e->getMessage() === 'Invalid credentials') ? 401 : 500;
+
             return $this->rb->error($e->getMessage(), $status);
         }
     }

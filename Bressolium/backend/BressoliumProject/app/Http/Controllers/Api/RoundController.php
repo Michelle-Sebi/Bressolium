@@ -17,11 +17,11 @@ class RoundController extends Controller
     {
         $game = Game::find($gameId);
 
-        if (!$game) {
+        if (! $game) {
             return $this->rb->error('Partida no encontrada.', 404);
         }
 
-        if (!$game->users()->where('user_id', $request->user()->id)->exists()) {
+        if (! $game->users()->where('user_id', $request->user()->id)->exists()) {
             return $this->rb->error('No perteneces a esta partida.', 403);
         }
 

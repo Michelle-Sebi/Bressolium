@@ -1,10 +1,13 @@
 <?php
 
-use App\Exceptions\InsufficientMaterialsException;
 use App\Exceptions\ActionLimitExceededException;
+use App\Exceptions\InsufficientMaterialsException;
 use App\Exceptions\TileAlreadyExploredException;
 use App\Exceptions\TileNotExploredException;
 use App\Exceptions\UserNotInGameException;
+use App\Models\Game;
+use App\Models\Tile;
+use App\Models\User;
 use App\Services\ActionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -38,52 +41,52 @@ test('UserNotInGameException existe en App\Exceptions', function () {
 // ─── Cada excepción extiende RuntimeException o Exception ─────────────────────
 
 test('InsufficientMaterialsException extiende RuntimeException', function () {
-    expect(is_a(InsufficientMaterialsException::class, \RuntimeException::class, true))->toBeTrue();
+    expect(is_a(InsufficientMaterialsException::class, RuntimeException::class, true))->toBeTrue();
 });
 
 test('ActionLimitExceededException extiende RuntimeException', function () {
-    expect(is_a(ActionLimitExceededException::class, \RuntimeException::class, true))->toBeTrue();
+    expect(is_a(ActionLimitExceededException::class, RuntimeException::class, true))->toBeTrue();
 });
 
 test('TileAlreadyExploredException extiende RuntimeException', function () {
-    expect(is_a(TileAlreadyExploredException::class, \RuntimeException::class, true))->toBeTrue();
+    expect(is_a(TileAlreadyExploredException::class, RuntimeException::class, true))->toBeTrue();
 });
 
 test('TileNotExploredException extiende RuntimeException', function () {
-    expect(is_a(TileNotExploredException::class, \RuntimeException::class, true))->toBeTrue();
+    expect(is_a(TileNotExploredException::class, RuntimeException::class, true))->toBeTrue();
 });
 
 test('UserNotInGameException extiende RuntimeException', function () {
-    expect(is_a(UserNotInGameException::class, \RuntimeException::class, true))->toBeTrue();
+    expect(is_a(UserNotInGameException::class, RuntimeException::class, true))->toBeTrue();
 });
 
 // ─── Cada excepción lleva el código HTTP correcto vía getCode() ────────────────
 
 test('UserNotInGameException devuelve código HTTP 403', function () {
-    expect((new UserNotInGameException())->getCode())->toBe(403);
+    expect((new UserNotInGameException)->getCode())->toBe(403);
 });
 
 test('ActionLimitExceededException devuelve código HTTP 403', function () {
-    expect((new ActionLimitExceededException())->getCode())->toBe(403);
+    expect((new ActionLimitExceededException)->getCode())->toBe(403);
 });
 
 test('TileAlreadyExploredException devuelve código HTTP 422', function () {
-    expect((new TileAlreadyExploredException())->getCode())->toBe(422);
+    expect((new TileAlreadyExploredException)->getCode())->toBe(422);
 });
 
 test('TileNotExploredException devuelve código HTTP 422', function () {
-    expect((new TileNotExploredException())->getCode())->toBe(422);
+    expect((new TileNotExploredException)->getCode())->toBe(422);
 });
 
 test('InsufficientMaterialsException devuelve código HTTP 400', function () {
-    expect((new InsufficientMaterialsException())->getCode())->toBe(400);
+    expect((new InsufficientMaterialsException)->getCode())->toBe(400);
 });
 
 // ─── ActionService lanza excepciones, no devuelve arrays con status ───────────
 
 test('ActionService::explore no devuelve array con clave status', function () {
     $reflection = new ReflectionClass(ActionService::class);
-    $method     = $reflection->getMethod('explore');
+    $method = $reflection->getMethod('explore');
 
     // El tipo de retorno debe ser Tile (o no ser array): si declara array, falla.
     $returnType = $method->getReturnType()?->getName();
@@ -93,7 +96,7 @@ test('ActionService::explore no devuelve array con clave status', function () {
 
 test('ActionService::upgrade no devuelve array con clave status', function () {
     $reflection = new ReflectionClass(ActionService::class);
-    $method     = $reflection->getMethod('upgrade');
+    $method = $reflection->getMethod('upgrade');
 
     $returnType = $method->getReturnType()?->getName();
 
@@ -106,15 +109,15 @@ describe('handler global convierte excepciones a JSON (requiere DB)', function (
     uses(RefreshDatabase::class);
 
     test('UserNotInGameException en explore devuelve 403 JSON con success=false', function () {
-        $user  = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $token = $user->createToken('test')->plainTextToken;
 
-        $otherUser = \App\Models\User::factory()->create();
-        $game      = \App\Models\Game::factory()->create();
+        $otherUser = User::factory()->create();
+        $game = Game::factory()->create();
         $game->users()->attach($otherUser->id);
 
-        $tile = \App\Models\Tile::where('game_id', $game->id)->first();
-        if (!$tile) {
+        $tile = Tile::where('game_id', $game->id)->first();
+        if (! $tile) {
             $this->markTestSkipped('No hay casillas en la partida; requiere tablero generado.');
         }
 
@@ -127,16 +130,16 @@ describe('handler global convierte excepciones a JSON (requiere DB)', function (
     });
 
     test('TileAlreadyExploredException en explore devuelve 422 JSON con success=false', function () {
-        $user  = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $token = $user->createToken('test')->plainTextToken;
 
-        $game = \App\Models\Game::factory()->create();
+        $game = Game::factory()->create();
         $game->users()->attach($user->id);
         $round = $game->rounds()->create(['number' => 1]);
         $round->users()->attach($user->id, ['actions_spent' => 0]);
 
-        $tile = \App\Models\Tile::where('game_id', $game->id)->first();
-        if (!$tile) {
+        $tile = Tile::where('game_id', $game->id)->first();
+        if (! $tile) {
             $this->markTestSkipped('No hay casillas en la partida; requiere tablero generado.');
         }
 
@@ -152,16 +155,16 @@ describe('handler global convierte excepciones a JSON (requiere DB)', function (
     });
 
     test('TileNotExploredException en upgrade devuelve 422 JSON con success=false', function () {
-        $user  = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $token = $user->createToken('test')->plainTextToken;
 
-        $game = \App\Models\Game::factory()->create();
+        $game = Game::factory()->create();
         $game->users()->attach($user->id);
         $round = $game->rounds()->create(['number' => 1]);
         $round->users()->attach($user->id, ['actions_spent' => 0]);
 
-        $tile = \App\Models\Tile::where('game_id', $game->id)->first();
-        if (!$tile) {
+        $tile = Tile::where('game_id', $game->id)->first();
+        if (! $tile) {
             $this->markTestSkipped('No hay casillas en la partida; requiere tablero generado.');
         }
 
@@ -177,17 +180,17 @@ describe('handler global convierte excepciones a JSON (requiere DB)', function (
     });
 
     test('ActionLimitExceededException en explore devuelve 403 JSON cuando acciones agotadas', function () {
-        $user  = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $token = $user->createToken('test')->plainTextToken;
 
-        $game = \App\Models\Game::factory()->create();
+        $game = Game::factory()->create();
         $game->users()->attach($user->id);
         $round = $game->rounds()->create(['number' => 1]);
         // Agotar las acciones del jugador (máximo 2)
         $round->users()->attach($user->id, ['actions_spent' => 2]);
 
-        $tile = \App\Models\Tile::where('game_id', $game->id)->first();
-        if (!$tile) {
+        $tile = Tile::where('game_id', $game->id)->first();
+        if (! $tile) {
             $this->markTestSkipped('No hay casillas en la partida; requiere tablero generado.');
         }
 
@@ -202,16 +205,16 @@ describe('handler global convierte excepciones a JSON (requiere DB)', function (
     });
 
     test('InsufficientMaterialsException en upgrade devuelve 400 JSON con success=false', function () {
-        $user  = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $token = $user->createToken('test')->plainTextToken;
 
-        $game = \App\Models\Game::factory()->create();
+        $game = Game::factory()->create();
         $game->users()->attach($user->id);
         $round = $game->rounds()->create(['number' => 1]);
         $round->users()->attach($user->id, ['actions_spent' => 0]);
 
-        $tile = \App\Models\Tile::where('game_id', $game->id)->first();
-        if (!$tile) {
+        $tile = Tile::where('game_id', $game->id)->first();
+        if (! $tile) {
             $this->markTestSkipped('No hay casillas en la partida; requiere tablero generado.');
         }
 

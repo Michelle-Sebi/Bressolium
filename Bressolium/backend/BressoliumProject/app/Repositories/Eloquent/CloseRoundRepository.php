@@ -76,7 +76,7 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
                     return false;
                 }
             } elseif ($prerequisite->prereq_type === 'technology') {
-                if (!$activeTechIds->contains($prerequisite->prereq_id)) {
+                if (! $activeTechIds->contains($prerequisite->prereq_id)) {
                     return false;
                 }
             }
@@ -124,12 +124,12 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
             $currentQuantity = (int) $existingInvention->pivot->quantity;
 
             $game->inventions()->updateExistingPivot($invention->id, [
-                'quantity'  => $currentQuantity + 1,
+                'quantity' => $currentQuantity + 1,
                 'is_active' => true,
             ]);
         } else {
             $game->inventions()->attach($invention->id, [
-                'quantity'  => 1,
+                'quantity' => 1,
                 'is_active' => true,
             ]);
         }
@@ -175,7 +175,7 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
         $latestNumber = $game->rounds()->max('number');
 
         return $game->rounds()->create([
-            'number'     => $latestNumber + 1,
+            'number' => $latestNumber + 1,
             'start_date' => now(),
         ]);
     }

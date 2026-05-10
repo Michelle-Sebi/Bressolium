@@ -1,9 +1,10 @@
 <?php
 
+use App\Events\GameFinished;
+use App\Jobs\CloseRoundJob;
 use App\Models\Game;
 use App\Models\Invention;
 use App\Models\User;
-use App\Events\GameFinished;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
@@ -15,8 +16,8 @@ uses(RefreshDatabase::class);
 // ============================================================
 
 beforeEach(function () {
-    $this->user  = User::factory()->create();
-    $this->game  = Game::factory()->create(['status' => 'ACTIVE']);
+    $this->user = User::factory()->create();
+    $this->game = Game::factory()->create(['status' => 'ACTIVE']);
     $this->round = $this->game->rounds()->create(['number' => 1]);
     $this->game->users()->attach($this->user->id, ['is_afk' => false]);
     $this->round->users()->attach($this->user->id, ['actions_spent' => 0]);
@@ -36,7 +37,7 @@ test('el campo is_final es false por defecto en nuevos inventos', function () {
 });
 
 test('el modelo Invention expone is_final como booleano', function () {
-    $final  = Invention::factory()->create(['is_final' => true]);
+    $final = Invention::factory()->create(['is_final' => true]);
     $normal = Invention::factory()->create(['is_final' => false]);
 
     expect($final->is_final)->toBeTrue();
@@ -53,11 +54,11 @@ test('construir el invento final cambia el estado de la partida a FINISHED', fun
     $finalInvention = Invention::factory()->create(['is_final' => true]);
     $this->game->inventions()->attach($finalInvention->id, ['quantity' => 0]);
     $this->round->votes()->create([
-        'user_id'      => $this->user->id,
+        'user_id' => $this->user->id,
         'invention_id' => $finalInvention->id,
     ]);
 
-    \App\Jobs\CloseRoundJob::dispatchSync($this->game->id);
+    CloseRoundJob::dispatchSync($this->game->id);
 
     expect($this->game->fresh()->status)->toBe('FINISHED');
 });
@@ -68,17 +69,17 @@ test('construir un invento no final no cambia el estado de la partida a FINISHED
     $regularInvention = Invention::factory()->create(['is_final' => false]);
     $this->game->inventions()->attach($regularInvention->id, ['quantity' => 0]);
     $this->round->votes()->create([
-        'user_id'      => $this->user->id,
+        'user_id' => $this->user->id,
         'invention_id' => $regularInvention->id,
     ]);
 
-    \App\Jobs\CloseRoundJob::dispatchSync($this->game->id);
+    CloseRoundJob::dispatchSync($this->game->id);
 
     expect($this->game->fresh()->status)->not->toBe('FINISHED');
 });
 
 test('sin votos de inventos la partida no cambia a FINISHED', function () {
-    \App\Jobs\CloseRoundJob::dispatchSync($this->game->id);
+    CloseRoundJob::dispatchSync($this->game->id);
 
     expect($this->game->fresh()->status)->toBe('ACTIVE');
 });
@@ -90,9 +91,9 @@ test('si el invento final no gana la votación la partida no termina', function 
     $this->game->users()->attach($user2->id, ['is_afk' => false]);
     $this->round->users()->attach($user2->id, ['actions_spent' => 0]);
 
-    $finalInvention   = Invention::factory()->create(['is_final' => true]);
+    $finalInvention = Invention::factory()->create(['is_final' => true]);
     $regularInvention = Invention::factory()->create(['is_final' => false]);
-    $this->game->inventions()->attach($finalInvention->id,   ['quantity' => 0]);
+    $this->game->inventions()->attach($finalInvention->id, ['quantity' => 0]);
     $this->game->inventions()->attach($regularInvention->id, ['quantity' => 0]);
 
     // Regular gana con 2 votos vs 1 del final
@@ -103,7 +104,7 @@ test('si el invento final no gana la votación la partida no termina', function 
     $this->round->users()->attach($user3->id, ['actions_spent' => 0]);
     $this->round->votes()->create(['user_id' => $user3->id, 'invention_id' => $regularInvention->id]);
 
-    \App\Jobs\CloseRoundJob::dispatchSync($this->game->id);
+    CloseRoundJob::dispatchSync($this->game->id);
 
     expect($this->game->fresh()->status)->not->toBe('FINISHED');
 });
@@ -118,11 +119,11 @@ test('construir el invento final emite el evento GameFinished con la partida cor
     $finalInvention = Invention::factory()->create(['is_final' => true]);
     $this->game->inventions()->attach($finalInvention->id, ['quantity' => 0]);
     $this->round->votes()->create([
-        'user_id'      => $this->user->id,
+        'user_id' => $this->user->id,
         'invention_id' => $finalInvention->id,
     ]);
 
-    \App\Jobs\CloseRoundJob::dispatchSync($this->game->id);
+    CloseRoundJob::dispatchSync($this->game->id);
 
     Event::assertDispatched(GameFinished::class, fn ($e) => $e->game->id === $this->game->id);
 });
@@ -133,11 +134,11 @@ test('construir un invento no final no emite GameFinished', function () {
     $regularInvention = Invention::factory()->create(['is_final' => false]);
     $this->game->inventions()->attach($regularInvention->id, ['quantity' => 0]);
     $this->round->votes()->create([
-        'user_id'      => $this->user->id,
+        'user_id' => $this->user->id,
         'invention_id' => $regularInvention->id,
     ]);
 
-    \App\Jobs\CloseRoundJob::dispatchSync($this->game->id);
+    CloseRoundJob::dispatchSync($this->game->id);
 
     Event::assertNotDispatched(GameFinished::class);
 });
@@ -145,7 +146,7 @@ test('construir un invento no final no emite GameFinished', function () {
 test('sin votos de inventos no se emite GameFinished', function () {
     Event::fake();
 
-    \App\Jobs\CloseRoundJob::dispatchSync($this->game->id);
+    CloseRoundJob::dispatchSync($this->game->id);
 
     Event::assertNotDispatched(GameFinished::class);
 });
@@ -160,12 +161,12 @@ test('una partida que termina por el invento final no crea una nueva ronda', fun
     $finalInvention = Invention::factory()->create(['is_final' => true]);
     $this->game->inventions()->attach($finalInvention->id, ['quantity' => 0]);
     $this->round->votes()->create([
-        'user_id'      => $this->user->id,
+        'user_id' => $this->user->id,
         'invention_id' => $finalInvention->id,
     ]);
 
     $roundsBefore = $this->game->rounds()->count();
-    \App\Jobs\CloseRoundJob::dispatchSync($this->game->id);
+    CloseRoundJob::dispatchSync($this->game->id);
 
     expect($this->game->rounds()->count())->toBe($roundsBefore);
 });

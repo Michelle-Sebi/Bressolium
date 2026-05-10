@@ -13,9 +13,9 @@ class InventionFactory extends Factory
     public function definition(): array
     {
         return [
-            'name'          => $this->faker->unique()->words(2, true),
+            'name' => $this->faker->unique()->words(2, true),
             'technology_id' => Technology::factory(),
-            'is_final'      => false,
+            'is_final' => false,
         ];
     }
 }

@@ -1,6 +1,8 @@
 <?php
+
 /**
  * @module RoundRepository
+ *
  * @description Repositorio para la gestión de datos del modelo Round.
  */
 
@@ -12,9 +14,6 @@ class RoundRepository
 {
     /**
      * Crea un nuevo registro de ronda.
-     * 
-     * @param array $data
-     * @return Round
      */
     public function create(array $data): Round
     {
@@ -23,9 +22,6 @@ class RoundRepository
 
     /**
      * Obtiene la última ronda de una partida.
-     * 
-     * @param string $gameId
-     * @return Round|null
      */
     public function getLatestRoundForGame(string $gameId): ?Round
     {

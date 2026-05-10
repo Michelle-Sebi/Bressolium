@@ -1,11 +1,15 @@
 <?php
 
+use App\DTOs\VoteDTO;
 use App\Models\Game;
 use App\Models\Invention;
 use App\Models\InventionCost;
 use App\Models\Material;
 use App\Models\Technology;
 use App\Models\User;
+use App\Repositories\Contracts\VoteRepositoryInterface;
+use App\Repositories\Eloquent\VoteRepository;
+use App\Services\VoteService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -31,7 +35,7 @@ test('POST /api/v1/game/{id}/vote devuelve 401 sin sesión activa', function () 
     $tech = Technology::create(['name' => 'Herramientas de Piedra']);
 
     $this->postJson("/api/v1/game/{$this->game->id}/vote", ['technology_id' => $tech->id])
-         ->assertUnauthorized();
+        ->assertUnauthorized();
 });
 
 // ─── Autorización ─────────────────────────────────────────────────────────────
@@ -42,7 +46,7 @@ test('POST /api/v1/game/{id}/vote devuelve 403 si el usuario no pertenece a la p
     $tech = Technology::create(['name' => 'Herramientas de Piedra']);
 
     $this->postJson("/api/v1/game/{$otherGame->id}/vote", ['technology_id' => $tech->id])
-         ->assertForbidden();
+        ->assertForbidden();
 });
 
 // ─── Casos felices ────────────────────────────────────────────────────────────
@@ -55,15 +59,15 @@ test('almacena el voto en la tabla votes vinculandolo a la jornada actual', func
     ])->assertStatus(200);
 
     $this->assertDatabaseHas('votes', [
-        'round_id'      => $this->round->id,
-        'user_id'       => $this->user->id,
+        'round_id' => $this->round->id,
+        'user_id' => $this->user->id,
         'technology_id' => $tech->id,
     ]);
 });
 
 test('permite votar por un invento en lugar de una tecnologia', function () {
     $tech = Technology::create(['name' => 'Herramientas de Piedra']);
-    $inv  = Invention::create(['name' => 'Hacha', 'technology_id' => $tech->id]);
+    $inv = Invention::create(['name' => 'Hacha', 'technology_id' => $tech->id]);
 
     $material = Material::create(['name' => 'Silex', 'tier' => 0, 'group' => 'cantera']);
     InventionCost::create(['invention_id' => $inv->id, 'resource_id' => $material->id, 'quantity' => 5]);
@@ -74,7 +78,7 @@ test('permite votar por un invento en lugar de una tecnologia', function () {
     ])->assertStatus(200);
 
     $this->assertDatabaseHas('votes', [
-        'user_id'      => $this->user->id,
+        'user_id' => $this->user->id,
         'invention_id' => $inv->id,
     ]);
 });
@@ -85,9 +89,9 @@ test('devuelve respuesta con estructura {success, data, error}', function () {
     $this->postJson("/api/v1/game/{$this->game->id}/vote", [
         'technology_id' => $tech->id,
     ])->assertStatus(200)
-      ->assertJsonStructure(['success', 'data', 'error'])
-      ->assertJsonPath('success', true)
-      ->assertJsonPath('error', null);
+        ->assertJsonStructure(['success', 'data', 'error'])
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('error', null);
 });
 
 // ─── Validación: usuario ya votó ──────────────────────────────────────────────
@@ -96,7 +100,7 @@ test('devuelve 422 si el usuario ya ha votado en la jornada actual', function ()
     $tech = Technology::create(['name' => 'Herramientas de Piedra']);
 
     $this->round->votes()->create([
-        'user_id'       => $this->user->id,
+        'user_id' => $this->user->id,
         'technology_id' => $tech->id,
     ]);
 
@@ -128,8 +132,8 @@ test('permite votar por una tecnología no investigada (is_active=false)', funct
 // ─── Validación: invento sin materiales suficientes ───────────────────────────
 
 test('devuelve 422 si el equipo no tiene materiales suficientes para construir el invento', function () {
-    $tech     = Technology::create(['name' => 'Herramientas de Piedra']);
-    $inv      = Invention::create(['name' => 'Hacha', 'technology_id' => $tech->id]);
+    $tech = Technology::create(['name' => 'Herramientas de Piedra']);
+    $inv = Invention::create(['name' => 'Hacha', 'technology_id' => $tech->id]);
     $material = Material::create(['name' => 'Silex', 'tier' => 0, 'group' => 'cantera']);
 
     InventionCost::create(['invention_id' => $inv->id, 'resource_id' => $material->id, 'quantity' => 10]);
@@ -141,8 +145,8 @@ test('devuelve 422 si el equipo no tiene materiales suficientes para construir e
 });
 
 test('permite votar por un invento cuando los materiales son exactamente suficientes', function () {
-    $tech     = Technology::create(['name' => 'Herramientas de Piedra']);
-    $inv      = Invention::create(['name' => 'Hacha', 'technology_id' => $tech->id]);
+    $tech = Technology::create(['name' => 'Herramientas de Piedra']);
+    $inv = Invention::create(['name' => 'Hacha', 'technology_id' => $tech->id]);
     $material = Material::create(['name' => 'Silex', 'tier' => 0, 'group' => 'cantera']);
 
     InventionCost::create(['invention_id' => $inv->id, 'resource_id' => $material->id, 'quantity' => 10]);
@@ -155,7 +159,7 @@ test('permite votar por un invento cuando los materiales son exactamente suficie
 
 test('permite votar por un invento sin coste de materiales definido', function () {
     $tech = Technology::create(['name' => 'Herramientas de Piedra']);
-    $inv  = Invention::create(['name' => 'Trampa', 'technology_id' => $tech->id]);
+    $inv = Invention::create(['name' => 'Trampa', 'technology_id' => $tech->id]);
     // sin InventionCost → coste cero
 
     $this->postJson("/api/v1/game/{$this->game->id}/vote", [
@@ -166,17 +170,17 @@ test('permite votar por un invento sin coste de materiales definido', function (
 // ─── Arquitectura ────────────────────────────────────────────────────────────
 
 test('existe VoteDTO en DTOs', function () {
-    expect(class_exists(\App\DTOs\VoteDTO::class))->toBeTrue();
+    expect(class_exists(VoteDTO::class))->toBeTrue();
 });
 
 test('existe contrato VoteRepositoryInterface', function () {
-    expect(interface_exists(\App\Repositories\Contracts\VoteRepositoryInterface::class))->toBeTrue();
+    expect(interface_exists(VoteRepositoryInterface::class))->toBeTrue();
 });
 
 test('existe implementación VoteRepository en Eloquent', function () {
-    expect(class_exists(\App\Repositories\Eloquent\VoteRepository::class))->toBeTrue();
+    expect(class_exists(VoteRepository::class))->toBeTrue();
 });
 
 test('existe VoteService en Services', function () {
-    expect(class_exists(\App\Services\VoteService::class))->toBeTrue();
+    expect(class_exists(VoteService::class))->toBeTrue();
 });

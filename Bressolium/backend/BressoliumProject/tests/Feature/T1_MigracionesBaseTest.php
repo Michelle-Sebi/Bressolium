@@ -1,9 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use App\Models\User;
 use App\Models\Game;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 uses(RefreshDatabase::class);
 
@@ -47,6 +48,6 @@ test('todas las claves primarias son UUID', function () {
     $user = User::factory()->create();
     $game = Game::factory()->create();
 
-    expect(\Illuminate\Support\Str::isUuid($user->id))->toBeTrue()
-        ->and(\Illuminate\Support\Str::isUuid($game->id))->toBeTrue();
+    expect(Str::isUuid($user->id))->toBeTrue()
+        ->and(Str::isUuid($game->id))->toBeTrue();
 });

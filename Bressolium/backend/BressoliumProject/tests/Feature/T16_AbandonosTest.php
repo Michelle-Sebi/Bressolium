@@ -1,8 +1,10 @@
 <?php
 
-use App\Models\User;
+use App\Events\VoteCast;
+use App\Jobs\CloseRoundJob;
 use App\Models\Game;
 use App\Models\Technology;
+use App\Models\User;
 use App\Repositories\Contracts\CloseRoundRepositoryInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -31,7 +33,7 @@ test('el juego avanza si el Usuario 2 esta marcado como is_afk aunque no haya vo
     // El Usuario 1 si vota
     $this->round->votes()->create([
         'user_id' => $this->users[0]->id,
-        'technology_id' => 1
+        'technology_id' => 1,
     ]);
 
     // -- Lógica simulada del Job de Cierre --
@@ -96,7 +98,7 @@ test('CloseRoundJob crea la siguiente jornada con todos los jugadores sin AFK', 
     $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 0]);
     $this->round->users()->attach($this->users[1]->id, ['actions_spent' => 1]);
 
-    \App\Jobs\CloseRoundJob::dispatchSync($this->game->id);
+    CloseRoundJob::dispatchSync($this->game->id);
 
     $pivot0 = $this->game->fresh()->users()->where('user_id', $this->users[0]->id)->first();
     $pivot1 = $this->game->fresh()->users()->where('user_id', $this->users[1]->id)->first();
@@ -108,7 +110,7 @@ test('CloseRoundJob crea la siguiente jornada con todos los jugadores sin AFK', 
 test('CloseRoundJob no activa is_afk para un jugador que realizó al menos una acción', function () {
     $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 2]);
 
-    \App\Jobs\CloseRoundJob::dispatchSync($this->game->id);
+    CloseRoundJob::dispatchSync($this->game->id);
 
     $pivot = $this->game->fresh()->users()->where('user_id', $this->users[0]->id)->first();
     expect((bool) $pivot->pivot->is_afk)->toBeFalse();
@@ -124,13 +126,13 @@ test('CloseRoundJob resuelve los votos correctamente aunque un jugador AFK no ha
     $tech = Technology::factory()->create(['name' => 'Agriculture']);
     $this->round->votes()->create(['user_id' => $this->users[0]->id, 'technology_id' => $tech->id]);
 
-    \App\Jobs\CloseRoundJob::dispatchSync($this->game->id);
+    CloseRoundJob::dispatchSync($this->game->id);
 
     // La tecnología debe activarse aunque el AFK no haya votado
     $this->assertDatabaseHas('game_technology', [
-        'game_id'       => $this->game->id,
+        'game_id' => $this->game->id,
         'technology_id' => $tech->id,
-        'is_active'     => true,
+        'is_active' => true,
     ]);
 
     // La jornada 2 debe haberse creado
@@ -141,7 +143,7 @@ test('CloseRoundJob no falla con un jugador que ya era AFK y la nueva jornada lo
     $this->game->users()->updateExistingPivot($this->users[0]->id, ['is_afk' => true]);
     $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 0]);
 
-    \App\Jobs\CloseRoundJob::dispatchSync($this->game->id);
+    CloseRoundJob::dispatchSync($this->game->id);
 
     // initializePlayersForRound resetea is_afk=false al empezar la nueva jornada
     $pivot = $this->game->fresh()->users()->where('user_id', $this->users[0]->id)->first();
@@ -208,7 +210,7 @@ test('VoteCast cierra la jornada automáticamente cuando todos los jugadores act
     $this->round->votes()->create(['user_id' => $this->users[1]->id, 'technology_id' => null, 'invention_id' => null]);
 
     // Al emitir VoteCast el listener comprueba quórum y cierra la jornada
-    \App\Events\VoteCast::dispatch($this->users[1]->id, $this->game->id);
+    VoteCast::dispatch($this->users[1]->id, $this->game->id);
 
     expect($this->game->fresh()->rounds()->count())->toBe(2);
 });
@@ -220,7 +222,7 @@ test('VoteCast no cierra la jornada si algún jugador activo no ha votado aún',
     // Solo users[0] vota; users[1] todavía no
     $this->round->votes()->create(['user_id' => $this->users[0]->id, 'technology_id' => null, 'invention_id' => null]);
 
-    \App\Events\VoteCast::dispatch($this->users[0]->id, $this->game->id);
+    VoteCast::dispatch($this->users[0]->id, $this->game->id);
 
     // La jornada sigue abierta
     expect($this->game->fresh()->rounds()->count())->toBe(1);
@@ -236,7 +238,7 @@ test('VoteCast cierra la jornada aunque un jugador AFK no haya votado', function
     // Solo el jugador activo vota
     $this->round->votes()->create(['user_id' => $this->users[0]->id, 'technology_id' => null, 'invention_id' => null]);
 
-    \App\Events\VoteCast::dispatch($this->users[0]->id, $this->game->id);
+    VoteCast::dispatch($this->users[0]->id, $this->game->id);
 
     // El quórum se cumple: la jornada cierra sin esperar al AFK
     expect($this->game->fresh()->rounds()->count())->toBe(2);

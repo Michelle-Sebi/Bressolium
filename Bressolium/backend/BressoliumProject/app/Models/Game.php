@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use Database\Factories\GameFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Game extends Model
 {
-    /** @use HasFactory<\Database\Factories\GameFactory> */
+    /** @use HasFactory<GameFactory> */
     use HasFactory, HasUuids;
 
     protected $fillable = [
@@ -19,7 +22,7 @@ class Game extends Model
     /**
      * Relación con los usuarios (N:M).
      */
-    public function users(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class)->withPivot('is_afk')->withTimestamps();
     }
@@ -27,26 +30,26 @@ class Game extends Model
     /**
      * Relación: una partida tiene muchas jornadas.
      */
-    public function rounds(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function rounds(): HasMany
     {
         return $this->hasMany(Round::class);
     }
 
-    public function materials(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function materials(): BelongsToMany
     {
         return $this->belongsToMany(Material::class, 'game_material')
             ->withPivot('quantity')
             ->withTimestamps();
     }
 
-    public function technologies(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function technologies(): BelongsToMany
     {
         return $this->belongsToMany(Technology::class, 'game_technology')
             ->withPivot('is_active')
             ->withTimestamps();
     }
 
-    public function inventions(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function inventions(): BelongsToMany
     {
         return $this->belongsToMany(Invention::class, 'game_invention')
             ->withPivot('is_active', 'quantity')

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Material;
+use Illuminate\Database\Seeder;
 
 class ResourcesSeeder extends Seeder
 {
@@ -23,7 +23,7 @@ class ResourcesSeeder extends Seeder
             // Cantera — tier 0 (Nv1-4)
             ['name' => 'silex',    'tier' => 0, 'group' => 'cantera'],
             ['name' => 'granito',  'tier' => 0, 'group' => 'cantera'],
-            ['name' => 'obsidiana','tier' => 0, 'group' => 'cantera'],
+            ['name' => 'obsidiana', 'tier' => 0, 'group' => 'cantera'],
             // Cantera — tier 2 (Nv5 Cantera de Sílice)
             ['name' => 'arena-de-silice', 'tier' => 2, 'group' => 'cantera'],
             ['name' => 'arena-de-cuarzo', 'tier' => 2, 'group' => 'cantera'],
@@ -34,25 +34,25 @@ class ResourcesSeeder extends Seeder
             // Río — tier 0 (Nv1-4)
             ['name' => 'agua',            'tier' => 0, 'group' => 'rio'],
             ['name' => 'cana-comun',      'tier' => 0, 'group' => 'rio'],
-            ['name' => 'tierras-fertiles','tier' => 0, 'group' => 'rio'],
+            ['name' => 'tierras-fertiles', 'tier' => 0, 'group' => 'rio'],
             // Río — tier 2 (Nv5 Extractor de Gases)
             ['name' => 'hidrogeno',      'tier' => 2, 'group' => 'rio'],
-            ['name' => 'gases-naturales','tier' => 2, 'group' => 'rio'],
+            ['name' => 'gases-naturales', 'tier' => 2, 'group' => 'rio'],
 
             // Prado — tier 0 (Nv1-4)
             ['name' => 'lino',  'tier' => 0, 'group' => 'prado'],
             ['name' => 'yute',  'tier' => 0, 'group' => 'prado'],
-            ['name' => 'canamo','tier' => 0, 'group' => 'prado'],
+            ['name' => 'canamo', 'tier' => 0, 'group' => 'prado'],
             ['name' => 'lana',  'tier' => 0, 'group' => 'prado'],
 
             // Mina — tier 0 (Nv1-4)
             ['name' => 'cobre',  'tier' => 0, 'group' => 'mina'],
             ['name' => 'hierro', 'tier' => 0, 'group' => 'mina'],
             ['name' => 'estano', 'tier' => 0, 'group' => 'mina'],
-            ['name' => 'grafito','tier' => 0, 'group' => 'mina'],
+            ['name' => 'grafito', 'tier' => 0, 'group' => 'mina'],
             // Mina — tier 2 (Nv5 Mina de Minerales)
             ['name' => 'oro',        'tier' => 2, 'group' => 'mina'],
-            ['name' => 'mat-mag-nat','tier' => 2, 'group' => 'mina'],
+            ['name' => 'mat-mag-nat', 'tier' => 2, 'group' => 'mina'],
         ];
 
         foreach ($materials as $data) {

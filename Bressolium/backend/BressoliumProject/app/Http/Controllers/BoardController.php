@@ -18,16 +18,16 @@ class BoardController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data'    => TileResource::collection($tiles)->toArray($request),
-                'error'   => null,
+                'data' => TileResource::collection($tiles)->toArray($request),
+                'error' => null,
             ]);
         } catch (Exception $e) {
             $status = $e->getCode() === 403 ? 403 : 500;
 
             return response()->json([
                 'success' => false,
-                'data'    => null,
-                'error'   => $e->getMessage(),
+                'data' => null,
+                'error' => $e->getMessage(),
             ], $status);
         }
     }

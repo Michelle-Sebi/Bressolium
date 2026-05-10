@@ -27,10 +27,10 @@ class BoardRepository implements BoardRepositoryInterface
 
     public function createMany(array $tiles): void
     {
-        $now  = now();
+        $now = now();
         $rows = array_map(fn ($tile) => array_merge([
-            'id'         => (string) Str::uuid(),
-            'explored'   => 0,
+            'id' => (string) Str::uuid(),
+            'explored' => 0,
             'created_at' => $now,
             'updated_at' => $now,
         ], $tile), $tiles);

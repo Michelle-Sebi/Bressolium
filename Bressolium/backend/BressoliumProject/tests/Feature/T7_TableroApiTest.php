@@ -27,19 +27,19 @@ test('GET /api/board/{id} devuelve 401 sin sesión activa', function () {
     $game = Game::factory()->create();
 
     $this->getJson("/api/v1/board/{$game->id}")
-         ->assertUnauthorized();
+        ->assertUnauthorized();
 });
 
 // ─── Endpoint GET /api/board/{id} ─────────────────────────────────────────────
 
 test('GET /api/board/{id} devuelve 403 si el usuario no pertenece a la partida', function () {
-    $user      = User::factory()->create();
+    $user = User::factory()->create();
     $otherGame = Game::factory()->create();
     Tile::factory()->count(5)->create(['game_id' => $otherGame->id]);
 
     $this->actingAs($user)
-         ->getJson("/api/v1/board/{$otherGame->id}")
-         ->assertForbidden();
+        ->getJson("/api/v1/board/{$otherGame->id}")
+        ->assertForbidden();
 });
 
 test('GET /api/board/{id} devuelve 200 con estructura {success, data[*], error} para miembro', function () {
@@ -49,20 +49,20 @@ test('GET /api/board/{id} devuelve 200 con estructura {success, data[*], error} 
     Tile::factory()->count(10)->create(['game_id' => $game->id]);
 
     $this->actingAs($user)
-         ->getJson("/api/v1/board/{$game->id}")
-         ->assertStatus(200)
-         ->assertJsonStructure([
-             'success',
-             'data' => [
-                 '*' => ['id', 'coord_x', 'coord_y', 'tile_type_id', 'explored'],
-             ],
-             'error',
-         ]);
+        ->getJson("/api/v1/board/{$game->id}")
+        ->assertStatus(200)
+        ->assertJsonStructure([
+            'success',
+            'data' => [
+                '*' => ['id', 'coord_x', 'coord_y', 'tile_type_id', 'explored'],
+            ],
+            'error',
+        ]);
 });
 
 test('GET /api/board/{id} devuelve solo las casillas de la partida solicitada', function () {
-    $user  = User::factory()->create();
-    $game  = Game::factory()->create();
+    $user = User::factory()->create();
+    $game = Game::factory()->create();
     $other = Game::factory()->create();
     $user->games()->attach($game->id);
     $user->games()->attach($other->id);
@@ -81,7 +81,7 @@ test('crear equipo genera automáticamente exactamente 225 casillas (15×15)', f
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)
-                     ->postJson('/api/v1/game/create', ['team_name' => 'Equipo Alpha']);
+        ->postJson('/api/v1/game/create', ['team_name' => 'Equipo Alpha']);
     $response->assertStatus(200);
 
     $gameId = $response->json('data.id');
@@ -93,7 +93,7 @@ test('el tablero cubre todas las coordenadas 0-14 × 0-14 sin duplicados', funct
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)
-                     ->postJson('/api/v1/game/create', ['team_name' => 'Equipo Beta']);
+        ->postJson('/api/v1/game/create', ['team_name' => 'Equipo Beta']);
     $gameId = $response->json('data.id');
 
     $coords = Tile::where('game_id', $gameId)
@@ -117,7 +117,7 @@ test('todas las casillas generadas nacen con explored = false', function () {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)
-                     ->postJson('/api/v1/game/create', ['team_name' => 'Equipo Gamma']);
+        ->postJson('/api/v1/game/create', ['team_name' => 'Equipo Gamma']);
     $gameId = $response->json('data.id');
 
     $unexplored = Tile::where('game_id', $gameId)->where('explored', false)->count();
@@ -129,7 +129,7 @@ test('el tablero usa al menos 2 tipos de casilla distintos', function () {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)
-                     ->postJson('/api/v1/game/create', ['team_name' => 'Equipo Delta']);
+        ->postJson('/api/v1/game/create', ['team_name' => 'Equipo Delta']);
     $gameId = $response->json('data.id');
 
     $distinctTypes = Tile::where('game_id', $gameId)

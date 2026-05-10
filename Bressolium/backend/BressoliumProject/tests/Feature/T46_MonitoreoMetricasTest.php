@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Middleware\ForceJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Laravel\Telescope\Telescope;
 
 uses(RefreshDatabase::class);
 
@@ -14,40 +17,40 @@ uses(RefreshDatabase::class);
 
 test('GET /api/v1/stats devuelve 200 sin autenticación', function () {
     $this->getJson('/api/v1/stats')
-         ->assertStatus(200);
+        ->assertStatus(200);
 });
 
 test('GET /api/v1/stats sigue el formato ResponseBuilder {success, data, error}', function () {
     $this->getJson('/api/v1/stats')
-         ->assertStatus(200)
-         ->assertJsonStructure(['success', 'data', 'error']);
+        ->assertStatus(200)
+        ->assertJsonStructure(['success', 'data', 'error']);
 });
 
 test('GET /api/v1/stats devuelve success=true', function () {
     $this->getJson('/api/v1/stats')
-         ->assertStatus(200)
-         ->assertJsonPath('success', true);
+        ->assertStatus(200)
+        ->assertJsonPath('success', true);
 });
 
 // ─── Estructura system ────────────────────────────────────────────────────────
 
 test('GET /api/v1/stats incluye el campo system.uptime en data', function () {
     $this->getJson('/api/v1/stats')
-         ->assertStatus(200)
-         ->assertJsonPath('data.system.uptime', fn ($v) => $v !== null);
+        ->assertStatus(200)
+        ->assertJsonPath('data.system.uptime', fn ($v) => $v !== null);
 });
 
 test('el campo system.uptime es un número entero positivo (segundos de actividad)', function () {
     $response = $this->getJson('/api/v1/stats')->assertStatus(200);
-    $uptime   = $response->json('data.system.uptime');
+    $uptime = $response->json('data.system.uptime');
 
     expect($uptime)->toBeInt()->toBeGreaterThanOrEqual(0);
 });
 
 test('GET /api/v1/stats incluye el campo system.database en data', function () {
     $this->getJson('/api/v1/stats')
-         ->assertStatus(200)
-         ->assertJsonPath('data.system.database', fn ($v) => $v !== null);
+        ->assertStatus(200)
+        ->assertJsonPath('data.system.database', fn ($v) => $v !== null);
 });
 
 test('el campo system.database indica "ok" cuando la BD está disponible', function () {
@@ -59,39 +62,39 @@ test('el campo system.database indica "ok" cuando la BD está disponible', funct
 
 test('GET /api/v1/stats incluye system.requests_per_minute en data', function () {
     $this->getJson('/api/v1/stats')
-         ->assertStatus(200)
-         ->assertJsonStructure(['data' => ['system' => ['requests_per_minute']]]);
+        ->assertStatus(200)
+        ->assertJsonStructure(['data' => ['system' => ['requests_per_minute']]]);
 });
 
 test('system.requests_per_minute es un valor numérico no negativo', function () {
     $response = $this->getJson('/api/v1/stats')->assertStatus(200);
-    $rpm      = $response->json('data.system.requests_per_minute');
+    $rpm = $response->json('data.system.requests_per_minute');
 
     expect($rpm)->toBeNumeric()->toBeGreaterThanOrEqual(0);
 });
 
 test('GET /api/v1/stats incluye system.errors_per_minute en data', function () {
     $this->getJson('/api/v1/stats')
-         ->assertStatus(200)
-         ->assertJsonStructure(['data' => ['system' => ['errors_per_minute']]]);
+        ->assertStatus(200)
+        ->assertJsonStructure(['data' => ['system' => ['errors_per_minute']]]);
 });
 
 test('system.errors_per_minute es un valor numérico no negativo', function () {
     $response = $this->getJson('/api/v1/stats')->assertStatus(200);
-    $epm      = $response->json('data.system.errors_per_minute');
+    $epm = $response->json('data.system.errors_per_minute');
 
     expect($epm)->toBeNumeric()->toBeGreaterThanOrEqual(0);
 });
 
 test('GET /api/v1/stats incluye system.latency_p95 en data', function () {
     $this->getJson('/api/v1/stats')
-         ->assertStatus(200)
-         ->assertJsonStructure(['data' => ['system' => ['latency_p95']]]);
+        ->assertStatus(200)
+        ->assertJsonStructure(['data' => ['system' => ['latency_p95']]]);
 });
 
 test('system.latency_p95 es un valor numérico no negativo', function () {
     $response = $this->getJson('/api/v1/stats')->assertStatus(200);
-    $latency  = $response->json('data.system.latency_p95');
+    $latency = $response->json('data.system.latency_p95');
 
     expect($latency)->toBeNumeric()->toBeGreaterThanOrEqual(0);
 });
@@ -100,11 +103,11 @@ test('system.latency_p95 es un valor numérico no negativo', function () {
 
 test('GET /api/v1/stats incluye los campos de métricas de juego', function () {
     $this->getJson('/api/v1/stats')
-         ->assertStatus(200)
-         ->assertJsonStructure(['data' => ['game' => [
-             'total_games', 'waiting_games', 'active_games', 'finished_games',
-             'total_players', 'total_rounds', 'players',
-         ]]]);
+        ->assertStatus(200)
+        ->assertJsonStructure(['data' => ['game' => [
+            'total_games', 'waiting_games', 'active_games', 'finished_games',
+            'total_players', 'total_rounds', 'players',
+        ]]]);
 });
 
 test('game.total_games es un entero no negativo', function () {
@@ -144,7 +147,7 @@ test('GET /api/v1/stats reporta system.database "error" cuando la BD no responde
 // ─── Telescope — captura de errores backend ───────────────────────────────────
 
 test('el paquete laravel/telescope está instalado', function () {
-    expect(class_exists(\Laravel\Telescope\Telescope::class))->toBeTrue();
+    expect(class_exists(Telescope::class))->toBeTrue();
 });
 
 test('TelescopeServiceProvider está registrado en los providers de la app', function () {
@@ -157,11 +160,11 @@ test('TelescopeServiceProvider está registrado en los providers de la app', fun
 });
 
 test('Telescope registra las entradas de excepciones', function () {
-    expect(\Illuminate\Support\Facades\Schema::hasTable('telescope_entries'))->toBeTrue();
+    expect(Schema::hasTable('telescope_entries'))->toBeTrue();
 });
 
 test('GET /api/v1/stats no requiere cabecera Authorization', function () {
-    $this->withoutMiddleware(\App\Http\Middleware\ForceJson::class)
-         ->getJson('/api/v1/stats')
-         ->assertStatus(200);
+    $this->withoutMiddleware(ForceJson::class)
+        ->getJson('/api/v1/stats')
+        ->assertStatus(200);
 });

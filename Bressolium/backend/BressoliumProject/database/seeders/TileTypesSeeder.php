@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\TileType;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class TileTypesSeeder extends Seeder
 {
@@ -12,16 +13,16 @@ class TileTypesSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\TileType::create([
-            'id' => \Illuminate\Support\Str::uuid(),
+        TileType::create([
+            'id' => Str::uuid(),
             'name' => 'Forest',
-            'level' => 1
+            'level' => 1,
         ]);
 
-        \App\Models\TileType::create([
-            'id' => \Illuminate\Support\Str::uuid(),
+        TileType::create([
+            'id' => Str::uuid(),
             'name' => 'Quarry',
-            'level' => 1
+            'level' => 1,
         ]);
     }
 }

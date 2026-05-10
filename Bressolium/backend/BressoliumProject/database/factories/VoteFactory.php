@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Round;
+use App\Models\User;
 use App\Models\Vote;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,8 +20,8 @@ class VoteFactory extends Factory
     public function definition(): array
     {
         return [
-            'round_id' => \App\Models\Round::factory(),
-            'user_id' => \App\Models\User::factory(),
+            'round_id' => Round::factory(),
+            'user_id' => User::factory(),
             'technology_id' => $this->faker->uuid(),
             'invention_id' => null,
         ];

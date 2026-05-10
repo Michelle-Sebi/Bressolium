@@ -16,7 +16,7 @@ class CloseRoundService
 
     public function process(string $gameId): void
     {
-        $game  = $this->repository->findGameWithUsers($gameId);
+        $game = $this->repository->findGameWithUsers($gameId);
         $round = $this->repository->getLatestRound($game);
 
         $this->resolveTechnologyWinner($game, $round);
@@ -50,21 +50,21 @@ class CloseRoundService
     {
         $inventionId = $this->repository->getMostVotedInventionId($round);
 
-        if (!$inventionId) {
+        if (! $inventionId) {
             return false;
         }
 
         $invention = $this->repository->getInventionWithDependencies($inventionId);
 
-        if (!$invention) {
+        if (! $invention) {
             return false;
         }
 
-        if (!$this->repository->inventionPrerequisitesMet($game, $invention)) {
+        if (! $this->repository->inventionPrerequisitesMet($game, $invention)) {
             return false;
         }
 
-        if (!$this->repository->inventionResourcesMet($game, $invention)) {
+        if (! $this->repository->inventionResourcesMet($game, $invention)) {
             return false;
         }
 
@@ -74,6 +74,7 @@ class CloseRoundService
         if ($invention->is_final) {
             $this->repository->finishGame($game);
             GameFinished::dispatch($game);
+
             return true;
         }
 

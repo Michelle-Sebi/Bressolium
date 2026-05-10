@@ -1,8 +1,10 @@
 <?php
 
-use App\Models\User;
 use App\Models\Game;
+use App\Models\Round;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
@@ -20,13 +22,13 @@ beforeEach(function () {
 
 test('creating a game initializes the first round and responds with JSON standard', function () {
     $response = $this->postJson('/api/v1/game/create', [
-        'team_name' => 'Digital Pioneers'
+        'team_name' => 'Digital Pioneers',
     ]);
 
     $response->assertStatus(200)
         ->assertJson([
-        'success' => true,
-    ]);
+            'success' => true,
+        ]);
 
     // BD Assertion: Check that game is stored in the DB
     expect(Game::count())->toBe(1);
@@ -34,12 +36,12 @@ test('creating a game initializes the first round and responds with JSON standar
     expect($game->users->contains($this->user))->toBeTrue();
 
     // Check Round 1 was created
-    $round = \App\Models\Round::where('game_id', $game->id)->first();
+    $round = Round::where('game_id', $game->id)->first();
     expect($round)->not->toBeNull()
         ->and($round->number)->toBe(1);
 
     // Check round_user table was populated for initial members
-    $roundUserCount = \Illuminate\Support\Facades\DB::table('round_user')
+    $roundUserCount = DB::table('round_user')
         ->where('round_id', $round->id)
         ->where('user_id', $this->user->id)
         ->count();
@@ -58,7 +60,7 @@ test('joining by exact name associates the player with the team (HU 1.3)', funct
     $game = Game::factory()->create(['name' => 'The Testers']);
 
     $response = $this->postJson('/api/v1/game/join', [
-        'team_name' => 'The Testers'
+        'team_name' => 'The Testers',
     ]);
 
     $response->assertStatus(200);

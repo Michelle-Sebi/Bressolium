@@ -18,7 +18,7 @@ class SyncService
 
         return new SyncResponseDTO(
             currentRound: $round ? [
-                'number'     => $round->number,
+                'number' => $round->number,
                 'start_date' => $round->start_date,
             ] : [],
             userActions: [
@@ -26,9 +26,9 @@ class SyncService
                     ? $this->syncRepository->getActionsSpent($round, $userId)
                     : 0,
             ],
-            inventory:    $this->syncRepository->getInventory($game),
+            inventory: $this->syncRepository->getInventory($game),
             technologies: $this->syncRepository->getTechnologies($game),
-            inventions:   $this->syncRepository->getInventions($game),
+            inventions: $this->syncRepository->getInventions($game),
         );
     }
 }

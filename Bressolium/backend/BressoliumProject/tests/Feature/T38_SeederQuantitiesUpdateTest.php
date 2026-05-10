@@ -1,12 +1,11 @@
 <?php
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Artisan;
-use App\Models\Material;
-use App\Models\Technology;
 use App\Models\Invention;
 use App\Models\InventionPrerequisite;
+use App\Models\Technology;
 use App\Models\TechnologyPrerequisite;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 
 uses(RefreshDatabase::class);
 
@@ -105,7 +104,7 @@ test('TechnologiesSeeder persiste quantity en technology_prerequisites', functio
 
     foreach ($prereqs as $prereq) {
         expect($prereq->quantity)
-            ->toBeGreaterThanOrEqual(1, "technology_prerequisites.quantity debe ser >= 1");
+            ->toBeGreaterThanOrEqual(1, 'technology_prerequisites.quantity debe ser >= 1');
     }
 });
 
@@ -121,7 +120,7 @@ test('InventionsSeeder persiste quantity en invention_prerequisites para todos l
 
     foreach ($prereqs as $prereq) {
         expect($prereq->quantity)
-            ->toBeGreaterThanOrEqual(1, "invention_prerequisites.quantity debe ser >= 1");
+            ->toBeGreaterThanOrEqual(1, 'invention_prerequisites.quantity debe ser >= 1');
     }
 });
 
@@ -130,7 +129,7 @@ test('InventionsSeeder — nave-asentamiento exige quantity=2 para acero', funct
     Artisan::call('db:seed', ['--class' => 'TechnologiesSeeder']);
     Artisan::call('db:seed', ['--class' => 'InventionsSeeder']);
 
-    $nave  = Invention::where('name', 'Nave de Asentamiento Interestelar')->first();
+    $nave = Invention::where('name', 'Nave de Asentamiento Interestelar')->first();
     $acero = Invention::where('name', 'Acero')->first();
 
     expect($nave)->not->toBeNull('Falta el invento Nave de Asentamiento Interestelar');
@@ -150,7 +149,7 @@ test('InventionsSeeder — nave-asentamiento exige quantity=2 para vidrio', func
     Artisan::call('db:seed', ['--class' => 'TechnologiesSeeder']);
     Artisan::call('db:seed', ['--class' => 'InventionsSeeder']);
 
-    $nave   = Invention::where('name', 'Nave de Asentamiento Interestelar')->first();
+    $nave = Invention::where('name', 'Nave de Asentamiento Interestelar')->first();
     $vidrio = Invention::where('name', 'Vidrio')->first();
 
     expect($nave)->not->toBeNull();
@@ -171,7 +170,7 @@ test('InventionsSeeder — prerequisitos estándar tienen quantity=1', function 
     Artisan::call('db:seed', ['--class' => 'InventionsSeeder']);
 
     // trampa → cuchillo (quantity=1)
-    $trampa   = Invention::where('name', 'Trampa')->first();
+    $trampa = Invention::where('name', 'Trampa')->first();
     $cuchillo = Invention::where('name', 'Cuchillo')->first();
 
     $prereq = InventionPrerequisite::where('invention_id', $trampa->id)

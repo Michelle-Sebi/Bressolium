@@ -13,7 +13,7 @@ return new class extends Migration
             $table->uuid('game_id');
             $table->uuid('invention_id');
             $table->boolean('is_active')->default(false);
-            
+
             $table->foreign('game_id')->references('id')->on('games')->onDelete('cascade');
             $table->foreign('invention_id')->references('id')->on('inventions')->onDelete('cascade');
             $table->timestamps();

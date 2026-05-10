@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { bressoliumApi } from '../../services/bressoliumApi';
 
 export function useVoting(gameId) {
@@ -9,17 +9,14 @@ export function useVoting(gameId) {
     const [voteMutation]                                 = bressoliumApi.useVoteMutation();
     const [closeRoundMutation, { isLoading: isClosing }] = bressoliumApi.useCloseRoundMutation();
 
-    const [hasVoted, setHasVoted]   = useState(false);
-    const [votedName, setVotedName] = useState(null);
+    const [votedRound, setVotedRound] = useState(null);
+    const [votedName, setVotedName]   = useState(null);
 
     const rawTechs     = data?.progress?.technologies ?? [];
     const rawInvs      = data?.progress?.inventions   ?? [];
     const currentRound = data?.current_round ?? null;
 
-    useEffect(() => {
-        setHasVoted(false);
-        setVotedName(null);
-    }, [currentRound?.number]);
+    const hasVoted = votedRound === currentRound?.number;
 
     // Solo tecnologías pendientes de investigar
     const technologies = rawTechs
@@ -44,7 +41,7 @@ export function useVoting(gameId) {
     async function vote(voteData, name = null) {
         const result = await voteMutation({ gameId, ...voteData });
         if (!result.error) {
-            setHasVoted(true);
+            setVotedRound(currentRound?.number ?? null);
             setVotedName(name);
         }
         return result;
@@ -54,7 +51,7 @@ export function useVoting(gameId) {
         // Voto nulo: cuenta para el quórum pero no avanza ninguna tecnología
         const result = await voteMutation({ gameId });
         if (!result.error) {
-            setHasVoted(true);
+            setVotedRound(currentRound?.number ?? null);
             setVotedName(null);
         }
         return result;

@@ -15,7 +15,7 @@ uses(TestCase::class, RefreshDatabase::class);
 
 test('RoundRepository::create persiste una ronda en BD', function () {
     $game = Game::factory()->create();
-    $repo = new RoundRepository();
+    $repo = new RoundRepository;
 
     $round = $repo->create(['game_id' => $game->id, 'number' => 1, 'start_date' => now()]);
 
@@ -27,7 +27,7 @@ test('RoundRepository::create persiste una ronda en BD', function () {
 
 test('RoundRepository::getLatestRoundForGame devuelve la ronda con número más alto', function () {
     $game = Game::factory()->create();
-    $repo = new RoundRepository();
+    $repo = new RoundRepository;
 
     $repo->create(['game_id' => $game->id, 'number' => 1, 'start_date' => now()]);
     $repo->create(['game_id' => $game->id, 'number' => 2, 'start_date' => now()]);
@@ -41,7 +41,7 @@ test('RoundRepository::getLatestRoundForGame devuelve la ronda con número más 
 
 test('RoundRepository::getLatestRoundForGame devuelve null si la partida no tiene rondas', function () {
     $game = Game::factory()->create();
-    $repo = new RoundRepository();
+    $repo = new RoundRepository;
 
     expect($repo->getLatestRoundForGame($game->id))->toBeNull();
 });
@@ -49,7 +49,7 @@ test('RoundRepository::getLatestRoundForGame devuelve null si la partida no tien
 test('RoundRepository::getLatestRoundForGame no mezcla rondas de distintas partidas', function () {
     $game1 = Game::factory()->create();
     $game2 = Game::factory()->create();
-    $repo  = new RoundRepository();
+    $repo = new RoundRepository;
 
     $repo->create(['game_id' => $game1->id, 'number' => 5, 'start_date' => now()]);
     $repo->create(['game_id' => $game2->id, 'number' => 1, 'start_date' => now()]);

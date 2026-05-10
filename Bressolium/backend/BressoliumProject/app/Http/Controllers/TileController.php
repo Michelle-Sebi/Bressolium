@@ -17,6 +17,7 @@ class TileController extends Controller
     {
         $dto = new ExploreActionDTO(tileId: $id, userId: $request->user()->id);
         $result = $this->actionService->explore($dto);
+
         return $this->respond($request, $result);
     }
 
@@ -24,14 +25,15 @@ class TileController extends Controller
     {
         $dto = new UpgradeActionDTO(tileId: $id, userId: $request->user()->id);
         $result = $this->actionService->upgrade($dto);
+
         return $this->respond($request, $result);
     }
 
     private function respond(Request $request, array $result): JsonResponse
     {
         $status = $result['status'];
-        $error  = $result['error'] ?? null;
-        $data   = $result['data'] ?? null;
+        $error = $result['error'] ?? null;
+        $data = $result['data'] ?? null;
 
         if ($status === 200 && $data !== null) {
             $data = (new TileResource($data))->toArray($request);
@@ -39,8 +41,8 @@ class TileController extends Controller
 
         return response()->json([
             'success' => $status === 200,
-            'data'    => $data,
-            'error'   => $error,
+            'data' => $data,
+            'error' => $error,
         ], $status);
     }
 }

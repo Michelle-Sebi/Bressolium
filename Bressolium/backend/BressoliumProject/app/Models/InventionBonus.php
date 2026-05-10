@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class InventionBonus extends Model
 {
@@ -19,7 +20,7 @@ class InventionBonus extends Model
     /**
      * Invento al que pertenece este bonificador.
      */
-    public function invention(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function invention(): BelongsTo
     {
         return $this->belongsTo(Invention::class);
     }

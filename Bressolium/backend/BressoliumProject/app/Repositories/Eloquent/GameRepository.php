@@ -42,7 +42,7 @@ class GameRepository implements GameRepositoryInterface
     public function initializeMaterials(Game $game): void
     {
         $materialIds = Material::pluck('id');
-        $syncData    = $materialIds->mapWithKeys(fn ($id) => [$id => ['quantity' => 0]])->all();
+        $syncData = $materialIds->mapWithKeys(fn ($id) => [$id => ['quantity' => 0]])->all();
         $game->materials()->sync($syncData);
     }
 }

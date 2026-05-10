@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TechnologyUnlock extends Model
 {
@@ -18,7 +19,7 @@ class TechnologyUnlock extends Model
     /**
      * Tecnología a la que pertenece este desbloqueo.
      */
-    public function technology(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function technology(): BelongsTo
     {
         return $this->belongsTo(Technology::class);
     }

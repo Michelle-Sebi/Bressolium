@@ -15,6 +15,7 @@ use App\Services\BoardGeneratorService;
 use App\Services\GameService;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\DB;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 uses(TestCase::class);
@@ -27,20 +28,20 @@ function makeGameService(
     $boardGen = null,
 ): GameService {
     return new GameService(
-        $gameRepo  ?? Mockery::mock(GameRepositoryInterface::class),
+        $gameRepo ?? Mockery::mock(GameRepositoryInterface::class),
         $roundRepo ?? Mockery::mock(RoundRepositoryInterface::class),
-        $boardGen  ?? Mockery::mock(BoardGeneratorService::class),
+        $boardGen ?? Mockery::mock(BoardGeneratorService::class),
     );
 }
 
 /** Crea un mock de BelongsToMany (tipo requerido por Game::users() y Round::users()). */
-function btmMock(): \Mockery\MockInterface
+function btmMock(): MockInterface
 {
     return Mockery::mock(BelongsToMany::class);
 }
 
 /** Crea un mock de Game con users() preconfigurado para attach simple. */
-function mockGame(string $id = 'game-uuid'): \Mockery\MockInterface
+function mockGame(string $id = 'game-uuid'): MockInterface
 {
     $rel = btmMock();
     $rel->shouldReceive('attach')->andReturn(null);
@@ -53,7 +54,7 @@ function mockGame(string $id = 'game-uuid'): \Mockery\MockInterface
 }
 
 /** Crea un mock de Round con users() preconfigurado para attach simple. */
-function mockRoundWithUsers(): \Mockery\MockInterface
+function mockRoundWithUsers(): MockInterface
 {
     $rel = btmMock();
     $rel->shouldReceive('attach')->andReturn(null);
@@ -89,7 +90,7 @@ test('createGame: llama al repo con name y status WAITING', function () {
 });
 
 test('createGame: crea ronda número 1 con el game_id correcto', function () {
-    $dto  = new CreateGameDTO(teamName: 'Equipo A', userId: 'user-1');
+    $dto = new CreateGameDTO(teamName: 'Equipo A', userId: 'user-1');
     $game = mockGame('gid-123');
 
     $gameRepo = Mockery::mock(GameRepositoryInterface::class);
@@ -111,7 +112,7 @@ test('createGame: crea ronda número 1 con el game_id correcto', function () {
 });
 
 test('createGame: genera el tablero con el game_id correcto', function () {
-    $dto  = new CreateGameDTO(teamName: 'X', userId: 'user-1');
+    $dto = new CreateGameDTO(teamName: 'X', userId: 'user-1');
     $game = mockGame('gid-abc');
 
     $gameRepo = Mockery::mock(GameRepositoryInterface::class);

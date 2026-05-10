@@ -14,11 +14,11 @@ class TileFactory extends Factory
     public function definition(): array
     {
         return [
-            'game_id'      => Game::factory(),
+            'game_id' => Game::factory(),
             'tile_type_id' => TileType::factory(),
-            'coord_x'      => $this->faker->numberBetween(0, 14),
-            'coord_y'      => $this->faker->numberBetween(0, 14),
-            'explored'     => false,
+            'coord_x' => $this->faker->numberBetween(0, 14),
+            'coord_y' => $this->faker->numberBetween(0, 14),
+            'explored' => false,
         ];
     }
 }

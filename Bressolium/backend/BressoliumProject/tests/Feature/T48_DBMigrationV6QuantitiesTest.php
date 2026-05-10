@@ -52,40 +52,40 @@ test('game_invention conserva todas sus columnas originales y suma quantity', fu
 
 test('invention_prerequisites.quantity tiene default 1 cuando no se especifica', function () {
     $invention = Invention::create(['name' => 'Cuerda']);
-    $other     = Invention::create(['name' => 'Hacha']);
+    $other = Invention::create(['name' => 'Hacha']);
 
     $prereq = InventionPrerequisite::create([
         'invention_id' => $invention->id,
-        'prereq_type'  => 'invention',
-        'prereq_id'    => $other->id,
+        'prereq_type' => 'invention',
+        'prereq_id' => $other->id,
     ]);
 
     expect($prereq->fresh()->quantity)->toBe(1);
 });
 
 test('technology_prerequisites.quantity tiene default 1 cuando no se especifica', function () {
-    $tech  = Technology::create(['name' => 'Agricultura']);
+    $tech = Technology::create(['name' => 'Agricultura']);
     $other = Technology::create(['name' => 'Fuego']);
 
     $prereq = TechnologyPrerequisite::create([
         'technology_id' => $tech->id,
-        'prereq_type'   => 'technology',
-        'prereq_id'     => $other->id,
+        'prereq_type' => 'technology',
+        'prereq_id' => $other->id,
     ]);
 
     expect($prereq->fresh()->quantity)->toBe(1);
 });
 
 test('game_invention.quantity tiene default 0 cuando no se especifica (análogo a game_material)', function () {
-    $game      = Game::factory()->create();
+    $game = Game::factory()->create();
     $invention = Invention::create(['name' => 'Cuerda']);
 
     DB::table('game_invention')->insert([
-        'game_id'       => $game->id,
-        'invention_id'  => $invention->id,
-        'is_active'     => false,
-        'created_at'    => now(),
-        'updated_at'    => now(),
+        'game_id' => $game->id,
+        'invention_id' => $invention->id,
+        'is_active' => false,
+        'created_at' => now(),
+        'updated_at' => now(),
     ]);
 
     $row = DB::table('game_invention')
@@ -100,27 +100,27 @@ test('game_invention.quantity tiene default 0 cuando no se especifica (análogo 
 
 test('invention_prerequisites persiste un quantity custom (>1)', function () {
     $invention = Invention::create(['name' => 'Cuerda']);
-    $other     = Invention::create(['name' => 'Hacha']);
+    $other = Invention::create(['name' => 'Hacha']);
 
     $prereq = InventionPrerequisite::create([
         'invention_id' => $invention->id,
-        'prereq_type'  => 'invention',
-        'prereq_id'    => $other->id,
-        'quantity'     => 3,
+        'prereq_type' => 'invention',
+        'prereq_id' => $other->id,
+        'quantity' => 3,
     ]);
 
     expect($prereq->fresh()->quantity)->toBe(3);
 });
 
 test('technology_prerequisites persiste un quantity custom (>1)', function () {
-    $tech  = Technology::create(['name' => 'Metalurgia']);
+    $tech = Technology::create(['name' => 'Metalurgia']);
     $other = Technology::create(['name' => 'Rueda']);
 
     $prereq = TechnologyPrerequisite::create([
         'technology_id' => $tech->id,
-        'prereq_type'   => 'technology',
-        'prereq_id'     => $other->id,
-        'quantity'      => 5,
+        'prereq_type' => 'technology',
+        'prereq_id' => $other->id,
+        'quantity' => 5,
     ]);
 
     expect($prereq->fresh()->quantity)->toBe(5);
@@ -129,22 +129,22 @@ test('technology_prerequisites persiste un quantity custom (>1)', function () {
 // ─── Eloquent: $fillable incluye quantity ─────────────────────────────────────
 
 test('InventionPrerequisite tiene quantity en su $fillable', function () {
-    expect((new InventionPrerequisite())->getFillable())->toContain('quantity');
+    expect((new InventionPrerequisite)->getFillable())->toContain('quantity');
 });
 
 test('TechnologyPrerequisite tiene quantity en su $fillable', function () {
-    expect((new TechnologyPrerequisite())->getFillable())->toContain('quantity');
+    expect((new TechnologyPrerequisite)->getFillable())->toContain('quantity');
 });
 
 // ─── Eloquent: Game::inventions() expone quantity en el pivot ─────────────────
 
 test('Game::inventions() expone quantity en el pivot junto a is_active', function () {
-    $game      = Game::factory()->create();
+    $game = Game::factory()->create();
     $invention = Invention::create(['name' => 'Carreta']);
 
     $game->inventions()->attach($invention->id, [
         'is_active' => true,
-        'quantity'  => 4,
+        'quantity' => 4,
     ]);
 
     $loaded = $game->fresh()->inventions->first();
@@ -154,12 +154,12 @@ test('Game::inventions() expone quantity en el pivot junto a is_active', functio
 });
 
 test('Game::inventions() permite leer un equipo con quantity 0 (sin construir)', function () {
-    $game      = Game::factory()->create();
+    $game = Game::factory()->create();
     $invention = Invention::create(['name' => 'Trampa']);
 
     $game->inventions()->attach($invention->id, [
         'is_active' => false,
-        'quantity'  => 0,
+        'quantity' => 0,
     ]);
 
     $loaded = $game->fresh()->inventions->first();

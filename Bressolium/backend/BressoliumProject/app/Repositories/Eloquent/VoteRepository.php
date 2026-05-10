@@ -2,6 +2,8 @@
 
 namespace App\Repositories\Eloquent;
 
+use App\Models\Game;
+use App\Models\InventionCost;
 use App\Models\Vote;
 use App\Repositories\Contracts\VoteRepositoryInterface;
 
@@ -16,7 +18,7 @@ class VoteRepository implements VoteRepositoryInterface
 
     public function isTechnologyCompleted(string $gameId, string $technologyId): bool
     {
-        return \App\Models\Game::find($gameId)
+        return Game::find($gameId)
             ?->technologies()
             ->where('technology_id', $technologyId)
             ->where('is_active', true)
@@ -25,13 +27,13 @@ class VoteRepository implements VoteRepositoryInterface
 
     public function hasEnoughMaterialsForInvention(string $gameId, string $inventionId): bool
     {
-        $costs = \App\Models\InventionCost::where('invention_id', $inventionId)->get();
+        $costs = InventionCost::where('invention_id', $inventionId)->get();
 
         if ($costs->isEmpty()) {
             return true;
         }
 
-        $game = \App\Models\Game::find($gameId);
+        $game = Game::find($gameId);
 
         foreach ($costs as $cost) {
             $stock = $game->materials()
@@ -50,10 +52,10 @@ class VoteRepository implements VoteRepositoryInterface
     public function store(string $roundId, string $userId, ?string $technologyId, ?string $inventionId): Vote
     {
         return Vote::create([
-            'round_id'      => $roundId,
-            'user_id'       => $userId,
+            'round_id' => $roundId,
+            'user_id' => $userId,
             'technology_id' => $technologyId,
-            'invention_id'  => $inventionId,
+            'invention_id' => $inventionId,
         ]);
     }
 }

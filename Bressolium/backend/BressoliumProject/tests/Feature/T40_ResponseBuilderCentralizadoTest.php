@@ -24,7 +24,7 @@ test('la clase App\\Support\\ResponseBuilder existe', function () {
 });
 
 test('ResponseBuilder es instanciable (no estático)', function () {
-    $rb = new ResponseBuilder();
+    $rb = new ResponseBuilder;
     expect($rb)->toBeInstanceOf(ResponseBuilder::class);
 });
 
@@ -44,7 +44,7 @@ test('los métodos success, error y paginated NO son estáticos', function () {
 // ─── 2. success(data, code) ───────────────────────────────────────────────────
 
 test('success() devuelve JsonResponse con estructura {success:true, data, error:null} y código 200 por defecto', function () {
-    $rb = new ResponseBuilder();
+    $rb = new ResponseBuilder;
     $response = $rb->success(['foo' => 'bar']);
 
     expect($response)->toBeInstanceOf(JsonResponse::class)
@@ -53,13 +53,13 @@ test('success() devuelve JsonResponse con estructura {success:true, data, error:
     $payload = $response->getData(true);
     expect($payload)->toMatchArray([
         'success' => true,
-        'data'    => ['foo' => 'bar'],
-        'error'   => null,
+        'data' => ['foo' => 'bar'],
+        'error' => null,
     ]);
 });
 
 test('success() respeta un código HTTP custom', function () {
-    $rb = new ResponseBuilder();
+    $rb = new ResponseBuilder;
     $response = $rb->success(['id' => 1], 201);
 
     expect($response->getStatusCode())->toBe(201);
@@ -67,21 +67,21 @@ test('success() respeta un código HTTP custom', function () {
 });
 
 test('success() acepta data null y devuelve data:null en el payload', function () {
-    $rb = new ResponseBuilder();
+    $rb = new ResponseBuilder;
     $response = $rb->success(null);
 
     $payload = $response->getData(true);
     expect($payload)->toMatchArray([
         'success' => true,
-        'data'    => null,
-        'error'   => null,
+        'data' => null,
+        'error' => null,
     ]);
 });
 
 // ─── 3. error(message, code) ──────────────────────────────────────────────────
 
 test('error() devuelve JsonResponse con estructura {success:false, data:null, error:msg} y código 500 por defecto', function () {
-    $rb = new ResponseBuilder();
+    $rb = new ResponseBuilder;
     $response = $rb->error('Algo falló');
 
     expect($response)->toBeInstanceOf(JsonResponse::class)
@@ -89,13 +89,13 @@ test('error() devuelve JsonResponse con estructura {success:false, data:null, er
 
     expect($response->getData(true))->toMatchArray([
         'success' => false,
-        'data'    => null,
-        'error'   => 'Algo falló',
+        'data' => null,
+        'error' => 'Algo falló',
     ]);
 });
 
 test('error() respeta un código HTTP custom (ej. 404)', function () {
-    $rb = new ResponseBuilder();
+    $rb = new ResponseBuilder;
     $response = $rb->error('Not found', 404);
 
     expect($response->getStatusCode())->toBe(404);
@@ -103,7 +103,7 @@ test('error() respeta un código HTTP custom (ej. 404)', function () {
 });
 
 test('error() respeta otros códigos custom (ej. 401, 422)', function () {
-    $rb = new ResponseBuilder();
+    $rb = new ResponseBuilder;
 
     expect($rb->error('Unauthorized', 401)->getStatusCode())->toBe(401)
         ->and($rb->error('Unprocessable', 422)->getStatusCode())->toBe(422);
@@ -114,7 +114,7 @@ test('error() respeta otros códigos custom (ej. 401, 422)', function () {
 test('paginated() acepta un Eloquent Builder y devuelve estructura {success:true, data, error:null}', function () {
     User::factory()->count(20)->create();
 
-    $rb = new ResponseBuilder();
+    $rb = new ResponseBuilder;
     $response = $rb->paginated(User::query());
 
     expect($response)->toBeInstanceOf(JsonResponse::class)
@@ -129,7 +129,7 @@ test('paginated() acepta un Eloquent Builder y devuelve estructura {success:true
 test('paginated() expone metadatos de paginación dentro de data', function () {
     User::factory()->count(20)->create();
 
-    $rb = new ResponseBuilder();
+    $rb = new ResponseBuilder;
     $response = $rb->paginated(User::query());
     $data = $response->getData(true)['data'];
 
@@ -142,7 +142,7 @@ test('paginated() expone metadatos de paginación dentro de data', function () {
 test('paginated() devuelve solo las claves estándar {success, data, error} en el nivel raíz', function () {
     User::factory()->count(5)->create();
 
-    $rb = new ResponseBuilder();
+    $rb = new ResponseBuilder;
     $response = $rb->paginated(User::query());
 
     expect(array_keys($response->getData(true)))->toEqualCanonicalizing(['success', 'data', 'error']);
@@ -164,12 +164,12 @@ test('endpoint /api/register devuelve las 3 claves {success, data, error} (succe
 
 test('endpoint /api/login con credenciales inválidas devuelve las 3 claves (error caso)', function () {
     User::factory()->create([
-        'email'    => 'badlogin@t40.com',
+        'email' => 'badlogin@t40.com',
         'password' => bcrypt('correcto'),
     ]);
 
     $response = $this->postJson('/api/v1/login', [
-        'email'    => 'badlogin@t40.com',
+        'email' => 'badlogin@t40.com',
         'password' => 'incorrecto',
     ]);
 
@@ -246,26 +246,26 @@ test('AuthController no llama directamente a response()->json en su código fuen
     $code = file_get_contents(
         base_path('app/Http/Controllers/Api/AuthController.php')
     );
-    expect($code)->not->toContain("response()->json");
+    expect($code)->not->toContain('response()->json');
 });
 
 test('GameController no llama directamente a response()->json en su código fuente', function () {
     $code = file_get_contents(
         base_path('app/Http/Controllers/Api/GameController.php')
     );
-    expect($code)->not->toContain("response()->json");
+    expect($code)->not->toContain('response()->json');
 });
 
 test('BoardController no llama directamente a response()->json en su código fuente', function () {
     $code = file_get_contents(
         base_path('app/Http/Controllers/Api/BoardController.php')
     );
-    expect($code)->not->toContain("response()->json");
+    expect($code)->not->toContain('response()->json');
 });
 
 test('TileController no llama directamente a response()->json en su código fuente', function () {
     $code = file_get_contents(
         base_path('app/Http/Controllers/Api/TileController.php')
     );
-    expect($code)->not->toContain("response()->json");
+    expect($code)->not->toContain('response()->json');
 });

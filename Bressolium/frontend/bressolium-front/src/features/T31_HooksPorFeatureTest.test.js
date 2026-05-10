@@ -9,7 +9,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { vi } from 'vitest';
 import React from 'react';
 
-import authReducer, { loginThunk } from './auth/authSlice';
+import authReducer from './auth/authSlice';
 import gameReducer from './game/gameSlice';
 import boardReducer from './board/boardSlice';
 import inventoryReducer from './inventory/inventorySlice';

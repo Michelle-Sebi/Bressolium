@@ -26,10 +26,10 @@ class BoardRepository
 
     public function createMany(array $tiles): void
     {
-        $now  = now();
+        $now = now();
         $rows = array_map(fn ($tile) => array_merge([
-            'id'         => (string) Str::uuid(),
-            'explored'   => 0,
+            'id' => (string) Str::uuid(),
+            'explored' => 0,
             'created_at' => $now,
             'updated_at' => $now,
         ], $tile), $tiles);
@@ -43,10 +43,10 @@ class BoardRepository
             ->where('coord_x', $x)
             ->where('coord_y', $y)
             ->update([
-                'assigned_player'       => $userId,
-                'explored'              => true,
+                'assigned_player' => $userId,
+                'explored' => true,
                 'explored_by_player_id' => $userId,
-                'explored_at'           => now(),
+                'explored_at' => now(),
             ]);
     }
 }

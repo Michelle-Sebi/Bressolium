@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Material extends Model
 {
@@ -16,15 +18,15 @@ class Material extends Model
         'group',
     ];
 
-    public function recipes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function recipes(): HasMany
     {
         return $this->hasMany(Recipe::class);
     }
 
-    public function games(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function games(): BelongsToMany
     {
         return $this->belongsToMany(Game::class, 'game_material')
-                    ->withPivot('quantity')
-                    ->withTimestamps();
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 }

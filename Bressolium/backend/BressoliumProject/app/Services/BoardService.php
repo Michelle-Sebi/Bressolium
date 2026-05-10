@@ -11,7 +11,7 @@ class BoardService
 
     public function getBoardForUser(string $gameId, string $userId)
     {
-        if (!$this->boardRepository->isUserInGame($gameId, $userId)) {
+        if (! $this->boardRepository->isUserInGame($gameId, $userId)) {
             throw new Exception('Forbidden', 403);
         }
 

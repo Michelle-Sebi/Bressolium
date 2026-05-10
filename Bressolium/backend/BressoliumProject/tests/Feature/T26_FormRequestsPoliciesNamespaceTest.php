@@ -1,19 +1,21 @@
 <?php
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Http\Requests\RegisterRequest;
-use App\Http\Requests\LoginRequest;
-use App\Http\Requests\CreateGameRequest;
-use App\Http\Requests\JoinGameRequest;
-use App\Http\Requests\ExploreActionRequest;
-use App\Http\Requests\UpgradeActionRequest;
-use App\Policies\GamePolicy;
-use App\Policies\TilePolicy;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BoardController;
 use App\Http\Controllers\Api\GameController;
 use App\Http\Controllers\Api\TileController;
-use App\Http\Controllers\Api\BoardController;
+use App\Http\Requests\CreateGameRequest;
+use App\Http\Requests\ExploreActionRequest;
+use App\Http\Requests\JoinGameRequest;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\UpgradeActionRequest;
+use App\Models\Game;
+use App\Models\User;
+use App\Policies\GamePolicy;
+use App\Policies\TilePolicy;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 // ==========================================
 // TEST FOR: TASK 26
@@ -75,7 +77,7 @@ test('UpgradeActionRequest extiende FormRequest', function () {
 // ─── Form Requests declaran reglas de validación correctas ────────────────────
 
 test('RegisterRequest declara reglas para name, email y password', function () {
-    $rules = (new RegisterRequest())->rules();
+    $rules = (new RegisterRequest)->rules();
 
     expect($rules)
         ->toHaveKey('name')
@@ -84,7 +86,7 @@ test('RegisterRequest declara reglas para name, email y password', function () {
 });
 
 test('LoginRequest declara reglas para email y password', function () {
-    $rules = (new LoginRequest())->rules();
+    $rules = (new LoginRequest)->rules();
 
     expect($rules)
         ->toHaveKey('email')
@@ -92,13 +94,13 @@ test('LoginRequest declara reglas para email y password', function () {
 });
 
 test('CreateGameRequest declara reglas para team_name', function () {
-    $rules = (new CreateGameRequest())->rules();
+    $rules = (new CreateGameRequest)->rules();
 
     expect($rules)->toHaveKey('team_name');
 });
 
 test('JoinGameRequest declara reglas para team_name', function () {
-    $rules = (new JoinGameRequest())->rules();
+    $rules = (new JoinGameRequest)->rules();
 
     expect($rules)->toHaveKey('team_name');
 });
@@ -155,42 +157,42 @@ test('BoardController existe en App\Http\Controllers\Api', function () {
 
 test('AuthController::register acepta RegisterRequest como primer parámetro', function () {
     $method = (new ReflectionClass(AuthController::class))->getMethod('register');
-    $type   = $method->getParameters()[0]->getType()->getName();
+    $type = $method->getParameters()[0]->getType()->getName();
 
     expect($type)->toBe(RegisterRequest::class);
 });
 
 test('AuthController::login acepta LoginRequest como primer parámetro', function () {
     $method = (new ReflectionClass(AuthController::class))->getMethod('login');
-    $type   = $method->getParameters()[0]->getType()->getName();
+    $type = $method->getParameters()[0]->getType()->getName();
 
     expect($type)->toBe(LoginRequest::class);
 });
 
 test('GameController::create acepta CreateGameRequest como primer parámetro', function () {
     $method = (new ReflectionClass(GameController::class))->getMethod('create');
-    $type   = $method->getParameters()[0]->getType()->getName();
+    $type = $method->getParameters()[0]->getType()->getName();
 
     expect($type)->toBe(CreateGameRequest::class);
 });
 
 test('GameController::join acepta JoinGameRequest como primer parámetro', function () {
     $method = (new ReflectionClass(GameController::class))->getMethod('join');
-    $type   = $method->getParameters()[0]->getType()->getName();
+    $type = $method->getParameters()[0]->getType()->getName();
 
     expect($type)->toBe(JoinGameRequest::class);
 });
 
 test('TileController::explore acepta ExploreActionRequest como primer parámetro', function () {
     $method = (new ReflectionClass(TileController::class))->getMethod('explore');
-    $type   = $method->getParameters()[0]->getType()->getName();
+    $type = $method->getParameters()[0]->getType()->getName();
 
     expect($type)->toBe(ExploreActionRequest::class);
 });
 
 test('TileController::upgrade acepta UpgradeActionRequest como primer parámetro', function () {
     $method = (new ReflectionClass(TileController::class))->getMethod('upgrade');
-    $type   = $method->getParameters()[0]->getType()->getName();
+    $type = $method->getParameters()[0]->getType()->getName();
 
     expect($type)->toBe(UpgradeActionRequest::class);
 });
@@ -201,23 +203,23 @@ describe('validaciones y autorización (requiere DB)', function () {
     uses(RefreshDatabase::class);
     test('POST /api/register sin name devuelve 422', function () {
         $this->postJson('/api/v1/register', [
-            'email'    => 'test@example.com',
+            'email' => 'test@example.com',
             'password' => 'secret123',
         ])->assertStatus(422);
     });
 
     test('POST /api/register con email inválido devuelve 422', function () {
         $this->postJson('/api/v1/register', [
-            'name'     => 'Test User',
-            'email'    => 'not-an-email',
+            'name' => 'Test User',
+            'email' => 'not-an-email',
             'password' => 'secret123',
         ])->assertStatus(422);
     });
 
     test('POST /api/register con password menor de 8 caracteres devuelve 422', function () {
         $this->postJson('/api/v1/register', [
-            'name'     => 'Test User',
-            'email'    => 'test@example.com',
+            'name' => 'Test User',
+            'email' => 'test@example.com',
             'password' => 'short',
         ])->assertStatus(422);
     });
@@ -227,7 +229,7 @@ describe('validaciones y autorización (requiere DB)', function () {
     });
 
     test('POST /api/game/create sin team_name devuelve 422', function () {
-        $user  = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $token = $user->createToken('test')->plainTextToken;
 
         $this->withToken($token)
@@ -236,7 +238,7 @@ describe('validaciones y autorización (requiere DB)', function () {
     });
 
     test('POST /api/game/join sin team_name devuelve 422', function () {
-        $user  = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $token = $user->createToken('test')->plainTextToken;
 
         $this->withToken($token)
@@ -247,15 +249,15 @@ describe('validaciones y autorización (requiere DB)', function () {
     // ─── Comportamiento: Policy deniega acceso a partida ajena ───────────────────
 
     test('GET /api/board/{gameId} de partida ajena devuelve 403', function () {
-        $owner = \App\Models\User::factory()->create();
-        $other = \App\Models\User::factory()->create();
+        $owner = User::factory()->create();
+        $other = User::factory()->create();
         $token = $other->createToken('test')->plainTextToken;
 
-        $game = \App\Models\Game::factory()->create();
+        $game = Game::factory()->create();
         $game->users()->attach($owner->id);
 
         $this->withToken($token)
-            ->getJson('/api/v1/board/' . $game->id)
+            ->getJson('/api/v1/board/'.$game->id)
             ->assertStatus(403);
     });
 });

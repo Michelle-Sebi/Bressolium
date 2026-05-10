@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Support\ResponseBuilder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Laravel\Telescope\Storage\EntryModel;
 
 class StatsController extends Controller
 {
@@ -18,7 +19,7 @@ class StatsController extends Controller
     {
         return $this->rb->success([
             'system' => $this->getSystemStats(),
-            'game'   => $this->getGameStats(),
+            'game' => $this->getGameStats(),
         ]);
     }
 
@@ -27,11 +28,11 @@ class StatsController extends Controller
     private function getSystemStats(): array
     {
         return [
-            'uptime'              => $this->getUptime(),
-            'database'            => $this->getDatabaseStatus(),
+            'uptime' => $this->getUptime(),
+            'database' => $this->getDatabaseStatus(),
             'requests_per_minute' => $this->getRequestsPerMinute(),
-            'errors_per_minute'   => $this->getErrorsPerMinute(),
-            'latency_p95'         => $this->getLatencyP95(),
+            'errors_per_minute' => $this->getErrorsPerMinute(),
+            'latency_p95' => $this->getLatencyP95(),
         ];
     }
 
@@ -44,6 +45,7 @@ class StatsController extends Controller
     {
         try {
             DB::connection()->getPdo();
+
             return 'ok';
         } catch (\Throwable) {
             return 'error';
@@ -53,8 +55,7 @@ class StatsController extends Controller
     private function getRequestsPerMinute(): int
     {
         try {
-            return \Laravel\Telescope\Storage\EntryModel
-                ::where('type', 'request')
+            return EntryModel::where('type', 'request')
                 ->where('created_at', '>=', now()->subMinute())
                 ->count();
         } catch (\Throwable) {
@@ -65,8 +66,7 @@ class StatsController extends Controller
     private function getErrorsPerMinute(): int
     {
         try {
-            return \Laravel\Telescope\Storage\EntryModel
-                ::where('type', 'exception')
+            return EntryModel::where('type', 'exception')
                 ->where('created_at', '>=', now()->subMinute())
                 ->count();
         } catch (\Throwable) {
@@ -77,8 +77,7 @@ class StatsController extends Controller
     private function getLatencyP95(): float
     {
         try {
-            $durations = \Laravel\Telescope\Storage\EntryModel
-                ::where('type', 'request')
+            $durations = EntryModel::where('type', 'request')
                 ->where('created_at', '>=', now()->subMinute())
                 ->get()
                 ->map(fn ($e) => data_get(json_decode($e->content, true), 'duration'))
@@ -86,9 +85,12 @@ class StatsController extends Controller
                 ->sort()
                 ->values();
 
-            if ($durations->isEmpty()) return 0.0;
+            if ($durations->isEmpty()) {
+                return 0.0;
+            }
 
             $index = max(0, (int) ceil(0.95 * $durations->count()) - 1);
+
             return (float) ($durations[$index] ?? 0.0);
         } catch (\Throwable) {
             return 0.0;
@@ -108,14 +110,14 @@ class StatsController extends Controller
             ->get(['id', 'name', 'games_count']);
 
         return [
-            'total_games'    => Game::count(),
-            'waiting_games'  => (int) ($gamesByStatus['WAITING']  ?? 0),
-            'active_games'   => (int) ($gamesByStatus['ACTIVE']   ?? 0),
+            'total_games' => Game::count(),
+            'waiting_games' => (int) ($gamesByStatus['WAITING'] ?? 0),
+            'active_games' => (int) ($gamesByStatus['ACTIVE'] ?? 0),
             'finished_games' => (int) ($gamesByStatus['FINISHED'] ?? 0),
-            'total_players'  => User::count(),
-            'total_rounds'   => Round::count(),
-            'players'        => $players->map(fn ($u) => [
-                'name'        => $u->name,
+            'total_players' => User::count(),
+            'total_rounds' => Round::count(),
+            'players' => $players->map(fn ($u) => [
+                'name' => $u->name,
                 'games_count' => $u->games_count,
             ])->values(),
         ];

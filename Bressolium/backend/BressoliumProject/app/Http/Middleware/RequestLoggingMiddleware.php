@@ -18,10 +18,10 @@ class RequestLoggingMiddleware
         $durationMs = (hrtime(true) - $startTime) / 1_000_000;
 
         Log::info('API Request', [
-            'method'      => $request->method(),
-            'path'        => $request->path(),
-            'user_id'     => $request->user()?->id ?? null,
-            'status'      => $response->getStatusCode(),
+            'method' => $request->method(),
+            'path' => $request->path(),
+            'user_id' => $request->user()?->id ?? null,
+            'status' => $response->getStatusCode(),
             'duration_ms' => round($durationMs, 2),
         ]);
 

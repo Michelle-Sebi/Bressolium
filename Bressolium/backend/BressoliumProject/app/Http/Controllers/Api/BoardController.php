@@ -25,9 +25,11 @@ class BoardController extends Controller
 
         try {
             $tiles = $this->boardService->getBoardForUser($gameId, $request->user()->id);
+
             return $this->rb->success(TileResource::collection($tiles)->toArray($request));
         } catch (Exception $e) {
             $status = $e->getCode() === 403 ? 403 : 500;
+
             return $this->rb->error($e->getMessage(), $status);
         }
     }

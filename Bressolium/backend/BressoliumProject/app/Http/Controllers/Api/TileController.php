@@ -21,7 +21,7 @@ class TileController extends Controller
 
     public function explore(ExploreActionRequest $request, string $id): JsonResponse
     {
-        $dto  = new ExploreActionDTO(tileId: $id, userId: $request->user()->id);
+        $dto = new ExploreActionDTO(tileId: $id, userId: $request->user()->id);
         $tile = $this->actionService->explore($dto);
 
         return $this->rb->success((new TileResource($tile))->toArray($request));
@@ -29,7 +29,7 @@ class TileController extends Controller
 
     public function upgrade(UpgradeActionRequest $request, string $id): JsonResponse
     {
-        $dto  = new UpgradeActionDTO(tileId: $id, userId: $request->user()->id);
+        $dto = new UpgradeActionDTO(tileId: $id, userId: $request->user()->id);
         $tile = $this->actionService->upgrade($dto);
 
         return $this->rb->success((new TileResource($tile))->toArray($request));

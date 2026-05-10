@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
+use Database\Factories\VoteFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Vote extends Model
 {
-    /** @use HasFactory<\Database\Factories\VoteFactory> */
+    /** @use HasFactory<VoteFactory> */
     use HasFactory, HasUuids;
 
     protected $fillable = [
@@ -21,7 +23,7 @@ class Vote extends Model
     /**
      * Relación: un voto pertenece a una jornada.
      */
-    public function round(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function round(): BelongsTo
     {
         return $this->belongsTo(Round::class);
     }
@@ -29,7 +31,7 @@ class Vote extends Model
     /**
      * Relación: un voto lo emite un usuario.
      */
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

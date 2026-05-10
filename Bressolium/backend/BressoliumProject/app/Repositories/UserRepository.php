@@ -1,6 +1,8 @@
 <?php
+
 /**
  * @module UserRepository
+ *
  * @description Repositorio para la gestión de datos del modelo User.
  */
 
@@ -13,9 +15,6 @@ class UserRepository
 {
     /**
      * Crea un nuevo usuario.
-     * 
-     * @param array $data
-     * @return User
      */
     public function create(array $data): User
     {
@@ -28,9 +27,6 @@ class UserRepository
 
     /**
      * Busca un usuario por su email.
-     * 
-     * @param string $email
-     * @return User|null
      */
     public function findByEmail(string $email): ?User
     {

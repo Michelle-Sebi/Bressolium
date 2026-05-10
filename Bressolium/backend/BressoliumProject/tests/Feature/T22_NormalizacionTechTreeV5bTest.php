@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\Technology;
 use App\Models\Invention;
 use App\Models\Material;
+use App\Models\Technology;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 
 uses(RefreshDatabase::class);
 
@@ -69,13 +69,13 @@ test('technology_unlocks y invention_unlocks tienen las columnas correctas', fun
 });
 
 test('un invento puede tener otro invento como prerequisito (no se consume)', function () {
-    $cuerda  = Invention::create(['name' => 'Cuerda']);
-    $trampa  = Invention::create(['name' => 'Trampa']);
+    $cuerda = Invention::create(['name' => 'Cuerda']);
+    $trampa = Invention::create(['name' => 'Trampa']);
 
     // Trampa requiere Cuerda como prerequisito (no se consume)
     $trampa->inventionPrerequisites()->create([
         'prereq_type' => 'invention',
-        'prereq_id'   => $cuerda->id,
+        'prereq_id' => $cuerda->id,
     ]);
 
     $prereqs = $trampa->inventionPrerequisites;
@@ -86,11 +86,11 @@ test('un invento puede tener otro invento como prerequisito (no se consume)', fu
 
 test('un invento puede tener una tecnología como prerequisito', function () {
     $agriculture = Technology::create(['name' => 'Agricultura']);
-    $arado       = Invention::create(['name' => 'Arado']);
+    $arado = Invention::create(['name' => 'Arado']);
 
     $arado->inventionPrerequisites()->create([
         'prereq_type' => 'technology',
-        'prereq_id'   => $agriculture->id,
+        'prereq_id' => $agriculture->id,
     ]);
 
     $prereqs = $arado->inventionPrerequisites;
@@ -100,9 +100,9 @@ test('un invento puede tener una tecnología como prerequisito', function () {
 });
 
 test('invention_costs almacena los recursos que se consumen al construir el invento', function () {
-    $roble  = Material::create(['name' => 'Roble', 'tier' => 0, 'group' => 'Bosque']);
+    $roble = Material::create(['name' => 'Roble', 'tier' => 0, 'group' => 'Bosque']);
     $hierro = Material::create(['name' => 'Hierro', 'tier' => 0, 'group' => 'Mina']);
-    $hacha  = Invention::create(['name' => 'Hacha']);
+    $hacha = Invention::create(['name' => 'Hacha']);
 
     $hacha->inventionCosts()->createMany([
         ['resource_id' => $roble->id,  'quantity' => 10],
@@ -116,13 +116,13 @@ test('invention_costs almacena los recursos que se consumen al construir el inve
 
 test('prerequisito e invention_cost son independientes: el prerequisito no se consume', function () {
     $cuerda = Invention::create(['name' => 'Cuerda']);
-    $roble  = Material::create(['name' => 'Roble', 'tier' => 0, 'group' => 'Bosque']);
-    $barco  = Invention::create(['name' => 'Barco']);
+    $roble = Material::create(['name' => 'Roble', 'tier' => 0, 'group' => 'Bosque']);
+    $barco = Invention::create(['name' => 'Barco']);
 
     // Cuerda es prerequisito de Barco (debe existir, no se consume)
     $barco->inventionPrerequisites()->create([
         'prereq_type' => 'invention',
-        'prereq_id'   => $cuerda->id,
+        'prereq_id' => $cuerda->id,
     ]);
 
     // Roble es coste de Barco (se consume)
@@ -150,7 +150,7 @@ test('una tecnología puede tener una tecnología como prerequisito', function (
 
     $tech2->technologyPrerequisites()->create([
         'prereq_type' => 'technology',
-        'prereq_id'   => $tech1->id,
+        'prereq_id' => $tech1->id,
     ]);
 
     expect($tech2->technologyPrerequisites)->toHaveCount(1)
@@ -160,17 +160,17 @@ test('una tecnología puede tener una tecnología como prerequisito', function (
 
 test('se pueden registrar bonificadores estructurales para tecnologías e inventos', function () {
     $tech = Technology::create(['name' => 'Rueda']);
-    $inv  = Invention::create(['name' => 'Carreta']);
+    $inv = Invention::create(['name' => 'Carreta']);
 
     $tech->technologyBonuses()->create([
-        'bonus_type'   => 'production_multiplier',
-        'bonus_value'  => 1.5,
+        'bonus_type' => 'production_multiplier',
+        'bonus_value' => 1.5,
         'bonus_target' => 'farm',
     ]);
 
     $inv->inventionBonuses()->create([
-        'bonus_type'   => 'action_cost_reduction',
-        'bonus_value'  => 1,
+        'bonus_type' => 'action_cost_reduction',
+        'bonus_value' => 1,
         'bonus_target' => 'explore',
     ]);
 

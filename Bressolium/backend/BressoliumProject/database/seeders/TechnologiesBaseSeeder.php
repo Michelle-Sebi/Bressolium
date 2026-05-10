@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -31,7 +30,7 @@ class TechnologiesBaseSeeder extends Seeder
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        
+
         // Also add Cart so old stuff doesn't completely break, even though not explicitly asserted here.
         $cartId = Str::uuid()->toString();
         DB::table('inventions')->insert([
