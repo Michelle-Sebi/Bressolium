@@ -62,7 +62,7 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
 
     public function inventionPrerequisitesMet(Game $game, Invention $invention): bool
     {
-        $activeTechIds = $game->technologies()->wherePivot('is_active', true)->pluck('id');
+        $activeTechIds = $game->technologies()->wherePivot('is_active', true)->get()->pluck('id');
 
         foreach ($invention->inventionPrerequisites as $prerequisite) {
             if ($prerequisite->prereq_type === 'invention') {

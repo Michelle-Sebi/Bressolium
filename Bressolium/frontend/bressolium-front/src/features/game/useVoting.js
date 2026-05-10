@@ -3,8 +3,9 @@ import { bressoliumApi } from '../../services/bressoliumApi';
 
 export function useVoting(gameId) {
     const { data, isLoading } = bressoliumApi.useGetSyncQuery(gameId, {
-        skip:            !gameId,
-        pollingInterval: 30000,
+        skip:                    !gameId,
+        pollingInterval:         30000,
+        refetchOnMountOrArgChange: true,
     });
     const [voteMutation]                                 = bressoliumApi.useVoteMutation();
     const [closeRoundMutation, { isLoading: isClosing }] = bressoliumApi.useCloseRoundMutation();
