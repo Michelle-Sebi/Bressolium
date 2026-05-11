@@ -65,7 +65,7 @@ const MATERIAL_LABELS = {
     'mat-mag-nat':         'Mat. Magnético',
 };
 
-/** Materiales que produce cada casilla (= coste de subir AL nivel indicado) */
+/** Materiales que produce cada casilla por ronda según su nivel actual */
 const PRODUCTION_DATA = {
     bosque: {
         1: [{ m: 'roble', q: 5 }],
@@ -104,6 +104,43 @@ const PRODUCTION_DATA = {
     },
 };
 
+/**
+ * Coste para subir FROM el nivel indicado al siguiente.
+ * Solo usa materiales producibles en ese nivel o inferior.
+ */
+const UPGRADE_COSTS = {
+    bosque: {
+        1: [{ m: 'roble', q: 10 }],
+        2: [{ m: 'roble', q: 8 }, { m: 'pino', q: 8 }],
+        3: [{ m: 'roble', q: 8 }, { m: 'pino', q: 8 }, { m: 'carbon-natural', q: 8 }],
+        4: [{ m: 'roble', q: 9 }, { m: 'pino', q: 9 }, { m: 'carbon-natural', q: 9 }, { m: 'pieles', q: 9 }],
+    },
+    cantera: {
+        1: [{ m: 'silex', q: 10 }],
+        2: [{ m: 'silex', q: 8 }, { m: 'granito', q: 8 }],
+        3: [{ m: 'silex', q: 8 }, { m: 'granito', q: 8 }, { m: 'obsidiana', q: 8 }],
+        4: [{ m: 'silex', q: 9 }, { m: 'granito', q: 9 }, { m: 'obsidiana', q: 9 }],
+    },
+    rio: {
+        1: [{ m: 'agua', q: 10 }],
+        2: [{ m: 'agua', q: 8 }, { m: 'cana-comun', q: 8 }],
+        3: [{ m: 'agua', q: 8 }, { m: 'cana-comun', q: 8 }, { m: 'tierras-fertiles', q: 8 }],
+        4: [{ m: 'agua', q: 9 }, { m: 'cana-comun', q: 9 }, { m: 'tierras-fertiles', q: 9 }],
+    },
+    prado: {
+        1: [{ m: 'lino', q: 10 }],
+        2: [{ m: 'lino', q: 8 }, { m: 'yute', q: 8 }],
+        3: [{ m: 'lino', q: 8 }, { m: 'yute', q: 8 }, { m: 'canamo', q: 8 }],
+        4: [{ m: 'lino', q: 9 }, { m: 'yute', q: 9 }, { m: 'canamo', q: 9 }, { m: 'lana', q: 9 }],
+    },
+    mina: {
+        1: [{ m: 'cobre', q: 10 }],
+        2: [{ m: 'cobre', q: 8 }, { m: 'hierro', q: 8 }],
+        3: [{ m: 'cobre', q: 10 }, { m: 'hierro', q: 10 }, { m: 'estano', q: 10 }],
+        4: [{ m: 'cobre', q: 12 }, { m: 'hierro', q: 12 }, { m: 'estano', q: 12 }, { m: 'grafito', q: 12 }],
+    },
+};
+
 function MaterialList({ items }) {
     if (!items || items.length === 0) return <span style={{ opacity: 0.6 }}>—</span>;
     return (
@@ -125,9 +162,9 @@ function TileTooltip({ tile, pos }) {
     const baseType   = tile.type?.base_type;
     const level      = tile.type?.level ?? 0;
     const tileName   = tile.type?.name ?? TYPE_LABELS[baseType] ?? baseType;
-    const production = PRODUCTION_DATA[baseType]?.[level] ?? null;
+    const production  = PRODUCTION_DATA[baseType]?.[level] ?? null;
     const upgradeCost = baseType !== 'pueblo' && level < 5
-        ? (PRODUCTION_DATA[baseType]?.[level + 1] ?? null)
+        ? (UPGRADE_COSTS[baseType]?.[level] ?? null)
         : null;
 
     const TOOLTIP_W = 200;
@@ -178,7 +215,7 @@ function TileTooltip({ tile, pos }) {
             {baseType !== 'pueblo' && row(
                 'Subir Nv.',
                 upgradeCost
-                    ? <MaterialList items={upgradeCost} />
+                    ? <><MaterialList items={upgradeCost} /><span style={{ opacity: 0.45 }}> · 1 acción</span></>
                     : <span style={{ opacity: 0.6 }}>Nivel máximo</span>
             )}
         </div>
@@ -188,8 +225,8 @@ function TileTooltip({ tile, pos }) {
 /** @type {Record<string, string>} Color de fondo por tipo de terreno */
 const TILE_BG_COLORS = {
     bosque:  '#458B74',
-    cantera: '#696969',
-    prado:   '#8FBC8F',
+    cantera: '#8B7355',
+    prado:   '#CD4F39',
     rio:     '#4682B4',
     mina:    '#DAA520',
     pueblo:  '#C1CDC1',
@@ -198,6 +235,17 @@ const TILE_BG_COLORS = {
 const FOG_BG_COLOR        = '#a0a0a0';
 const EXPLORABLE_BG_COLOR = '#c0c0c0';
 const DEFAULT_BORDER      = '2px solid #fff';
+
+/** Mezcla un color hex con blanco según el nivel (1=más claro, 5=color original) */
+const LEVEL_WHITE_BLEND = { 1: 0.55, 2: 0.38, 3: 0.22, 4: 0.08, 5: 0 };
+function tileColorForLevel(hex, level) {
+    const factor = LEVEL_WHITE_BLEND[level] ?? 0;
+    if (factor === 0) return hex;
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgb(${Math.round(r + (255 - r) * factor)},${Math.round(g + (255 - g) * factor)},${Math.round(b + (255 - b) * factor)})`;
+}
 
 /** @type {Record<string, string>} Icono por tipo de terreno base */
 const TILE_ICONS = {
@@ -251,14 +299,18 @@ function buildExplorableCoordSet(tiles) {
  * @param {{ tile: object, currentUserId: string, isExplorable: boolean, onTileClick: Function }} props
  */
 function Tile({ tile, currentUserId, isExplorable, onTileClick, onHoverEnter, onHoverLeave }) {
-    const isExplored = tile.explored;
-    const isOwnTile  = !tile.assigned_player || tile.assigned_player === currentUserId;
-    const baseType   = tile.type?.base_type;
-    const level      = tile.type?.level ?? 0;
+    const [isHovered, setIsHovered] = useState(false);
+
+    const isExplored    = tile.explored;
+    const isOwnTile     = !tile.assigned_player || tile.assigned_player === currentUserId;
+    const baseType      = tile.type?.base_type;
+    const level         = tile.type?.level ?? 0;
+    const isUpgradeable  = isExplored && isOwnTile && baseType !== 'pueblo' && level < 5;
+    const isExplorableOwn = !isExplored && isExplorable && isOwnTile;
 
     const isClickable     = isOwnTile && (isExplored || isExplorable);
     const backgroundColor = isExplored
-        ? (TILE_BG_COLORS[baseType] ?? FOG_BG_COLOR)
+        ? tileColorForLevel(TILE_BG_COLORS[baseType] ?? FOG_BG_COLOR, level || 1)
         : isExplorable ? EXPLORABLE_BG_COLOR : FOG_BG_COLOR;
     const tileIcon        = isExplored ? TILE_ICONS[baseType] : null;
     const borderStyle     = DEFAULT_BORDER;
@@ -288,8 +340,8 @@ function Tile({ tile, currentUserId, isExplorable, onTileClick, onHoverEnter, on
                 aspectRatio: '1 / 1',
                 border: borderStyle,
             }}
-            onMouseEnter={isExplored ? (e) => onHoverEnter(tile, e) : undefined}
-            onMouseLeave={isExplored ? onHoverLeave : undefined}
+            onMouseEnter={(e) => { setIsHovered(true);  if (isExplored) onHoverEnter(tile, e); }}
+            onMouseLeave={() =>  { setIsHovered(false); if (isExplored) onHoverLeave(); }}
         >
             <div
                 data-testid={`tile-${tile.coord_x}-${tile.coord_y}`}
@@ -339,6 +391,44 @@ function Tile({ tile, currentUserId, isExplorable, onTileClick, onHoverEnter, on
                             pointerEvents:   'none',
                         }}
                     />
+                )}
+                {isHovered && isUpgradeable && (
+                    <div
+                        aria-hidden="true"
+                        style={{
+                            position:        'absolute',
+                            inset:           0,
+                            backgroundColor: 'rgba(0,0,0,0.40)',
+                            display:         'flex',
+                            flexDirection:   'column',
+                            alignItems:      'center',
+                            justifyContent:  'center',
+                            gap:             '1px',
+                            pointerEvents:   'none',
+                        }}
+                    >
+                        <span style={{ fontSize: '11px', color: '#fff', lineHeight: 1 }}>▲</span>
+                        <span style={{ fontSize: '7px', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.05em', lineHeight: 1 }}>Subir</span>
+                    </div>
+                )}
+                {isHovered && isExplorableOwn && (
+                    <div
+                        aria-hidden="true"
+                        style={{
+                            position:        'absolute',
+                            inset:           0,
+                            backgroundColor: 'rgba(0,0,0,0.35)',
+                            display:         'flex',
+                            flexDirection:   'column',
+                            alignItems:      'center',
+                            justifyContent:  'center',
+                            gap:             '1px',
+                            pointerEvents:   'none',
+                        }}
+                    >
+                        <span style={{ fontSize: '11px', color: '#fff', lineHeight: 1 }}>◉</span>
+                        <span style={{ fontSize: '7px', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.05em', lineHeight: 1 }}>Explorar</span>
+                    </div>
                 )}
             </div>
         </div>
