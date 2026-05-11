@@ -31,9 +31,11 @@ class SyncRepository implements SyncRepositoryInterface
         return $game->materials()
             ->get()
             ->map(fn ($m) => [
-                'id' => $m->id,
-                'name' => $m->name,
+                'id'       => $m->id,
+                'name'     => $m->name,
                 'quantity' => $m->pivot->quantity,
+                'group'    => $m->group,
+                'tier'     => $m->tier,
             ])
             ->values()
             ->toArray();

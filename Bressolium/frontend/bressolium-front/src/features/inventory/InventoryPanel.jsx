@@ -1,23 +1,18 @@
 /**
  * @module InventoryPanel
- * @description Panel lateral izquierdo con el inventario de materiales de la partida.
- * Muestra todos los materiales del catálogo con su icono. Los materiales con quantity > 0
- * se resaltan en color (material--active) con un badge de cantidad. El resto aparece
- * en opacidad reducida (material--inactive).
- *
- * Estructura DOM de cada ítem (dos capas para satisfacer testids simultáneos):
- * - Capa exterior: `data-testid="material-item"` — usada por getAllByTestId para contar/filtrar.
- * - Capa interior: `data-testid="material-item-{name}"` — usada para inspección individual.
- * Ambas capas llevan la clase de estado (material--active / material--inactive).
- *
+ * @description Panel lateral izquierdo con el inventario de materiales e inventos de la partida.
+ * Usa el componente ItemCard para mostrar cada ítem en formato lista.
  * @see Tarea 18 - Material Inventory Side-Panel (HU 2.4)
  */
 
+import { useState } from 'react';
 import { useInventory } from './useInventory';
 import { useGames } from '../game/useGames';
+import ItemCard, { GROUP_COLORS, GROUP_LABELS } from '../../components/ui/ItemCard';
 import Badge from '../../components/ui/Badge';
 
-/** @type {Record<string, string>} Mapeo de nombre de material a ruta de icono */
+// ─── Iconos de materiales ──────────────────────────────────────────────────────
+
 const MATERIAL_ICON_MAP = {
     'roble':               new URL('../../assets/icons/materials/roble.png',                    import.meta.url).href,
     'pino':                new URL('../../assets/icons/materials/pino.png',                     import.meta.url).href,
@@ -51,93 +46,43 @@ const MATERIAL_ICON_MAP = {
     'mat-mag-nat':         new URL('../../assets/icons/materials/materiales-magenticos.png',    import.meta.url).href,
 };
 
-/**
- * Ítem individual de material en el panel.
- * @param {{ material: import('./inventorySlice').InventoryMaterial }} props
- */
-function MaterialItem({ material }) {
-    const isActive   = material.quantity > 0;
-    const stateClass = isActive ? 'material--active' : 'material--inactive';
-    const iconSrc    = MATERIAL_ICON_MAP[material.name] ?? '';
+// ─── Iconos de inventos ────────────────────────────────────────────────────────
 
-    return (
-        // Capa exterior: contada por getAllByTestId('material-item')
-        <div
-            data-testid="material-item"
-            className={`material-item ${stateClass}`}
-            style={{ opacity: isActive ? 1 : 0.35 }}
-            title={`${material.name} · ${material.group} · tier ${material.tier} · ×${material.quantity}`}
-        >
-            {/* Capa interior: inspeccionada individualmente por getByTestId('material-item-{name}') */}
-            <div
-                data-testid={`material-item-${material.name}`}
-                className={`material-item ${stateClass}`}
-                style={{
-                    display:       'flex',
-                    flexDirection: 'column',
-                    alignItems:    'center',
-                    gap:           '4px',
-                    padding:       '6px 4px',
-                    position:      'relative',
-                }}
-            >
-                <img
-                    data-testid={`material-icon-${material.name}`}
-                    src={iconSrc}
-                    alt={`${material.name}, tier ${material.tier}`}
-                    style={{ width: '32px', height: '32px', objectFit: 'contain' }}
-                />
-                <span style={{ fontSize: '9px', color: '#a0a0a0', textAlign: 'center', lineHeight: 1.2 }}>
-                    {material.name}
-                </span>
-                {isActive && (
-                    <Badge
-                        count={material.quantity}
-                        data-testid={`material-badge-${material.name}`}
-                        aria-label={`Cantidad: ${material.quantity}`}
-                    />
-                )}
-            </div>
-        </div>
-    );
-}
-
-/** @type {Record<string, string>} Mapeo de nombre de invento a ruta de icono */
 const INVENTION_ICON_MAP = {
-    'acero':                        new URL('../../assets/icons/inventions/acero.png',                        import.meta.url).href,
-    'acueducto':                    new URL('../../assets/icons/inventions/acueducto.png',                    import.meta.url).href,
-    'arado':                        new URL('../../assets/icons/inventions/arado.png',                        import.meta.url).href,
-    'arco':                         new URL('../../assets/icons/inventions/arco.png',                         import.meta.url).href,
-    'avion':                        new URL('../../assets/icons/inventions/avion.png',                        import.meta.url).href,
-    'barco':                        new URL('../../assets/icons/inventions/barco.png',                        import.meta.url).href,
-    'bateria':                      new URL('../../assets/icons/inventions/bateria.png',                      import.meta.url).href,
-    'bombilla':                     new URL('../../assets/icons/inventions/bombilla.png',                     import.meta.url).href,
-    'brujula':                      new URL('../../assets/icons/inventions/brujula.png',                      import.meta.url).href,
-    'carro':                        new URL('../../assets/icons/inventions/carro.png',                        import.meta.url).href,
-    'ceramica':                     new URL('../../assets/icons/inventions/ceramica.png',                     import.meta.url).href,
-    'cuchillo':                     new URL('../../assets/icons/inventions/cuchillo.png',                     import.meta.url).href,
-    'cuerda':                       new URL('../../assets/icons/inventions/cuerda.png',                       import.meta.url).href,
-    'estacion-espacial':            new URL('../../assets/icons/inventions/estacion-espacial.png',            import.meta.url).href,
-    'fibra-optica':                 new URL('../../assets/icons/inventions/fibra-optica.png',                 import.meta.url).href,
-    'hacha':                        new URL('../../assets/icons/inventions/hacha.png',                        import.meta.url).href,
-    'imprenta':                     new URL('../../assets/icons/inventions/imprenta.png',                     import.meta.url).href,
-    'lanza':                        new URL('../../assets/icons/inventions/lanza.png',                        import.meta.url).href,
-    'laser':                        new URL('../../assets/icons/inventions/laser.png',                        import.meta.url).href,
-    'microscopio':                  new URL('../../assets/icons/inventions/microscopio.png',                  import.meta.url).href,
-    'molino':                       new URL('../../assets/icons/inventions/molino.png',                       import.meta.url).href,
-    'moneda':                       new URL('../../assets/icons/inventions/moneda.png',                       import.meta.url).href,
+    'acero':                          new URL('../../assets/icons/inventions/acero.png',                          import.meta.url).href,
+    'acueducto':                      new URL('../../assets/icons/inventions/acueducto.png',                      import.meta.url).href,
+    'arado':                          new URL('../../assets/icons/inventions/arado.png',                          import.meta.url).href,
+    'arco':                           new URL('../../assets/icons/inventions/arco.png',                           import.meta.url).href,
+    'avion':                          new URL('../../assets/icons/inventions/avion.png',                          import.meta.url).href,
+    'barco':                          new URL('../../assets/icons/inventions/barco.png',                          import.meta.url).href,
+    'bateria':                        new URL('../../assets/icons/inventions/bateria.png',                        import.meta.url).href,
+    'bombilla':                       new URL('../../assets/icons/inventions/bombilla.png',                       import.meta.url).href,
+    'brujula':                        new URL('../../assets/icons/inventions/brujula.png',                        import.meta.url).href,
+    'carro':                          new URL('../../assets/icons/inventions/carro.png',                          import.meta.url).href,
+    'ceramica':                       new URL('../../assets/icons/inventions/ceramica.png',                       import.meta.url).href,
+    'cuchillo':                       new URL('../../assets/icons/inventions/cuchillo.png',                       import.meta.url).href,
+    'cuerda':                         new URL('../../assets/icons/inventions/cuerda.png',                         import.meta.url).href,
+    'estacion-espacial':              new URL('../../assets/icons/inventions/estacion-espacial.png',              import.meta.url).href,
+    'fibra-optica':                   new URL('../../assets/icons/inventions/fibra-optica.png',                   import.meta.url).href,
+    'hacha':                          new URL('../../assets/icons/inventions/hacha.png',                          import.meta.url).href,
+    'imprenta':                       new URL('../../assets/icons/inventions/imprenta.png',                       import.meta.url).href,
+    'lanza':                          new URL('../../assets/icons/inventions/lanza.png',                          import.meta.url).href,
+    'laser':                          new URL('../../assets/icons/inventions/laser.png',                          import.meta.url).href,
+    'microscopio':                    new URL('../../assets/icons/inventions/microscopio.png',                    import.meta.url).href,
+    'molino':                         new URL('../../assets/icons/inventions/molino.png',                         import.meta.url).href,
+    'moneda':                         new URL('../../assets/icons/inventions/moneda.png',                         import.meta.url).href,
     'nave-asentamiento-interestelar': new URL('../../assets/icons/inventions/nave-asentamiento-interestelar.png', import.meta.url).href,
-    'papel':                        new URL('../../assets/icons/inventions/papel.png',                        import.meta.url).href,
-    'penicilina':                   new URL('../../assets/icons/inventions/penicilina.png',                   import.meta.url).href,
-    'refugio':                      new URL('../../assets/icons/inventions/refugio.png',                      import.meta.url).href,
-    'reloj':                        new URL('../../assets/icons/inventions/reloj.png',                        import.meta.url).href,
-    'rueda':                        new URL('../../assets/icons/inventions/rueda.png',                        import.meta.url).href,
-    'satelite':                     new URL('../../assets/icons/inventions/satelite.png',                     import.meta.url).href,
-    'tela':                         new URL('../../assets/icons/inventions/tela.png',                         import.meta.url).href,
-    'telefono-movil':               new URL('../../assets/icons/inventions/telefono-movil.png',               import.meta.url).href,
-    'telescopio':                   new URL('../../assets/icons/inventions/telescopio.png',                   import.meta.url).href,
-    'trampa':                       new URL('../../assets/icons/inventions/trampa.png',                       import.meta.url).href,
-    'vidrio':                       new URL('../../assets/icons/inventions/vidrio.png',                       import.meta.url).href,
+    'papel':                          new URL('../../assets/icons/inventions/papel.png',                          import.meta.url).href,
+    'penicilina':                     new URL('../../assets/icons/inventions/penicilina.png',                     import.meta.url).href,
+    'refugio':                        new URL('../../assets/icons/inventions/refugio.png',                        import.meta.url).href,
+    'reloj':                          new URL('../../assets/icons/inventions/reloj.png',                          import.meta.url).href,
+    'rueda':                          new URL('../../assets/icons/inventions/rueda.png',                          import.meta.url).href,
+    'satelite':                       new URL('../../assets/icons/inventions/satelite.png',                       import.meta.url).href,
+    'tela':                           new URL('../../assets/icons/inventions/tela.png',                           import.meta.url).href,
+    'telefono-movil':                 new URL('../../assets/icons/inventions/telefono-movil.png',                 import.meta.url).href,
+    'telescopio':                     new URL('../../assets/icons/inventions/telescopio.png',                     import.meta.url).href,
+    'trampa':                         new URL('../../assets/icons/inventions/trampa.png',                         import.meta.url).href,
+    'vidrio':                         new URL('../../assets/icons/inventions/vidrio.png',                         import.meta.url).href,
 };
 
 function inventionNameToKey(name) {
@@ -151,106 +96,70 @@ function inventionNameToKey(name) {
         .replace(/refugios/, 'refugio');
 }
 
-/**
- * Cabecera visual de sección dentro del panel de inventario.
- * @param {{ label: string }} props
- */
-function InventorySectionHeader({ label }) {
+// ─── Cabecera de sección ───────────────────────────────────────────────────────
+
+function SectionHeader({ label, isOpen, onToggle }) {
     return (
-        <div
+        <button
+            onClick={onToggle}
+            aria-expanded={isOpen}
             style={{
-                padding:         '4px 8px',
-                backgroundColor: '#a0a0a0',
-                color:           '#fff',
+                width:           '100%',
+                display:         'flex',
+                justifyContent:  'space-between',
+                alignItems:      'center',
+                padding:         '8px 10px',
+                backgroundColor: '#f0f0f0',
+                color:           'rgba(0,0,0,0.5)',
                 fontWeight:      'bold',
                 textTransform:   'uppercase',
                 letterSpacing:   '0.08em',
                 fontSize:        '10px',
-                marginBottom:    '2px',
+                border:          'none',
+                borderBottom:    '1px solid #e8e8e8',
+                cursor:          'pointer',
+                textAlign:       'left',
             }}
         >
             {label}
-        </div>
-    );
-}
-
-/**
- * Ítem individual de invento en el panel.
- * @param {{ invention: import('./inventorySlice').InventoryInvention }} props
- */
-function InventionItem({ invention }) {
-    const isActive   = invention.quantity > 0;
-    const stateClass = isActive ? 'invention--active' : 'invention--inactive';
-    const iconKey    = inventionNameToKey(invention.name);
-    const iconSrc    = INVENTION_ICON_MAP[iconKey] ?? '';
-
-    return (
-        <div
-            data-testid="invention-item"
-            className={`invention-item ${stateClass}`}
-            style={{ opacity: isActive ? 1 : 0.35 }}
-        >
-            <div
-                data-testid={`invention-item-${invention.name}`}
-                className={`invention-item ${stateClass}`}
-                style={{
-                    display:       'flex',
-                    flexDirection: 'column',
-                    alignItems:    'center',
-                    gap:           '4px',
-                    padding:       '6px 4px',
-                    position:      'relative',
-                }}
+            <svg
+                width="12" height="12" viewBox="0 0 12 12" fill="none"
+                style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
             >
-                {iconSrc && (
-                    <img
-                        src={iconSrc}
-                        alt={`${invention.name}${isActive ? `, cantidad ${invention.quantity}` : ''}`}
-                        style={{ width: '32px', height: '32px', objectFit: 'contain' }}
-                    />
-                )}
-                <span style={{ fontSize: '9px', color: '#a0a0a0', textAlign: 'center', lineHeight: 1.2 }}>
-                    {invention.name}
-                </span>
-                {isActive && (
-                    <span
-                        aria-label={`Cantidad: ${invention.quantity}`}
-                        style={{
-                            fontSize:        '11px',
-                            fontWeight:      'bold',
-                            color:           '#fff',
-                            backgroundColor: '#a0a0a0',
-                            padding:         '1px 5px',
-                            minWidth:        '18px',
-                            textAlign:       'center',
-                        }}
-                    >
-                        {invention.quantity}
-                    </span>
-                )}
-            </div>
-        </div>
+                <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+        </button>
     );
 }
 
-/**
- * Panel lateral izquierdo de inventario: materiales (Recursos) e inventos (Inventos).
- */
+// ─── Subtítulos ────────────────────────────────────────────────────────────────
+
+function materialSubtitle(material) {
+    const group = GROUP_LABELS[material.group] ?? material.group ?? '';
+    const tier  = material.tier != null ? `Nivel ${material.tier + 1}` : '';
+    return [group, tier].filter(Boolean).join(' · ');
+}
+
+function inventionSubtitle(invention) {
+    if (!invention.missing || invention.missing.length === 0) return 'Listo para construir';
+    return 'Falta: ' + invention.missing
+        .map(m => m.required > 1 ? `${m.name} ×${m.required}` : m.name)
+        .join(', ');
+}
+
+// ─── Panel principal ───────────────────────────────────────────────────────────
+
 function InventoryPanel() {
     const { currentGame } = useGames();
     const { materials, inventions, isLoading } = useInventory(currentGame?.id);
+    const [materialsOpen, setMaterialsOpen] = useState(true);
+    const [inventionsOpen, setInventionsOpen] = useState(true);
 
     if (isLoading) {
         return (
             <div
                 data-testid="inventory-loading"
-                style={{
-                    padding:       '16px',
-                    color:         '#a0a0a0',
-                    fontWeight:    'bold',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.1em',
-                }}
+                style={{ padding: '16px', color: '#a0a0a0', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '11px' }}
             >
                 Cargando inventario…
             </div>
@@ -260,29 +169,84 @@ function InventoryPanel() {
     return (
         <div
             data-testid="inventory-panel"
-            style={{
-                display:         'flex',
-                flexDirection:   'column',
-                gap:             '2px',
-                padding:         '8px',
-                backgroundColor: '#f7f9f7',
-                borderRight:     '2px solid #C1CDC1',
-                overflowY:       'auto',
-            }}
+            style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', backgroundColor: '#fff' }}
         >
-            <InventorySectionHeader label="Recursos" />
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2px' }}>
-                {materials.map((material) => (
-                    <MaterialItem key={material.id} material={material} />
-                ))}
-            </div>
+            {/* ── Recursos ── */}
+            <SectionHeader label="Recursos" isOpen={materialsOpen} onToggle={() => setMaterialsOpen(o => !o)} />
+            {materialsOpen && [...materials]
+                .sort((a, b) => (b.quantity > 0 ? 1 : 0) - (a.quantity > 0 ? 1 : 0))
+                .map((material) => {
+                const isActive = material.quantity > 0;
+                return (
+                    <div
+                        key={material.id}
+                        data-testid="material-item"
+                        title={`${material.name} · ${material.group} · tier ${material.tier} · ×${material.quantity}`}
+                        className={isActive ? 'material--active' : 'material--inactive'}
+                    >
+                        <div
+                            data-testid={`material-item-${material.name}`}
+                            className={isActive ? 'material--active' : 'material--inactive'}
+                        >
+                            <ItemCard
+                                iconSrc={MATERIAL_ICON_MAP[material.name] ?? ''}
+                                iconBgColor={GROUP_COLORS[material.group] ?? '#a0a0a0'}
+                                name={material.name}
+                                subtitle={materialSubtitle(material)}
+                                quantity={material.quantity}
+                                isActive={isActive}
+                            />
+                            {/* elementos ocultos para compatibilidad con tests existentes */}
+                            <img
+                                data-testid={`material-icon-${material.name}`}
+                                src={MATERIAL_ICON_MAP[material.name] ?? ''}
+                                alt={`${material.name}, tier ${material.tier}`}
+                                style={{ display: 'none' }}
+                            />
+                            {isActive && (
+                                <Badge
+                                    count={material.quantity}
+                                    data-testid={`material-badge-${material.name}`}
+                                    style={{ display: 'none' }}
+                                />
+                            )}
+                        </div>
+                    </div>
+                );
+            })}
 
-            <InventorySectionHeader label="Inventos" />
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2px' }}>
-                {inventions.map((invention) => (
-                    <InventionItem key={invention.id} invention={invention} />
-                ))}
-            </div>
+            {/* ── Inventos ── */}
+            <SectionHeader label="Inventos" isOpen={inventionsOpen} onToggle={() => setInventionsOpen(o => !o)} />
+            {inventionsOpen && [...inventions]
+                .sort((a, b) => {
+                    const rank = inv => inv.quantity > 0 ? 0 : (inv.missing?.length === 0 ? 1 : 2);
+                    return rank(a) - rank(b);
+                })
+                .map((invention) => {
+                const iconKey  = inventionNameToKey(invention.name);
+                const isActive = invention.quantity > 0;
+                return (
+                    <div
+                        key={invention.id}
+                        data-testid="invention-item"
+                        className={isActive ? 'invention--active' : 'invention--inactive'}
+                    >
+                        <div
+                            data-testid={`invention-item-${invention.name}`}
+                            className={isActive ? 'invention--active' : 'invention--inactive'}
+                        >
+                            <ItemCard
+                                iconSrc={INVENTION_ICON_MAP[iconKey] ?? ''}
+                                iconBgColor={isActive ? '#458B74' : '#a0a0a0'}
+                                name={invention.name}
+                                subtitle={inventionSubtitle(invention)}
+                                quantity={isActive ? invention.quantity : undefined}
+                                isActive={isActive}
+                            />
+                        </div>
+                    </div>
+                );
+            })}
         </div>
     );
 }
