@@ -45,9 +45,9 @@ function GameBoard() {
                         borderBottom:    '3px solid #C1CDC1',
                     }}
                 >
-                    Votaciones
+                    Resumen
                 </div>
-                <div style={{ flex: 1, overflowY: 'auto' }}>
+                <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                     <VotingPanel gameId={currentGame?.id} />
                 </div>
             </div>

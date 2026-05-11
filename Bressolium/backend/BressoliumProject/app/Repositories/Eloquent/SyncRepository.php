@@ -88,18 +88,25 @@ class SyncRepository implements SyncRepositoryInterface
         return $allInvs->map(function ($inv) use ($gameInvMap, $allInvs, $matMap, $activeTechIds) {
             $quantity = $gameInvMap->has($inv->id) ? (int) $gameInvMap[$inv->id]->pivot->quantity : 0;
             $missing = [];
+            $costs   = [];
 
             foreach ($inv->inventionCosts as $cost) {
                 $mat = $matMap->get($cost->resource_id);
                 $have = $mat ? (int) $mat->pivot->quantity : 0;
                 $needed = (int) $cost->quantity;
 
+                $costs[] = [
+                    'type'     => 'resource',
+                    'name'     => $cost->resource?->name ?? 'Recurso',
+                    'required' => $needed,
+                ];
+
                 if ($have < $needed) {
                     $missing[] = [
-                        'type' => 'resource',
-                        'name' => $cost->resource?->name ?? 'Recurso',
+                        'type'     => 'resource',
+                        'name'     => $cost->resource?->name ?? 'Recurso',
                         'required' => $needed,
-                        'have' => $have,
+                        'have'     => $have,
                     ];
                 }
             }
@@ -109,34 +116,48 @@ class SyncRepository implements SyncRepositoryInterface
                     $prereqEntry = $gameInvMap->get($prereq->prereq_id);
                     $have = $prereqEntry ? (int) $prereqEntry->pivot->quantity : 0;
                     $needed = (int) ($prereq->quantity ?? 1);
+                    $prereqInfo = $allInvs->firstWhere('id', $prereq->prereq_id);
+
+                    $costs[] = [
+                        'type'     => 'invention',
+                        'name'     => $prereqInfo?->name ?? 'Invento',
+                        'required' => $needed,
+                    ];
 
                     if ($have < $needed) {
-                        $prereqInfo = $allInvs->firstWhere('id', $prereq->prereq_id);
                         $missing[] = [
-                            'type' => 'invention',
-                            'name' => $prereqInfo?->name ?? 'Invento',
+                            'type'     => 'invention',
+                            'name'     => $prereqInfo?->name ?? 'Invento',
                             'required' => $needed,
-                            'have' => $have,
+                            'have'     => $have,
                         ];
                     }
                 } elseif ($prereq->prereq_type === 'technology') {
+                    $techInfo = Technology::find($prereq->prereq_id);
+
+                    $costs[] = [
+                        'type'     => 'technology',
+                        'name'     => $techInfo?->name ?? 'Tecnología',
+                        'required' => 1,
+                    ];
+
                     if (! $activeTechIds->contains($prereq->prereq_id)) {
-                        $techInfo = Technology::find($prereq->prereq_id);
                         $missing[] = [
-                            'type' => 'technology',
-                            'name' => $techInfo?->name ?? 'Tecnología',
+                            'type'     => 'technology',
+                            'name'     => $techInfo?->name ?? 'Tecnología',
                             'required' => 1,
-                            'have' => 0,
+                            'have'     => 0,
                         ];
                     }
                 }
             }
 
             return [
-                'id' => $inv->id,
-                'name' => $inv->name,
+                'id'       => $inv->id,
+                'name'     => $inv->name,
                 'quantity' => $quantity,
-                'missing' => $missing,
+                'missing'  => $missing,
+                'costs'    => $costs,
             ];
         })->values()->toArray();
     }
@@ -147,6 +168,13 @@ class SyncRepository implements SyncRepositoryInterface
             ->where('round_id', $round->id)
             ->where('user_id', $userId)
             ->exists();
+    }
+
+    public function hasFinishedRound(Round $round, string $userId): bool
+    {
+        $pivot = $round->users()->where('user_id', $userId)->first();
+
+        return $pivot !== null && $pivot->pivot->finished_at !== null;
     }
 
     public function getLastRoundResult(Round $currentRound): array

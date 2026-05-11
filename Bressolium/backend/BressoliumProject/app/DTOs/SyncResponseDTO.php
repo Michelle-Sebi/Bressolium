@@ -11,6 +11,7 @@ final readonly class SyncResponseDTO
         public array $technologies,
         public array $inventions,
         public bool $hasVoted = false,
+        public bool $hasFinished = false,
         public array $lastRoundResult = [],
     ) {}
 }

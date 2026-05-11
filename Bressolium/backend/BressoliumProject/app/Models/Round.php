@@ -24,6 +24,11 @@ class Round extends Model
         'last_built_invention_id',
     ];
 
+    protected $casts = [
+        'start_date' => 'datetime',
+        'ended_at'   => 'datetime',
+    ];
+
     /**
      * Relación: una jornada pertenece a una partida.
      */
@@ -37,7 +42,7 @@ class Round extends Model
      */
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class)->withPivot('actions_spent')->withTimestamps();
+        return $this->belongsToMany(User::class)->withPivot('actions_spent', 'finished_at')->withTimestamps();
     }
 
     /**
