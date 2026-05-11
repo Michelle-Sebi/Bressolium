@@ -23,4 +23,9 @@ class CacheService
     {
         $this->cache->forget("board:{$gameId}");
     }
+
+    public function invalidateSync(string $gameId, string $userId): void
+    {
+        $this->cache->forget("sync:{$gameId}:{$userId}");
+    }
 }

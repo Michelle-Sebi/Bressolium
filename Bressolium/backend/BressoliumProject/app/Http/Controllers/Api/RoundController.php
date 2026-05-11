@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Jobs\CloseRoundJob;
 use App\Models\Game;
+use App\Models\Round;
 use App\Support\ResponseBuilder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -50,12 +51,30 @@ class RoundController extends Controller
             return $this->rb->error('Partida no encontrada.', 404);
         }
 
-        if (! $game->users()->where('user_id', $request->user()->id)->exists()) {
+        $userId = $request->user()->id;
+
+        if (! $game->users()->where('user_id', $userId)->exists()) {
             return $this->rb->error('No perteneces a esta partida.', 403);
         }
 
-        CloseRoundJob::dispatchSync($gameId);
+        $round = Round::where('game_id', $gameId)->whereNull('ended_at')->latest('number')->first();
 
-        return $this->rb->success(['message' => 'Jornada cerrada correctamente.']);
+        if (! $round) {
+            return $this->rb->error('No hay jornada activa.', 404);
+        }
+
+        // Marcar a este jugador como listo para terminar
+        $round->users()->updateExistingPivot($userId, ['finished_at' => now()]);
+
+        // Cerrar la jornada solo cuando todos los jugadores han terminado
+        $totalPlayers    = $game->users()->count();
+        $finishedPlayers = $round->users()->wherePivotNotNull('finished_at')->count();
+
+        if ($finishedPlayers >= $totalPlayers) {
+            CloseRoundJob::dispatchSync($gameId);
+            return $this->rb->success(['message' => 'Jornada cerrada correctamente.']);
+        }
+
+        return $this->rb->success(['message' => 'Listo. Esperando al resto de jugadores.']);
     }
 }

@@ -15,6 +15,7 @@ class SyncResource extends JsonResource
             'current_round' => $this->dto->currentRound,
             'user_actions'  => $this->dto->userActions,
             'has_voted'          => $this->dto->hasVoted,
+            'has_finished'       => $this->dto->hasFinished,
             'last_round_result'  => $this->dto->lastRoundResult ?: null,
             'inventory'     => $this->dto->inventory,
             'progress'      => [

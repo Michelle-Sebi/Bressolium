@@ -20,14 +20,17 @@ export function useVoting(gameId) {
     const lastRoundResult = data?.last_round_result ?? null;
 
     // Server is authoritative; local state gives immediate feedback before the next poll
-    const hasVoted = (data?.has_voted ?? false) || votedRound === currentRound?.number;
+    const hasVoted    = (data?.has_voted ?? false) || votedRound === currentRound?.number;
+    const hasFinished = data?.has_finished ?? false;
 
-    const technologies = rawTechs.map((t) => ({
-        id:      t.id,
-        name:    t.name,
-        canVote: !t.is_active && (t.missing ?? []).length === 0,
-        missing: t.missing ?? [],
-    }));
+    const technologies = rawTechs
+        .filter((t) => !t.is_active)
+        .map((t) => ({
+            id:      t.id,
+            name:    t.name,
+            canVote: (t.missing ?? []).length === 0,
+            missing: t.missing ?? [],
+        }));
 
     const inventions = rawInvs.map((i) => ({
         id:       i.id,
@@ -35,6 +38,7 @@ export function useVoting(gameId) {
         quantity: i.quantity,
         canVote:  (i.missing ?? []).length === 0,
         missing:  i.missing ?? [],
+        costs:    i.costs ?? [],
     }));
 
     const userActions = data?.user_actions?.actions_spent ?? 0;
@@ -62,5 +66,5 @@ export function useVoting(gameId) {
         return closeRoundMutation(gameId);
     }
 
-    return { technologies, inventions, userActions, currentRound, lastRoundResult, isLoading, isClosing, hasVoted, votedName, vote, abstain, closeRound };
+    return { technologies, inventions, userActions, currentRound, lastRoundResult, isLoading, isClosing, hasVoted, hasFinished, votedName, vote, abstain, closeRound };
 }

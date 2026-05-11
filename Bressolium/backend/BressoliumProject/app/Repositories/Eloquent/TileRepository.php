@@ -66,9 +66,9 @@ class TileRepository implements TileRepositoryInterface
             ->first();
     }
 
-    public function getUpgradeCosts(TileType $nextType): Collection
+    public function getUpgradeCosts(TileType $currentType): Collection
     {
-        return $nextType->materials;
+        return $currentType->upgradeCosts;
     }
 
     public function hasSufficientMaterials(Game $game, Collection $costs): bool
@@ -94,9 +94,9 @@ class TileRepository implements TileRepositoryInterface
         }
     }
 
-    public function getRequiredTechnology(TileType $nextType): ?Technology
+    public function getRequiredTechnology(TileType $currentType): ?Technology
     {
-        $material = $nextType->materials()->wherePivotNotNull('tech_required')->first();
+        $material = $currentType->upgradeCosts()->wherePivotNotNull('tech_required')->first();
         if (! $material) {
             return null;
         }

@@ -19,5 +19,7 @@ interface SyncRepositoryInterface
 
     public function hasVotedThisRound(Round $round, string $userId): bool;
 
+    public function hasFinishedRound(Round $round, string $userId): bool;
+
     public function getLastRoundResult(Round $currentRound): array;
 }
