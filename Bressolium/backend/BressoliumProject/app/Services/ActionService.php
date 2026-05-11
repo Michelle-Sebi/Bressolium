@@ -56,6 +56,7 @@ class ActionService
         $tile->refresh()->load('type');
         TileExplored::dispatch($tile, $dto->userId);
         $this->cacheService->invalidateBoard($tile->game_id);
+        $this->cacheService->invalidateSync($tile->game_id, $dto->userId);
 
         return $tile;
     }
@@ -88,7 +89,8 @@ class ActionService
 
         $game = Game::find($tile->game_id);
 
-        $requiredTech = $this->tileRepo->getRequiredTechnology($nextType);
+        $currentType = $tile->type;
+        $requiredTech = $this->tileRepo->getRequiredTechnology($currentType);
         if ($requiredTech !== null) {
             $isActive = $game->technologies()
                 ->where('technology_id', $requiredTech->id)
@@ -99,7 +101,7 @@ class ActionService
             }
         }
 
-        $costs = $this->tileRepo->getUpgradeCosts($nextType);
+        $costs = $this->tileRepo->getUpgradeCosts($currentType);
         if (! $this->tileRepo->hasSufficientMaterials($game, $costs)) {
             throw new InsufficientMaterialsException;
         }
@@ -111,6 +113,7 @@ class ActionService
         $tile->refresh()->load('type');
         TileUpgraded::dispatch($tile, $dto->userId);
         $this->cacheService->invalidateBoard($tile->game_id);
+        $this->cacheService->invalidateSync($tile->game_id, $dto->userId);
 
         return $tile;
     }

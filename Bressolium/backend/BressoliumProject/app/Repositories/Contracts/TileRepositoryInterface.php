@@ -25,13 +25,13 @@ interface TileRepositoryInterface
 
     public function findNextTileType(Tile $tile): ?TileType;
 
-    public function getUpgradeCosts(TileType $nextType): Collection;
+    public function getUpgradeCosts(TileType $currentType): Collection;
 
     public function hasSufficientMaterials(Game $game, Collection $costs): bool;
 
     public function deductMaterials(Game $game, Collection $costs): void;
 
-    public function getRequiredTechnology(TileType $nextType): ?Technology;
+    public function getRequiredTechnology(TileType $currentType): ?Technology;
 
     public function upgradeTile(Tile $tile, TileType $nextType): void;
 

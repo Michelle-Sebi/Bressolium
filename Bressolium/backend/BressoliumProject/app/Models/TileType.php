@@ -22,4 +22,10 @@ class TileType extends Model
         return $this->belongsToMany(Material::class, 'material_tile_type')
             ->withPivot('quantity', 'tech_required', 'invention_required');
     }
+
+    public function upgradeCosts()
+    {
+        return $this->belongsToMany(Material::class, 'tile_type_upgrade_costs')
+            ->withPivot('quantity', 'tech_required', 'invention_required');
+    }
 }
