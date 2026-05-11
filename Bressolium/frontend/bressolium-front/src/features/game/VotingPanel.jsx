@@ -216,59 +216,29 @@ function VotingPanel({ gameId }) {
 
             {/* ── Tarjeta fija superior ── */}
             <div style={{
-                flexShrink:   0,
-                borderBottom: '3px solid #C1CDC1',
+                flexShrink:      0,
                 backgroundColor: '#fff',
             }}>
-                {/* Fila 1: acciones + jornada + selección + votar */}
-                <div style={{
-                    display:         'flex',
-                    alignItems:      'center',
-                    gap:             '8px',
-                    padding:         '8px 10px',
-                    backgroundColor: '#fff',
-                    fontSize:        '11px',
-                    fontWeight:      'bold',
-                    color:           'rgba(0,0,0,0.7)',
-                    textTransform:   'uppercase',
-                    letterSpacing:   '0.06em',
-                    borderBottom:    '1px solid #e8e8e8',
-                }}>
-                    <span>Acciones: {userActions}</span>
-                    {currentRound && <span>Jornada {currentRound.number}</span>}
-                    <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'flex-end' }}>
+                {/* Fila 1: Jornada N */}
+                {currentRound && (
+                    <div style={{ padding: '10px 12px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '3px solid #C1CDC1' }}>
+                        <img
+                            src={new URL('../../assets/icons/utils/Toolbox-Open-2--Streamline-Ultimate.png', import.meta.url).href}
+                            alt=""
+                            aria-hidden="true"
+                            style={{ width: '20px', height: '20px', objectFit: 'contain' }}
+                        />
                         <span style={{
-                            fontSize:     '10px',
-                            fontWeight:   selectedVote ? 'bold' : 'normal',
-                            fontStyle:    selectedVote ? 'normal' : 'italic',
-                            color:        selectedVote ? 'rgba(0,0,0,0.85)' : 'rgba(0,0,0,0.45)',
-                            overflow:     'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace:   'nowrap',
-                            maxWidth:     '90px',
+                            fontSize:      '15px',
+                            fontWeight:    'bold',
+                            color:         'rgba(0,0,0,0.85)',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.06em',
                         }}>
-                            {selectedVote ? selectedVote.name : 'Sin selección'}
+                            Jornada {currentRound.number}
                         </span>
-                        <button
-                            onClick={handleVote}
-                            disabled={!selectedVote || hasVoted}
-                            style={{
-                                padding:         '4px 10px',
-                                backgroundColor: selectedVote && !hasVoted ? '#458B74' : '#a0a0a0',
-                                color:           '#fff',
-                                border:          'none',
-                                fontWeight:      'bold',
-                                fontSize:        '10px',
-                                textTransform:   'uppercase',
-                                letterSpacing:   '0.06em',
-                                cursor:          selectedVote && !hasVoted ? 'pointer' : 'default',
-                                flexShrink:      0,
-                            }}
-                        >
-                            Votar
-                        </button>
                     </div>
-                </div>
+                )}
 
                 {/* Fila 2: tiempo restante + Finalizar Jornada */}
                 {currentRound && (
@@ -314,6 +284,60 @@ function VotingPanel({ gameId }) {
                         </button>
                     </div>
                 )}
+
+                {/* Fila 3: acciones restantes */}
+                <div style={{
+                    padding:       '4px 12px 8px',
+                    fontSize:      '10px',
+                    fontWeight:    'bold',
+                    color:         'rgba(0,0,0,0.8)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                }}>
+                    Acciones restantes: {Math.max(0, 2 - userActions)}/2
+                </div>
+
+                {/* Fila 4: Votar */}
+                <div style={{
+                    padding:      '8px 10px',
+                    borderTop:    '1px solid #e8e8e8',
+                    borderBottom: '3px solid #C1CDC1',
+                    display:      'flex',
+                    alignItems:   'center',
+                    gap:          '8px',
+                }}>
+                    {selectedVote && (
+                        <span style={{
+                            flex:         1,
+                            fontSize:     '11px',
+                            fontWeight:   'bold',
+                            color:        'rgba(0,0,0,0.75)',
+                            overflow:     'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace:   'nowrap',
+                        }}>
+                            {selectedVote.name}
+                        </span>
+                    )}
+                    <button
+                        onClick={handleVote}
+                        disabled={!selectedVote || hasVoted}
+                        style={{
+                            marginLeft:      selectedVote ? 0 : 'auto',
+                            padding:         '6px 16px',
+                            backgroundColor: selectedVote && !hasVoted ? '#458B74' : '#a0a0a0',
+                            color:           '#fff',
+                            border:          'none',
+                            fontWeight:      'bold',
+                            fontSize:        '11px',
+                            textTransform:   'uppercase',
+                            letterSpacing:   '0.06em',
+                            cursor:          selectedVote && !hasVoted ? 'pointer' : 'default',
+                        }}
+                    >
+                        Votar
+                    </button>
+                </div>
             </div>
 
             {/* ── Zona inferior: título estático + lista scrollable ── */}

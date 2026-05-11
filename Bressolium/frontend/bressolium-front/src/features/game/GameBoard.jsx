@@ -33,23 +33,7 @@ function GameBoard() {
                     overflow:        'hidden',
                 }}
             >
-                <div
-                    style={{
-                        padding:         '10px 14px',
-                        backgroundColor: '#fff',
-                        color:           'rgba(0,0,0,0.8)',
-                        fontWeight:      'bold',
-                        textTransform:   'uppercase',
-                        letterSpacing:   '0.08em',
-                        fontSize:        '13px',
-                        borderBottom:    '3px solid #C1CDC1',
-                    }}
-                >
-                    Resumen
-                </div>
-                <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                    <VotingPanel gameId={currentGame?.id} />
-                </div>
+                <VotingPanel gameId={currentGame?.id} />
             </div>
 
             {/* Centro — Tablero */}
