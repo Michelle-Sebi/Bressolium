@@ -12,6 +12,7 @@ import ItemCard, { GROUP_COLORS, GROUP_LABELS } from '../../components/ui/ItemCa
 import Badge from '../../components/ui/Badge';
 import { MATERIAL_COLORS, MATERIAL_ICON_MAP } from '../../constants/materialAssets';
 import { INVENTION_COLORS, INVENTION_ICON_MAP, inventionNameToKey } from '../../constants/inventionAssets';
+import { TECHNOLOGY_COLORS, TECHNOLOGY_ICON_MAP, technologyNameToKey } from '../../constants/technologyAssets';
 
 // ─── Cabecera de sección ───────────────────────────────────────────────────────
 
@@ -68,9 +69,10 @@ function inventionSubtitle(invention) {
 
 function InventoryPanel() {
     const { currentGame } = useGames();
-    const { materials, inventions, isLoading } = useInventory(currentGame?.id);
+    const { materials, inventions, technologies, isLoading } = useInventory(currentGame?.id);
     const [materialsOpen, setMaterialsOpen] = useState(true);
     const [inventionsOpen, setInventionsOpen] = useState(true);
+    const [technologiesOpen, setTechnologiesOpen] = useState(true);
 
     if (isLoading) {
         return (
@@ -161,6 +163,31 @@ function InventoryPanel() {
                                 isActive={isActive}
                             />
                         </div>
+                    </div>
+                );
+            })}
+
+            {/* ── Tecnologías ── */}
+            <SectionHeader label="Tecnologías" isOpen={technologiesOpen} onToggle={() => setTechnologiesOpen(o => !o)} />
+            {technologiesOpen && technologies.length === 0 && (
+                <div style={{ padding: '8px 10px', fontSize: '10px', color: 'rgba(0,0,0,0.35)', fontStyle: 'italic' }}>
+                    Ninguna tecnología investigada
+                </div>
+            )}
+            {technologiesOpen && technologies.map((tech) => {
+                const techKey  = technologyNameToKey(tech.name);
+                const subtitle = tech.unlocks?.length > 0
+                    ? 'Desbloquea: ' + tech.unlocks.map(u => u.name).join(', ')
+                    : null;
+                return (
+                    <div key={tech.id} data-testid="technology-item">
+                        <ItemCard
+                            iconSrc={TECHNOLOGY_ICON_MAP[techKey] ?? ''}
+                            iconBgColor={TECHNOLOGY_COLORS[techKey] ?? '#a0a0a0'}
+                            name={tech.name}
+                            subtitle={subtitle}
+                            isActive={true}
+                        />
                     </div>
                 );
             })}

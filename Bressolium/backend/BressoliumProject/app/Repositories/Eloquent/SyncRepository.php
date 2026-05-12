@@ -46,20 +46,32 @@ class SyncRepository implements SyncRepositoryInterface
         $allTechs = Technology::with('technologyPrerequisites')->get();
         $gameTechMap = $game->technologies()->get()->keyBy('id');
 
-        return $allTechs->map(function ($tech) use ($gameTechMap, $allTechs) {
+        // Techs desbloqueadas por cada tech (como prerequisito de otra)
+        $techsUnlockedBy = [];
+        foreach ($allTechs as $t) {
+            foreach ($t->technologyPrerequisites as $prereq) {
+                if ($prereq->prereq_type === 'technology') {
+                    $techsUnlockedBy[$prereq->prereq_id][] = $t->name;
+                }
+            }
+        }
+
+        // Inventos desbloqueados por cada tech (via technology_id)
+        $inventionsUnlockedBy = Invention::all()
+            ->groupBy('technology_id')
+            ->map(fn ($invs) => $invs->pluck('name')->all());
+
+        return $allTechs->map(function ($tech) use ($gameTechMap, $allTechs, $techsUnlockedBy, $inventionsUnlockedBy) {
             $isActive = isset($gameTechMap[$tech->id])
                 && (bool) $gameTechMap[$tech->id]->pivot->is_active;
 
             $missing = [];
-
             foreach ($tech->technologyPrerequisites as $prereq) {
                 if ($prereq->prereq_type !== 'technology') {
                     continue;
                 }
-
                 $prereqEntry = $gameTechMap->get($prereq->prereq_id);
                 $prereqActive = $prereqEntry ? (bool) $prereqEntry->pivot->is_active : false;
-
                 if (! $prereqActive) {
                     $prereqInfo = $allTechs->firstWhere('id', $prereq->prereq_id);
                     $missing[] = [
@@ -69,11 +81,17 @@ class SyncRepository implements SyncRepositoryInterface
                 }
             }
 
+            $unlocks = array_merge(
+                array_map(fn ($n) => ['type' => 'technology', 'name' => $n], $techsUnlockedBy[$tech->id] ?? []),
+                array_map(fn ($n) => ['type' => 'invention',  'name' => $n], $inventionsUnlockedBy[$tech->id] ?? []),
+            );
+
             return [
-                'id' => $tech->id,
-                'name' => $tech->name,
+                'id'        => $tech->id,
+                'name'      => $tech->name,
                 'is_active' => $isActive,
-                'missing' => $missing,
+                'missing'   => $missing,
+                'unlocks'   => $unlocks,
             ];
         })->values()->toArray();
     }
