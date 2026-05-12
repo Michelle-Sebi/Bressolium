@@ -1,5 +1,8 @@
 import axios from 'axios';
 
+let _store = null;
+export const injectStore = (store) => { _store = store; };
+
 const httpClient = axios.create({
     baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost/api/v1',
 });
@@ -20,6 +23,7 @@ httpClient.interceptors.response.use(
     (error) => {
         if (error.response?.status === 401) {
             localStorage.removeItem('auth_token');
+            _store?.dispatch({ type: 'auth/logout' });
         }
         return Promise.reject(error);
     }
