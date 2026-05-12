@@ -11,6 +11,41 @@ import { useGames } from '../game/useGames';
 import ItemCard, { GROUP_COLORS, GROUP_LABELS } from '../../components/ui/ItemCard';
 import Badge from '../../components/ui/Badge';
 
+// ─── Colores individuales de materiales (sobreescriben GROUP_COLORS) ──────────
+
+const MATERIAL_COLORS = {
+    'roble':          '#947E63',
+    'pino':           '#CBC0B3',
+    'carbon-natural': '#C8C8C8',
+    'silex':          '#D9E0D9',
+    'granito':        '#CFD8CF',
+    'obsidiana':      '#a0a0a0',
+    'arena-de-silice': '#B7A896',
+    'arena-de-cuarzo': '#D9E0D9',
+    'cristales-nat':   '#ACC7DD',
+    'silicio':         '#ABCBC0',
+    'min-semi':        '#E9B0A6',
+    'cana-comun':          '#6EA593',
+    'tierras-fertiles':    '#458B74',
+    'hidrogeno':           '#ACC7DD',
+    'gases-naturales':     '#ACC7DD',
+    'lino':                '#EED79B',
+    'yute':                '#CBC0B3',
+    'canamo':              '#B7A896',
+    'lana':                '#D87665',
+    'pieles':              '#8B7355',
+    'agua':                '#4682B4',
+    'cobre':               '#A5927A',
+    'hierro':              '#B5B5B5',
+    'estano':              '#D4D4D4',
+    'grafito':             '#a0a0a0',
+    'oro':                 '#DAA520',
+    'mat-mag-nat':         '#D15D49',
+    'latex':               '#EED79B',
+    'resinas-inflamables': '#D87665',
+    'mat-aisl-nat':        '#A5927A',
+};
+
 // ─── Iconos de materiales ──────────────────────────────────────────────────────
 
 const MATERIAL_ICON_MAP = {
@@ -29,8 +64,8 @@ const MATERIAL_ICON_MAP = {
     'cristales-nat':       new URL('../../assets/icons/materials/cristales-naturales.png',      import.meta.url).href,
     'silicio':             new URL('../../assets/icons/materials/silicio.png',                  import.meta.url).href,
     'min-semi':            new URL('../../assets/icons/materials/minerales-semiconductores.png',import.meta.url).href,
-    'agua':                new URL('../../assets/icons/materials/hidrogeno.png',                import.meta.url).href,
-    'cana-comun':          new URL('../../assets/icons/materials/caña.png',                     import.meta.url).href,
+    'agua':                new URL('../../assets/icons/materials/agua.png',                     import.meta.url).href,
+    'cana-comun':          new URL('../../assets/icons/materials/cana.png',                      import.meta.url).href,
     'tierras-fertiles':    new URL('../../assets/icons/materials/tierras-fertiles.png',         import.meta.url).href,
     'hidrogeno':           new URL('../../assets/icons/materials/hidrogeno.png',                import.meta.url).href,
     'gases-naturales':     new URL('../../assets/icons/materials/gases-naturales.png',          import.meta.url).href,
@@ -190,7 +225,7 @@ function InventoryPanel() {
                         >
                             <ItemCard
                                 iconSrc={MATERIAL_ICON_MAP[material.name] ?? ''}
-                                iconBgColor={GROUP_COLORS[material.group] ?? '#a0a0a0'}
+                                iconBgColor={MATERIAL_COLORS[material.name] ?? GROUP_COLORS[material.group] ?? '#a0a0a0'}
                                 name={material.name}
                                 subtitle={materialSubtitle(material)}
                                 quantity={material.quantity}

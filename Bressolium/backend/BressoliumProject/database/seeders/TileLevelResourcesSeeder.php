@@ -104,6 +104,7 @@ class TileLevelResourcesSeeder extends Seeder
         $attach($tileTypes['prado'][4], 'canamo', 9);
         $attach($tileTypes['prado'][4], 'lana', 9);
         $attach($tileTypes['prado'][5], 'tierras-fertiles', 8);
+        $attach($tileTypes['prado'][5], 'pieles', 8);
 
         // ── MINA ──────────────────────────────────────────────────
         $attach($tileTypes['mina'][1], 'cobre', 5);
