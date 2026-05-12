@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\TileResource;
 use App\Models\Game;
 use App\Services\BoardService;
 use App\Support\ResponseBuilder;
@@ -59,7 +58,7 @@ class BoardController extends Controller
         try {
             $tiles = $this->boardService->getBoardForUser($gameId, $request->user()->id);
 
-            return $this->rb->success(TileResource::collection($tiles)->toArray($request));
+            return $this->rb->success($tiles);
         } catch (Exception $e) {
             $status = $e->getCode() === 403 ? 403 : 500;
 

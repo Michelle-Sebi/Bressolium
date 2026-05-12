@@ -57,9 +57,10 @@ class SyncRepository implements SyncRepositoryInterface
         }
 
         // Inventos desbloqueados por cada tech (via technology_id)
-        $inventionsUnlockedBy = Invention::all()
-            ->groupBy('technology_id')
-            ->map(fn ($invs) => $invs->pluck('name')->all());
+        $inventionsUnlockedBy = [];
+        foreach (Invention::whereNotNull('technology_id')->get(['name', 'technology_id']) as $inv) {
+            $inventionsUnlockedBy[$inv->technology_id][] = $inv->name;
+        }
 
         return $allTechs->map(function ($tech) use ($gameTechMap, $allTechs, $techsUnlockedBy, $inventionsUnlockedBy) {
             $isActive = isset($gameTechMap[$tech->id])
