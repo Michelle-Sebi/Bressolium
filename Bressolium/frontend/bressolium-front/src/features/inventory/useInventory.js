@@ -7,7 +7,8 @@ export function useInventory(gameId) {
         refetchOnMountOrArgChange: true,
         refetchOnFocus:          true,
     });
-    const materials  = data?.inventory               ?? [];
-    const inventions = data?.progress?.inventions    ?? [];
-    return { materials, inventions, isLoading, error };
+    const materials    = data?.inventory                                          ?? [];
+    const inventions   = data?.progress?.inventions                               ?? [];
+    const technologies = (data?.progress?.technologies ?? []).filter(t => t.is_active);
+    return { materials, inventions, technologies, isLoading, error };
 }

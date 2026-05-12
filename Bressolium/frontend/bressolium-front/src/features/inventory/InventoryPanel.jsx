@@ -10,91 +10,9 @@ import { useInventory } from './useInventory';
 import { useGames } from '../game/useGames';
 import ItemCard, { GROUP_COLORS, GROUP_LABELS } from '../../components/ui/ItemCard';
 import Badge from '../../components/ui/Badge';
-
-// ─── Iconos de materiales ──────────────────────────────────────────────────────
-
-const MATERIAL_ICON_MAP = {
-    'roble':               new URL('../../assets/icons/materials/roble.png',                    import.meta.url).href,
-    'pino':                new URL('../../assets/icons/materials/pino.png',                     import.meta.url).href,
-    'carbon-natural':      new URL('../../assets/icons/materials/carbon.png',                   import.meta.url).href,
-    'pieles':              new URL('../../assets/icons/materials/pieles.png',                   import.meta.url).href,
-    'latex':               new URL('../../assets/icons/materials/latex.png',                    import.meta.url).href,
-    'resinas-inflamables': new URL('../../assets/icons/materials/resinas-inflamables.png',      import.meta.url).href,
-    'mat-aisl-nat':        new URL('../../assets/icons/materials/materiales-aislantes.png',     import.meta.url).href,
-    'silex':               new URL('../../assets/icons/materials/silex.png',                    import.meta.url).href,
-    'granito':             new URL('../../assets/icons/materials/granito.png',                  import.meta.url).href,
-    'obsidiana':           new URL('../../assets/icons/materials/obsidiana.png',                import.meta.url).href,
-    'arena-de-silice':     new URL('../../assets/icons/materials/arena-silice.png',             import.meta.url).href,
-    'arena-de-cuarzo':     new URL('../../assets/icons/materials/arena-cuarzo.png',             import.meta.url).href,
-    'cristales-nat':       new URL('../../assets/icons/materials/cristales-naturales.png',      import.meta.url).href,
-    'silicio':             new URL('../../assets/icons/materials/silicio.png',                  import.meta.url).href,
-    'min-semi':            new URL('../../assets/icons/materials/minerales-semiconductores.png',import.meta.url).href,
-    'agua':                new URL('../../assets/icons/materials/hidrogeno.png',                import.meta.url).href,
-    'cana-comun':          new URL('../../assets/icons/materials/caña.png',                     import.meta.url).href,
-    'tierras-fertiles':    new URL('../../assets/icons/materials/tierras-fertiles.png',         import.meta.url).href,
-    'hidrogeno':           new URL('../../assets/icons/materials/hidrogeno.png',                import.meta.url).href,
-    'gases-naturales':     new URL('../../assets/icons/materials/gases-naturales.png',          import.meta.url).href,
-    'lino':                new URL('../../assets/icons/materials/lino.png',                     import.meta.url).href,
-    'yute':                new URL('../../assets/icons/materials/yute.png',                     import.meta.url).href,
-    'canamo':              new URL('../../assets/icons/materials/cañamo.png',                   import.meta.url).href,
-    'lana':                new URL('../../assets/icons/materials/lana.png',                     import.meta.url).href,
-    'cobre':               new URL('../../assets/icons/materials/cobre.png',                    import.meta.url).href,
-    'hierro':              new URL('../../assets/icons/materials/hierro.png',                   import.meta.url).href,
-    'estano':              new URL('../../assets/icons/materials/estaño.png',                   import.meta.url).href,
-    'grafito':             new URL('../../assets/icons/materials/grafito.png',                  import.meta.url).href,
-    'oro':                 new URL('../../assets/icons/materials/oro.png',                      import.meta.url).href,
-    'mat-mag-nat':         new URL('../../assets/icons/materials/materiales-magenticos.png',    import.meta.url).href,
-};
-
-// ─── Iconos de inventos ────────────────────────────────────────────────────────
-
-const INVENTION_ICON_MAP = {
-    'acero':                          new URL('../../assets/icons/inventions/acero.png',                          import.meta.url).href,
-    'acueducto':                      new URL('../../assets/icons/inventions/acueducto.png',                      import.meta.url).href,
-    'arado':                          new URL('../../assets/icons/inventions/arado.png',                          import.meta.url).href,
-    'arco':                           new URL('../../assets/icons/inventions/arco.png',                           import.meta.url).href,
-    'avion':                          new URL('../../assets/icons/inventions/avion.png',                          import.meta.url).href,
-    'barco':                          new URL('../../assets/icons/inventions/barco.png',                          import.meta.url).href,
-    'bateria':                        new URL('../../assets/icons/inventions/bateria.png',                        import.meta.url).href,
-    'bombilla':                       new URL('../../assets/icons/inventions/bombilla.png',                       import.meta.url).href,
-    'brujula':                        new URL('../../assets/icons/inventions/brujula.png',                        import.meta.url).href,
-    'carro':                          new URL('../../assets/icons/inventions/carro.png',                          import.meta.url).href,
-    'ceramica':                       new URL('../../assets/icons/inventions/ceramica.png',                       import.meta.url).href,
-    'cuchillo':                       new URL('../../assets/icons/inventions/cuchillo.png',                       import.meta.url).href,
-    'cuerda':                         new URL('../../assets/icons/inventions/cuerda.png',                         import.meta.url).href,
-    'estacion-espacial':              new URL('../../assets/icons/inventions/estacion-espacial.png',              import.meta.url).href,
-    'fibra-optica':                   new URL('../../assets/icons/inventions/fibra-optica.png',                   import.meta.url).href,
-    'hacha':                          new URL('../../assets/icons/inventions/hacha.png',                          import.meta.url).href,
-    'imprenta':                       new URL('../../assets/icons/inventions/imprenta.png',                       import.meta.url).href,
-    'lanza':                          new URL('../../assets/icons/inventions/lanza.png',                          import.meta.url).href,
-    'laser':                          new URL('../../assets/icons/inventions/laser.png',                          import.meta.url).href,
-    'microscopio':                    new URL('../../assets/icons/inventions/microscopio.png',                    import.meta.url).href,
-    'molino':                         new URL('../../assets/icons/inventions/molino.png',                         import.meta.url).href,
-    'moneda':                         new URL('../../assets/icons/inventions/moneda.png',                         import.meta.url).href,
-    'nave-asentamiento-interestelar': new URL('../../assets/icons/inventions/nave-asentamiento-interestelar.png', import.meta.url).href,
-    'papel':                          new URL('../../assets/icons/inventions/papel.png',                          import.meta.url).href,
-    'penicilina':                     new URL('../../assets/icons/inventions/penicilina.png',                     import.meta.url).href,
-    'refugio':                        new URL('../../assets/icons/inventions/refugio.png',                        import.meta.url).href,
-    'reloj':                          new URL('../../assets/icons/inventions/reloj.png',                          import.meta.url).href,
-    'rueda':                          new URL('../../assets/icons/inventions/rueda.png',                          import.meta.url).href,
-    'satelite':                       new URL('../../assets/icons/inventions/satelite.png',                       import.meta.url).href,
-    'tela':                           new URL('../../assets/icons/inventions/tela.png',                           import.meta.url).href,
-    'telefono-movil':                 new URL('../../assets/icons/inventions/telefono-movil.png',                 import.meta.url).href,
-    'telescopio':                     new URL('../../assets/icons/inventions/telescopio.png',                     import.meta.url).href,
-    'trampa':                         new URL('../../assets/icons/inventions/trampa.png',                         import.meta.url).href,
-    'vidrio':                         new URL('../../assets/icons/inventions/vidrio.png',                         import.meta.url).href,
-};
-
-function inventionNameToKey(name) {
-    return name
-        .toLowerCase()
-        .normalize('NFD').replace(/[̀-ͯ]/g, '')
-        .replace(/\bde\b\s*/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/arcos/, 'arco')
-        .replace(/refugios/, 'refugio');
-}
+import { MATERIAL_COLORS, MATERIAL_ICON_MAP } from '../../constants/materialAssets';
+import { INVENTION_COLORS, INVENTION_ICON_MAP, inventionNameToKey } from '../../constants/inventionAssets';
+import { TECHNOLOGY_COLORS, TECHNOLOGY_ICON_MAP, technologyNameToKey } from '../../constants/technologyAssets';
 
 // ─── Cabecera de sección ───────────────────────────────────────────────────────
 
@@ -151,9 +69,10 @@ function inventionSubtitle(invention) {
 
 function InventoryPanel() {
     const { currentGame } = useGames();
-    const { materials, inventions, isLoading } = useInventory(currentGame?.id);
+    const { materials, inventions, technologies, isLoading } = useInventory(currentGame?.id);
     const [materialsOpen, setMaterialsOpen] = useState(true);
     const [inventionsOpen, setInventionsOpen] = useState(true);
+    const [technologiesOpen, setTechnologiesOpen] = useState(true);
 
     if (isLoading) {
         return (
@@ -190,7 +109,7 @@ function InventoryPanel() {
                         >
                             <ItemCard
                                 iconSrc={MATERIAL_ICON_MAP[material.name] ?? ''}
-                                iconBgColor={GROUP_COLORS[material.group] ?? '#a0a0a0'}
+                                iconBgColor={MATERIAL_COLORS[material.name] ?? GROUP_COLORS[material.group] ?? '#a0a0a0'}
                                 name={material.name}
                                 subtitle={materialSubtitle(material)}
                                 quantity={material.quantity}
@@ -237,13 +156,38 @@ function InventoryPanel() {
                         >
                             <ItemCard
                                 iconSrc={INVENTION_ICON_MAP[iconKey] ?? ''}
-                                iconBgColor={isActive ? '#458B74' : '#a0a0a0'}
+                                iconBgColor={INVENTION_COLORS[iconKey] ?? '#a0a0a0'}
                                 name={invention.name}
                                 subtitle={inventionSubtitle(invention)}
                                 quantity={isActive ? invention.quantity : undefined}
                                 isActive={isActive}
                             />
                         </div>
+                    </div>
+                );
+            })}
+
+            {/* ── Tecnologías ── */}
+            <SectionHeader label="Tecnologías" isOpen={technologiesOpen} onToggle={() => setTechnologiesOpen(o => !o)} />
+            {technologiesOpen && technologies.length === 0 && (
+                <div style={{ padding: '8px 10px', fontSize: '10px', color: 'rgba(0,0,0,0.35)', fontStyle: 'italic' }}>
+                    Ninguna tecnología investigada
+                </div>
+            )}
+            {technologiesOpen && technologies.map((tech) => {
+                const techKey  = technologyNameToKey(tech.name);
+                const subtitle = tech.unlocks?.length > 0
+                    ? 'Desbloquea: ' + tech.unlocks.map(u => u.name).join(', ')
+                    : null;
+                return (
+                    <div key={tech.id} data-testid="technology-item">
+                        <ItemCard
+                            iconSrc={TECHNOLOGY_ICON_MAP[techKey] ?? ''}
+                            iconBgColor={TECHNOLOGY_COLORS[techKey] ?? '#a0a0a0'}
+                            name={tech.name}
+                            subtitle={subtitle}
+                            isActive={true}
+                        />
                     </div>
                 );
             })}

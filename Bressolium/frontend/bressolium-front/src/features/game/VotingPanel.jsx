@@ -1,96 +1,8 @@
 import { useState, useEffect } from 'react';
 import ItemCard from '../../components/ui/ItemCard';
 import { useVoting } from './useVoting';
-
-// ─── Iconos de inventos ────────────────────────────────────────────────────────
-
-const INVENTION_ICON_MAP = {
-    'acero':                          new URL('../../assets/icons/inventions/acero.png',                          import.meta.url).href,
-    'acueducto':                      new URL('../../assets/icons/inventions/acueducto.png',                      import.meta.url).href,
-    'arado':                          new URL('../../assets/icons/inventions/arado.png',                          import.meta.url).href,
-    'arco':                           new URL('../../assets/icons/inventions/arco.png',                           import.meta.url).href,
-    'avion':                          new URL('../../assets/icons/inventions/avion.png',                          import.meta.url).href,
-    'barco':                          new URL('../../assets/icons/inventions/barco.png',                          import.meta.url).href,
-    'bateria':                        new URL('../../assets/icons/inventions/bateria.png',                        import.meta.url).href,
-    'bombilla':                       new URL('../../assets/icons/inventions/bombilla.png',                       import.meta.url).href,
-    'brujula':                        new URL('../../assets/icons/inventions/brujula.png',                        import.meta.url).href,
-    'carro':                          new URL('../../assets/icons/inventions/carro.png',                          import.meta.url).href,
-    'ceramica':                       new URL('../../assets/icons/inventions/ceramica.png',                       import.meta.url).href,
-    'cuchillo':                       new URL('../../assets/icons/inventions/cuchillo.png',                       import.meta.url).href,
-    'cuerda':                         new URL('../../assets/icons/inventions/cuerda.png',                         import.meta.url).href,
-    'estacion-espacial':              new URL('../../assets/icons/inventions/estacion-espacial.png',              import.meta.url).href,
-    'fibra-optica':                   new URL('../../assets/icons/inventions/fibra-optica.png',                   import.meta.url).href,
-    'hacha':                          new URL('../../assets/icons/inventions/hacha.png',                          import.meta.url).href,
-    'imprenta':                       new URL('../../assets/icons/inventions/imprenta.png',                       import.meta.url).href,
-    'lanza':                          new URL('../../assets/icons/inventions/lanza.png',                          import.meta.url).href,
-    'laser':                          new URL('../../assets/icons/inventions/laser.png',                          import.meta.url).href,
-    'microscopio':                    new URL('../../assets/icons/inventions/microscopio.png',                    import.meta.url).href,
-    'molino':                         new URL('../../assets/icons/inventions/molino.png',                         import.meta.url).href,
-    'moneda':                         new URL('../../assets/icons/inventions/moneda.png',                         import.meta.url).href,
-    'nave-asentamiento-interestelar': new URL('../../assets/icons/inventions/nave-asentamiento-interestelar.png', import.meta.url).href,
-    'papel':                          new URL('../../assets/icons/inventions/papel.png',                          import.meta.url).href,
-    'penicilina':                     new URL('../../assets/icons/inventions/penicilina.png',                     import.meta.url).href,
-    'refugio':                        new URL('../../assets/icons/inventions/refugio.png',                        import.meta.url).href,
-    'reloj':                          new URL('../../assets/icons/inventions/reloj.png',                          import.meta.url).href,
-    'rueda':                          new URL('../../assets/icons/inventions/rueda.png',                          import.meta.url).href,
-    'satelite':                       new URL('../../assets/icons/inventions/satelite.png',                       import.meta.url).href,
-    'tela':                           new URL('../../assets/icons/inventions/tela.png',                           import.meta.url).href,
-    'telefono-movil':                 new URL('../../assets/icons/inventions/telefono-movil.png',                 import.meta.url).href,
-    'telescopio':                     new URL('../../assets/icons/inventions/telescopio.png',                     import.meta.url).href,
-    'trampa':                         new URL('../../assets/icons/inventions/trampa.png',                         import.meta.url).href,
-    'vidrio':                         new URL('../../assets/icons/inventions/vidrio.png',                         import.meta.url).href,
-};
-
-// ─── Iconos de tecnologías ─────────────────────────────────────────────────────
-
-const TECHNOLOGY_ICON_MAP = {
-    'agricultura':                new URL('../../assets/icons/technologies/agricultura.png',                    import.meta.url).href,
-    'biotecnologia':              new URL('../../assets/icons/technologies/biotecnologia.png',                  import.meta.url).href,
-    'ceramica-y-alfareria':       new URL('../../assets/icons/technologies/ceramica y alfareria.png',           import.meta.url).href,
-    'computacion':                new URL('../../assets/icons/technologies/computacion.png',                    import.meta.url).href,
-    'comunicaciones-inalambricas':new URL('../../assets/icons/technologies/comunicaciones-inalambricas.png',    import.meta.url).href,
-    'conservacion-alimentos':     new URL('../../assets/icons/technologies/conservacion-alimentos.png',         import.meta.url).href,
-    'control-fuego':              new URL('../../assets/icons/technologies/control-fuego.png',                  import.meta.url).href,
-    'edicion-genetica':           new URL('../../assets/icons/technologies/edicion-genetica.png',               import.meta.url).href,
-    'electricidad':               new URL('../../assets/icons/technologies/electricidad.png',                   import.meta.url).href,
-    'energias-renovables':        new URL('../../assets/icons/technologies/energias-renovables.png',            import.meta.url).href,
-    'escritura':                  new URL('../../assets/icons/technologies/escritura.png',                      import.meta.url).href,
-    'fermentacion':               new URL('../../assets/icons/technologies/fermentacion.png',                   import.meta.url).href,
-    'fotografia':                 new URL('../../assets/icons/technologies/fotografia.png',                     import.meta.url).href,
-    'ganaderia':                  new URL('../../assets/icons/technologies/ganaderia.png',                      import.meta.url).href,
-    'gps':                        new URL('../../assets/icons/technologies/gps.png',                            import.meta.url).href,
-    'herramientas-piedra':        new URL('../../assets/icons/technologies/herramientas-piedra.png',            import.meta.url).href,
-    'inteligencia-artificial':    new URL('../../assets/icons/technologies/inteligencia artificial.png',        import.meta.url).href,
-    'internet':                   new URL('../../assets/icons/technologies/internet.png',                       import.meta.url).href,
-    'metalurgia-y-aleaciones':    new URL('../../assets/icons/technologies/metalurgia y aleaciones.png',        import.meta.url).href,
-    'nanotecnologia':             new URL('../../assets/icons/technologies/nanotecnologia.png',                 import.meta.url).href,
-    'quimica':                    new URL('../../assets/icons/technologies/quimica.png',                        import.meta.url).href,
-    'robotica':                   new URL('../../assets/icons/technologies/robotica.png',                       import.meta.url).href,
-    'sistemas-autonomos':         new URL('../../assets/icons/technologies/sistemas-autonomos.png',             import.meta.url).href,
-    'tecnologia-espacial':        new URL('../../assets/icons/technologies/tecnologia-espacial.png',            import.meta.url).href,
-    'tejido':                     new URL('../../assets/icons/technologies/tejido.png',                         import.meta.url).href,
-    'terraformacion':             new URL('../../assets/icons/technologies/terraformacion.png',                 import.meta.url).href,
-};
-
-function technologyNameToKey(name) {
-    return name
-        .toLowerCase()
-        .normalize('NFD').replace(/[̀-ͯ]/g, '')
-        .replace(/\bdel?\b\s*/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-');
-}
-
-function inventionNameToKey(name) {
-    return name
-        .toLowerCase()
-        .normalize('NFD').replace(/[̀-ͯ]/g, '')
-        .replace(/\bde\b\s*/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/arcos/, 'arco')
-        .replace(/refugios/, 'refugio');
-}
+import { INVENTION_COLORS, INVENTION_ICON_MAP, inventionNameToKey } from '../../constants/inventionAssets';
+import { TECHNOLOGY_COLORS, TECHNOLOGY_ICON_MAP, technologyNameToKey } from '../../constants/technologyAssets';
 
 // ─── Subtítulos ────────────────────────────────────────────────────────────────
 
@@ -416,7 +328,7 @@ function VotingPanel({ gameId }) {
                         <div style={{ flex: 1, minWidth: 0 }}>
                             <ItemCard
                                 iconSrc={TECHNOLOGY_ICON_MAP[technologyNameToKey(tech.name)] ?? ''}
-                                iconBgColor={tech.canVote ? '#458B74' : '#a0a0a0'}
+                                iconBgColor={TECHNOLOGY_COLORS[technologyNameToKey(tech.name)] ?? '#a0a0a0'}
                                 name={tech.name}
                                 subtitle={subtitle}
                                 isActive={tech.canVote}
@@ -487,7 +399,7 @@ function VotingPanel({ gameId }) {
                         <div style={{ flex: 1, minWidth: 0 }}>
                             <ItemCard
                                 iconSrc={INVENTION_ICON_MAP[iconKey] ?? ''}
-                                iconBgColor={inv.canVote ? '#458B74' : '#a0a0a0'}
+                                iconBgColor={INVENTION_COLORS[iconKey] ?? '#a0a0a0'}
                                 name={inv.name}
                                 subtitle={subtitle}
                                 quantity={inv.quantity > 0 ? inv.quantity : undefined}

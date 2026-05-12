@@ -70,7 +70,7 @@ function GameBoard() {
                 >
                     Inventario
                 </div>
-                <div style={{ flex: 1, overflowY: 'auto' }}>
+                <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#C1CDC1' }}>
                     <InventoryPanel />
                 </div>
             </div>
