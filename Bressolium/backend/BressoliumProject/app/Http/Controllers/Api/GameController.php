@@ -151,4 +151,21 @@ class GameController extends Controller
             return $this->rb->error($e->getMessage(), $status);
         }
     }
+
+    public function leave(Request $request, string $gameId)
+    {
+        try {
+            $this->gameService->leaveGame($gameId, $request->user()->id);
+
+            return $this->rb->success(null);
+        } catch (Exception $e) {
+            $status = match ($e->getMessage()) {
+                'Game not found' => 404,
+                'Not in game'    => 403,
+                default          => 500,
+            };
+
+            return $this->rb->error($e->getMessage(), $status);
+        }
+    }
 }

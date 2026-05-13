@@ -28,6 +28,7 @@ Route::prefix('v1')->middleware('throttle:60,1')->group(function () {
         Route::post('/game/join-random', [GameController::class, 'joinRandom']);
         Route::get('/game/my', [GameController::class, 'myGames']);
         Route::get('/game/all', [GameController::class, 'allGames']);
+        Route::delete('/game/{gameId}/leave', [GameController::class, 'leave']);
 
         Route::get('/board/{gameId}', [BoardController::class, 'show']);
 

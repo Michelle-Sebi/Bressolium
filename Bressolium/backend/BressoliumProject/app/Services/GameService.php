@@ -93,6 +93,10 @@ class GameService
                 if ($latestRound) {
                     $latestRound->users()->attach($dto->userId, ['actions_spent' => 0]);
                 }
+
+                if ($game->users()->count() >= 5) {
+                    $game->update(['status' => 'COMPLETA']);
+                }
             }
 
             return $game;
@@ -123,10 +127,42 @@ class GameService
                 if ($latestRound) {
                     $latestRound->users()->attach($userId, ['actions_spent' => 0]);
                 }
+
+                if ($game->users()->count() >= 5) {
+                    $game->update(['status' => 'COMPLETA']);
+                }
             }
 
             return $game;
         });
+    }
+
+    /**
+     * Abandona una partida.
+     *
+     * @throws Exception
+     */
+    public function leaveGame(string $gameId, string $userId): void
+    {
+        $game = Game::find($gameId);
+
+        if (! $game) {
+            throw new Exception('Game not found');
+        }
+
+        if (! $game->users()->where('user_id', $userId)->exists()) {
+            throw new Exception('Not in game');
+        }
+
+        $game->users()->detach($userId);
+
+        $remaining = $game->users()->count();
+
+        if ($remaining === 0) {
+            $game->delete();
+        } elseif ($remaining < 5 && $game->status === 'COMPLETA') {
+            $game->update(['status' => 'WAITING']);
+        }
     }
 
     /**
