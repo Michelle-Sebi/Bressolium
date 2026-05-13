@@ -1,7 +1,9 @@
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import ProtectedRoute from './ProtectedRoute';
 import TopBar from '../components/layout/TopBar';
+import { fetchMyGamesThunk } from '../features/game/gameSlice';
 
 const LoginPage      = lazy(() => import('../pages/LoginPage'));
 const RegisterPage   = lazy(() => import('../pages/RegisterPage'));
@@ -30,6 +32,12 @@ function AppRoutes() {
 }
 
 function ProtectedLayout() {
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        dispatch(fetchMyGamesThunk());
+    }, []);
+
     return (
         <div className="h-screen overflow-hidden flex flex-col bg-[#f7f9f7]">
             <TopBar />

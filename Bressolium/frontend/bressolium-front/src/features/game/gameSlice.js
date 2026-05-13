@@ -81,10 +81,19 @@ export const joinRandomThunk = createAsyncThunk(
   }
 );
 
+function loadCurrentGame() {
+  try {
+    const raw = localStorage.getItem('current_game');
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 const initialState = {
   availableGames: [],
   myGames: [],
-  currentGame: null,
+  currentGame: loadCurrentGame(),
   status: 'IDLE', // 'IDLE' | 'LOADING' | 'SUCCESS' | 'ERROR'
   error: null,
 };
@@ -98,6 +107,11 @@ const gameSlice = createSlice({
     },
     setCurrentGame: (state, action) => {
       state.currentGame = action.payload;
+      if (action.payload) {
+        localStorage.setItem('current_game', JSON.stringify(action.payload));
+      } else {
+        localStorage.removeItem('current_game');
+      }
     },
   },
   extraReducers: (builder) => {

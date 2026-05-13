@@ -34,9 +34,11 @@ const authService = {
     }
 
     // Guardamos el token en localStorage según DoD de Tarea 3
-    localStorage.setItem('auth_token', data.data?.token || data.token);
+    const payload = data.data || data;
+    localStorage.setItem('auth_token', payload.token);
+    if (payload.user) localStorage.setItem('auth_user', JSON.stringify(payload.user));
 
-    return data.data || data;
+    return payload;
   },
 
   /**
@@ -66,9 +68,11 @@ const authService = {
       throw new Error(errorMessage);
     }
 
-    localStorage.setItem('auth_token', data.data?.token || data.token);
+    const payload = data.data || data;
+    localStorage.setItem('auth_token', payload.token);
+    if (payload.user) localStorage.setItem('auth_user', JSON.stringify(payload.user));
 
-    return data.data || data;
+    return payload;
   },
 
   /**
@@ -76,6 +80,8 @@ const authService = {
    */
   logout: () => {
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
+    localStorage.removeItem('current_game');
   },
 
   /**
@@ -83,6 +89,19 @@ const authService = {
    * @returns {string|null}
    */
   getToken: () => localStorage.getItem('auth_token'),
+
+  /**
+   * Recupera los datos del usuario guardados en cliente.
+   * @returns {object|null}
+   */
+  getUser: () => {
+    try {
+      const raw = localStorage.getItem('auth_user');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  },
 };
 
 export default authService;
