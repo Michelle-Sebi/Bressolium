@@ -36,7 +36,7 @@ class GameRepository implements GameRepositoryInterface
     {
         return Game::whereHas('users', function ($query) use ($userId) {
             $query->where('user_id', $userId);
-        })->get();
+        })->with('users:id,name')->get();
     }
 
     public function initializeMaterials(Game $game): void
