@@ -14,45 +14,28 @@ class BoardGeneratorService
         ['x' => 12, 'y' => 12],  // P2: esquina inferior-derecha
         ['x' => 12, 'y' => 2],   // P3: esquina superior-derecha
         ['x' => 2,  'y' => 12],  // P4: esquina inferior-izquierda
-        ['x' => 7,  'y' => 6],   // P5: zona central superior (evita el pueblo en 7,7)
+        ['x' => 7,  'y' => 7],   // P5: centro del tablero
     ];
 
     public function __construct(private BoardRepository $boardRepository) {}
 
     public function generate(string $gameId): void
     {
-        $nonPuebloTypeIds = TileType::where('level', 1)
-            ->where('base_type', '!=', 'pueblo')
-            ->pluck('id')
-            ->toArray();
+        $typeIds = TileType::where('level', 1)->pluck('id')->toArray();
 
-        $puebloType = TileType::where('level', 1)
-            ->where('base_type', 'pueblo')
-            ->first();
-
-        if (empty($nonPuebloTypeIds)) {
+        if (empty($typeIds)) {
             return;
         }
 
         $tiles = [];
         for ($x = 0; $x <= 14; $x++) {
             for ($y = 0; $y <= 14; $y++) {
-                if ($x === 7 && $y === 7 && $puebloType) {
-                    $tiles[] = [
-                        'game_id' => $gameId,
-                        'tile_type_id' => $puebloType->id,
-                        'coord_x' => $x,
-                        'coord_y' => $y,
-                        'explored' => true,
-                    ];
-                } else {
-                    $tiles[] = [
-                        'game_id' => $gameId,
-                        'tile_type_id' => $nonPuebloTypeIds[array_rand($nonPuebloTypeIds)],
-                        'coord_x' => $x,
-                        'coord_y' => $y,
-                    ];
-                }
+                $tiles[] = [
+                    'game_id' => $gameId,
+                    'tile_type_id' => $typeIds[array_rand($typeIds)],
+                    'coord_x' => $x,
+                    'coord_y' => $y,
+                ];
             }
         }
 

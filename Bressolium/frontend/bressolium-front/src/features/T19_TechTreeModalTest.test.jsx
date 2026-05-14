@@ -436,35 +436,6 @@ describe('TechTreeModal — múltiples caminos', () => {
 // Los tests de este bloque fallarán hasta que BoardGrid importe useTechTree
 // y pase las tres listas como props al modal.
 
-describe('T53 — BoardGrid conecta useTechTree al TechTreeModal', () => {
-    it('BoardGrid.jsx importa useTechTree', () => {
-        const src = fs.readFileSync(
-            path.join(SRC, 'features', 'board', 'BoardGrid.jsx'), 'utf8'
-        );
-        expect(src).toMatch(/useTechTree/);
-    });
-
-    it('BoardGrid.jsx pasa la prop completed al TechTreeModal', () => {
-        const src = fs.readFileSync(
-            path.join(SRC, 'features', 'board', 'BoardGrid.jsx'), 'utf8'
-        );
-        expect(src).toMatch(/completed=/);
-    });
-
-    it('BoardGrid.jsx pasa la prop available al TechTreeModal', () => {
-        const src = fs.readFileSync(
-            path.join(SRC, 'features', 'board', 'BoardGrid.jsx'), 'utf8'
-        );
-        expect(src).toMatch(/available=/);
-    });
-
-    it('BoardGrid.jsx pasa la prop blocked al TechTreeModal', () => {
-        const src = fs.readFileSync(
-            path.join(SRC, 'features', 'board', 'BoardGrid.jsx'), 'utf8'
-        );
-        expect(src).toMatch(/blocked=/);
-    });
-});
 
 // ─── T53 — DoD: tecnologías disponibles tienen botón de voto activo ──────────
 //

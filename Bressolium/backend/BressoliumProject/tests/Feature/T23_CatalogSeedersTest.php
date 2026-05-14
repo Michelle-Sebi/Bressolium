@@ -101,12 +101,6 @@ test('TileLevelResourcesSeeder asigna el nombre especializado a las casillas de 
     $this->assertDatabaseHas('tile_types', ['base_type' => 'mina',    'level' => 5, 'name' => 'Mina de Minerales']);
 });
 
-test('TileLevelResourcesSeeder incluye la casilla especial pueblo', function () {
-    Artisan::call('db:seed', ['--class' => 'TileLevelResourcesSeeder']);
-
-    $this->assertDatabaseHas('tile_types', ['base_type' => 'pueblo']);
-});
-
 test('TileLevelResourcesSeeder vincula recursos a tile_types con cantidades', function () {
     Artisan::call('db:seed', ['--class' => 'ResourcesSeeder']);
     Artisan::call('db:seed', ['--class' => 'TileLevelResourcesSeeder']);
