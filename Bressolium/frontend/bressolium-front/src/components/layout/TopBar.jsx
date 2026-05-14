@@ -98,21 +98,21 @@ const TopBar = () => {
       {/* Lado Derecho: Usuario y Logout */}
       <div className="flex items-center space-x-4">
         <div className="hidden sm:flex flex-col items-end leading-none">
-          <span className="text-[10px] font-bold text-gray-400 uppercase">Pionero</span>
-          <span className="text-sm font-black text-bbrown truncate max-w-30">
+          <span className="text-[10px] font-bold uppercase text-bdark">Pionero</span>
+          <span className="text-sm font-black truncate max-w-30 text-bdark">
             {user?.name?.toUpperCase() || 'INVITADO'}
           </span>
         </div>
         
-        <div className="w-10 h-10 bg-bgray flex items-center justify-center border-2 border-bbrown">
-           <span className="font-black text-bbrown text-lg">
+        <div className="w-10 h-10 bg-bgray rounded-full flex items-center justify-center">
+           <span className="font-black text-white text-lg">
              {user?.name?.[0]?.toUpperCase() || 'P'}
            </span>
         </div>
 
         <button 
           onClick={handleLogout}
-          className="ml-2 p-2 text-bbrown hover:text-bred transition-colors"
+          className="ml-2 p-2 text-bdark hover:text-bred transition-colors"
           title="Salir"
           aria-label="Salir"
         >

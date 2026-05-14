@@ -83,7 +83,17 @@ const gameService = {
     const result = await response.json();
     if (!response.ok) throw new Error(result.error || 'Error al unirse al equipo');
     return result;
-  }
+  },
+
+  async leave(gameId) {
+    const response = await fetch(`${API_URL}/game/${gameId}/leave`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Error al abandonar la partida');
+    return result;
+  },
 };
 
 export default gameService;

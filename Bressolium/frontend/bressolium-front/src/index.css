@@ -6,6 +6,7 @@
   --color-bred: #CD4F39;
   --color-bbrown: #a0a0a0;
   --color-bgreen: #458B74;
+  --color-bdark: #333333;
 }
 
 @layer base {

@@ -14,6 +14,7 @@ import {
   createGameThunk,
   joinByNameThunk,
   joinRandomThunk,
+  leaveGameThunk,
   setCurrentGame
 } from '../game/gameSlice';
 
@@ -25,6 +26,8 @@ const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newTeamName, setNewTeamName] = useState('');
+  const [confirmingLeaveId, setConfirmingLeaveId] = useState(null);
+  const [expandedPlayersId, setExpandedPlayersId] = useState(null);
   const modalRef = useRef(null);
 
   const closeModal = useCallback(() => setIsModalOpen(false), []);
@@ -93,12 +96,22 @@ const Dashboard = () => {
     navigate(`/board`);
   };
 
+  const handleLeave = (e, gameId) => {
+    e.stopPropagation();
+    if (confirmingLeaveId === gameId) {
+      dispatch(leaveGameThunk(gameId));
+      setConfirmingLeaveId(null);
+    } else {
+      setConfirmingLeaveId(gameId);
+    }
+  };
+
   return (
     <div className="flex-1 flex flex-col lg:flex-row font-sans overflow-hidden">
       
       {/* SECCIÓN IZQUIERDA: LOBBY (UNIRSE) */}
       <div className="w-full lg:w-1/2 bg-bgray p-8 lg:p-16 flex flex-col overflow-y-auto">
-        <h1 className="text-4xl lg:text-5xl font-black text-bbrown mb-12 tracking-tighter">
+        <h1 className="text-4xl lg:text-5xl font-black text-white mb-12 tracking-tighter">
           UNIRSE A LA <br/> TERRAFORMACIÓN
         </h1>
 
@@ -112,11 +125,11 @@ const Dashboard = () => {
           </button>
 
           {/* Crear Nuevo */}
-          <button 
+          <button
             onClick={() => setIsModalOpen(true)}
             className="btn-primary bg-bbrown hover:bg-[#7a7a7a]"
           >
-            CREAR EQUIPO NUEVO
+            CREAR EXPEDICIÓN NUEVA
           </button>
 
           {/* Buscador y Lista */}
@@ -125,20 +138,20 @@ const Dashboard = () => {
               id="search"
               name="search"
               type="text" 
-              placeholder="BUSCAR EQUIPO..."
+              placeholder="BUSCAR EXPEDICIÓN..."
               className="input-field mb-4"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             
-            <div className="bg-white border-l-8 border-bbrown min-h-50">
+            <div className="bg-white min-h-50">
               {filteredGames.length > 0 ? (
                 <ul className="divide-y divide-gray-100">
                   {filteredGames.map(game => (
                     <li key={game.id} className="p-4 flex justify-between items-center hover:bg-gray-50 transition-colors">
                       <div>
-                        <span className="font-bold text-bbrown block">{game.name.toUpperCase()}</span>
-                        <span className="text-xs text-gray-400">{game.users_count || 0}/5 MIEMBROS</span>
+                        <span className="font-bold text-bdark block">{game.name.toUpperCase()}</span>
+                        <span className="text-xs text-bbrown">{game.users_count || 0}/5 MIEMBROS</span>
                       </div>
                       <button
                         onClick={() => handleJoinByName(game.name)}
@@ -150,7 +163,7 @@ const Dashboard = () => {
                   ))}
                 </ul>
               ) : (
-                <div className="p-8 text-center text-gray-400 italic">
+                <div className="p-8 text-center text-bbrown italic">
                   No hay exploraciones disponibles con ese nombre...
                 </div>
               )}
@@ -161,41 +174,74 @@ const Dashboard = () => {
 
       {/* SECCIÓN DERECHA: MIS PARTIDAS */}
       <div className="w-full lg:w-1/2 bg-white p-8 lg:p-16 flex flex-col overflow-y-auto">
-        <h2 className="text-3xl lg:text-4xl font-black text-bbrown mb-12 tracking-tighter border-b-8 border-bgray pb-4 inline-block">
+        <h2 className="text-3xl lg:text-4xl font-black text-bdark mb-12 tracking-tighter border-b-8 border-bgray pb-4 inline-block">
           MIS EXPEDICIONES <br/> ACTIVAS
         </h2>
 
         <div className="grid grid-cols-1 gap-4 overflow-y-auto">
           {myGames.length > 0 ? (
             myGames.map(game => (
-              <div
-                key={game.id}
-                role="button"
-                tabIndex={0}
-                onClick={() => handleGoToGame(game)}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleGoToGame(game); } }}
-                aria-label={`Ir a la partida ${game.name}, estado ${game.status}`}
-                className="group cursor-pointer bg-bgray p-6 hover:bg-bbrown transition-all"
-              >
-                <div className="flex justify-between items-center">
-                  <div>
-                    <span className="block text-2xl font-black text-bbrown group-hover:text-white transition-colors">
-                      {game.name.toUpperCase()}
-                    </span>
-                    <span className="text-xs font-bold text-bgreen group-hover:text-bgray uppercase">
-                      ESTADO: {game.status}
-                    </span>
-                  </div>
-                  <div className="text-bbrown group-hover:text-white">
-                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
+              <div key={game.id} className="bg-bgray">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => handleGoToGame(game)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleGoToGame(game); } }}
+                  aria-label={`Ir a la partida ${game.name}, estado ${game.status}`}
+                  className="group cursor-pointer p-6 hover:bg-bbrown transition-all"
+                >
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <span className="block text-2xl font-black text-white transition-colors">
+                        {game.name.toUpperCase()}
+                      </span>
+                      <span className="text-xs font-bold text-bgreen group-hover:text-bgray uppercase">
+                        {{ WAITING: 'ESPERANDO JUGADORES', COMPLETA: 'COMPLETA' }[game.status] ?? game.status}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setExpandedPlayersId(expandedPlayersId === game.id ? null : game.id); }}
+                        onKeyDown={(e) => e.stopPropagation()}
+                        className="text-xs font-black uppercase px-3 py-1 border-2 border-white text-white hover:bg-white hover:text-bdark transition-colors"
+                        aria-label={`Ver jugadores de ${game.name}`}
+                      >
+                        {game.users_count ?? 0}/5 PIONEROS
+                      </button>
+                      <button
+                        onClick={(e) => handleLeave(e, game.id)}
+                        onKeyDown={(e) => e.stopPropagation()}
+                        className={`text-xs font-black uppercase px-3 py-1 border-2 transition-colors ${
+                          confirmingLeaveId === game.id
+                            ? 'border-bred text-bred hover:bg-bred hover:text-white'
+                            : 'border-white text-white hover:bg-bred hover:border-bred hover:text-white'
+                        }`}
+                        aria-label={confirmingLeaveId === game.id ? 'Confirmar abandono' : `Abandonar ${game.name}`}
+                      >
+                        {confirmingLeaveId === game.id ? '¿SEGURO?' : 'ABANDONAR'}
+                      </button>
+                      <div className="text-white">
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                 </div>
+
+                {expandedPlayersId === game.id && (
+                  <div className="border-t-2 border-bbrown/20 px-6 py-3 flex flex-wrap gap-2">
+                    {(game.users ?? []).map(u => (
+                      <span key={u.id} className="text-xs font-bold text-bbrown uppercase bg-white px-2 py-1">
+                        {u.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             ))
           ) : (
-            <div className="py-24 text-center border-4 border-dashed border-gray-100 text-gray-300 font-bold">
+            <div className="py-24 text-center border-4 border-dashed border-gray-100 text-bbrown font-bold">
               SIN EXPEDICIONES EN CURSO
             </div>
           )}
@@ -224,7 +270,7 @@ const Dashboard = () => {
             
             <form onSubmit={handleCreateTeam} className="space-y-6">
               <div>
-                <label htmlFor="teamName" className="block text-xs font-bold text-gray-400 mb-2 uppercase">NOMBRE DEL EQUIPO</label>
+                <label htmlFor="teamName" className="block text-xs font-bold text-bbrown mb-2 uppercase">NOMBRE DEL EQUIPO</label>
                 <input 
                   id="teamName"
                   name="teamName"

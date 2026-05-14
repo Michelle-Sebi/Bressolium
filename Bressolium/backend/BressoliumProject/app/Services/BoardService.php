@@ -22,11 +22,12 @@ class BoardService
             $gameId,
             fn () => $this->boardRepository->getTilesByGameId($gameId)
                 ->map(fn ($tile) => [
-                    'id'           => $tile->id,
-                    'coord_x'      => $tile->coord_x,
-                    'coord_y'      => $tile->coord_y,
-                    'tile_type_id' => $tile->tile_type_id,
-                    'explored'     => (bool) $tile->explored,
+                    'id'                   => $tile->id,
+                    'coord_x'              => $tile->coord_x,
+                    'coord_y'              => $tile->coord_y,
+                    'tile_type_id'         => $tile->tile_type_id,
+                    'explored'             => (bool) $tile->explored,
+                    'explored_by_player_id' => $tile->explored_by_player_id,
                     'type'         => $tile->type ? [
                         'id'        => $tile->type->id,
                         'name'      => $tile->type->name,
