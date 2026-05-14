@@ -279,7 +279,7 @@ test('AuthController::login envuelve el user en UserResource (sin password ni ti
 });
 
 test('GameController::create devuelve GameResource (sin timestamps)', function () {
-    foreach (['bosque', 'cantera', 'rio', 'prado', 'mina', 'pueblo'] as $base) {
+    foreach (['bosque', 'cantera', 'rio', 'prado', 'mina'] as $base) {
         TileType::create(['name' => ucfirst($base), 'level' => 1, 'base_type' => $base]);
     }
 

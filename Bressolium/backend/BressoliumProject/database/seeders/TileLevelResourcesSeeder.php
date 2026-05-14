@@ -31,12 +31,6 @@ class TileLevelResourcesSeeder extends Seeder
             }
         }
 
-        // Casilla especial pueblo (sin evolución)
-        TileType::firstOrCreate(
-            ['base_type' => 'pueblo'],
-            ['name' => 'Pueblo', 'level' => 1]
-        );
-
         // Helper para adjuntar material a un tile_type (solo producción, sin requisitos de tecnología)
         $attach = function (TileType $tile, string $matName, int $qty) {
             $material = Material::where('name', $matName)->first();

@@ -162,30 +162,4 @@ test.describe('T47 — Accesibilidad (axe-core WCAG AA)', () => {
         expect(results.violations).toEqual([]);
     });
 
-    // ── TechTreeModal ─────────────────────────────────────────────────────────
-
-    test('TechTreeModal: tiene role="dialog" y se cierra con Escape', async ({ page }) => {
-        const creds = uniqueCredentials();
-        await registerAndLogin(page, creds);
-
-        await page.click('button:has-text("CREAR EQUIPO NUEVO")');
-        await page.waitForSelector('[role="dialog"]');
-        await page.fill('#teamName', creds.teamName);
-        await page.click('button[type="submit"]');
-        await page.waitForTimeout(1_000);
-
-        const card = page.locator('[role="button"]').filter({ hasText: creds.teamName.toUpperCase() }).first();
-        await card.click();
-        await page.waitForURL('**/board', { timeout: 10_000 });
-        await page.waitForSelector('[data-testid="board-grid"]', { timeout: 10_000 });
-
-        // Hacer clic en el tile Pueblo (tile--pueblo)
-        const puebloTile = page.locator('.tile--pueblo').first();
-        await puebloTile.click();
-        await page.waitForSelector('[aria-label="Árbol Tecnológico"]', { timeout: 5_000 });
-
-        // Debe cerrarse con Escape
-        await page.keyboard.press('Escape');
-        await expect(page.locator('[aria-label="Árbol Tecnológico"]')).toHaveCount(0);
-    });
 });

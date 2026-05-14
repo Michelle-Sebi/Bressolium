@@ -158,7 +158,7 @@ test.describe('T34 — E2E: Flujo completo de partida', () => {
 
         await page.waitForSelector('[data-testid="board-grid"]', { timeout: 20_000 });
 
-        // El juego inicia con tiles pre-explorados (pueblo + base del jugador).
+        // El juego inicia con el tile de inicio del jugador explorado.
         // Solo los tiles adyacentes a territorio explorado tienen cursor:pointer.
         // Buscamos el primer tile en niebla que sea explorable.
         const fogBefore = await page.locator('[data-testid="tile"].tile--fog').count();

@@ -528,15 +528,6 @@ describe('BoardGrid — tests de componente', () => {
         type:            null,
     };
 
-    const puebloTile = {
-        id:              't-pueblo',
-        coord_x:         7,
-        coord_y:         7,
-        explored:        true,
-        assigned_player: null,
-        type:            { base_type: 'pueblo', level: 1 },
-    };
-
     function renderBoardGrid() {
         const store = makeStore({
             auth: { status: 'LOGGED_IN', user: { id: 'u1' }, error: null },
@@ -607,23 +598,4 @@ describe('BoardGrid — tests de componente', () => {
         });
     });
 
-    it('al hacer click en la casilla Pueblo se abre el modal del árbol tecnológico', async () => {
-        const { store } = renderBoardGrid();
-
-        await act(async () => {
-            await store.dispatch(
-                bressoliumApi.util.upsertQueryData('getBoard', 'g1', { tiles: [puebloTile] })
-            );
-        });
-
-        await waitFor(() => {
-            expect(screen.getByTestId('tile-7-7')).toBeTruthy();
-        });
-
-        fireEvent.click(screen.getByTestId('tile-7-7'));
-
-        await waitFor(() => {
-            expect(screen.getByRole('dialog', { name: /árbol tecnológico/i })).toBeTruthy();
-        });
-    });
 });

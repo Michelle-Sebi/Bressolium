@@ -6,14 +6,10 @@
  * @see Tarea 9 - Board Grid Component y Frontend UI (HU 2.1, 2.2, 2.6)
  */
 
-import { useState, useMemo, useContext, useCallback } from 'react';
-import { ReactReduxContext } from 'react-redux';
+import { useState, useMemo, useCallback } from 'react';
 import { useBoard } from './useBoard';
 import { useAuth } from '../auth/useAuth';
 import { useGames } from '../game/useGames';
-import { useTechTree } from '../techtree/useTechTree';
-import { useVoting } from '../game/useVoting';
-import TechTreeModal from '../techtree/TechTreeModal';
 import Badge from '../../components/ui/Badge';
 
 import bosqueIcon  from '../../assets/icons/tiles/bosque.png';
@@ -21,7 +17,6 @@ import canteraIcon from '../../assets/icons/tiles/cantera.png';
 import rioIcon     from '../../assets/icons/tiles/rio.png';
 import pradoIcon   from '../../assets/icons/tiles/prado.png';
 import minaIcon    from '../../assets/icons/tiles/mina.png';
-import puebloIcon  from '../../assets/icons/tiles/pueblo.png';
 
 const TYPE_LABELS = {
     bosque:  'Bosque',
@@ -29,7 +24,6 @@ const TYPE_LABELS = {
     prado:   'Prado',
     rio:     'Río',
     mina:    'Mina',
-    pueblo:  'Pueblo',
 };
 
 const MATERIAL_LABELS = {
@@ -163,7 +157,7 @@ function TileTooltip({ tile, pos }) {
     const level      = tile.type?.level ?? 0;
     const tileName   = tile.type?.name ?? TYPE_LABELS[baseType] ?? baseType;
     const production  = PRODUCTION_DATA[baseType]?.[level] ?? null;
-    const upgradeCost = baseType !== 'pueblo' && level < 5
+    const upgradeCost = level < 5
         ? (UPGRADE_COSTS[baseType]?.[level] ?? null)
         : null;
 
@@ -210,9 +204,9 @@ function TileTooltip({ tile, pos }) {
                 {tileName}
             </div>
             {row('Tipo',  TYPE_LABELS[baseType] ?? baseType)}
-            {row('Nivel', baseType === 'pueblo' ? '—' : `${level} / 5`)}
-            {baseType !== 'pueblo' && row('Produce', <MaterialList items={production} />)}
-            {baseType !== 'pueblo' && row(
+            {row('Nivel', `${level} / 5`)}
+            {row('Produce', <MaterialList items={production} />)}
+            {row(
                 'Subir Nv.',
                 upgradeCost
                     ? <><MaterialList items={upgradeCost} /><span style={{ opacity: 0.45 }}> · 1 acción</span></>
@@ -229,7 +223,6 @@ const TILE_BG_COLORS = {
     prado:   '#CD4F39',
     rio:     '#4682B4',
     mina:    '#DAA520',
-    pueblo:  '#C1CDC1',
 };
 
 const FOG_BG_COLOR        = '#a0a0a0';
@@ -254,7 +247,6 @@ const TILE_ICONS = {
     rio:     rioIcon,
     prado:   pradoIcon,
     mina:    minaIcon,
-    pueblo:  puebloIcon,
 };
 
 /**
@@ -304,7 +296,7 @@ function Tile({ tile, currentUserId, isExplorable, onTileClick, onHoverEnter, on
     const isOwnTile     = !tile.assigned_player || tile.assigned_player === currentUserId;
     const baseType      = tile.type?.base_type;
     const level         = tile.type?.level ?? 0;
-    const isUpgradeable  = isExplored && isOwnTile && baseType !== 'pueblo' && level < 5;
+    const isUpgradeable  = isExplored && isOwnTile && level < 5;
     const isExplorableOwn = !isExplored && isExplorable && isOwnTile;
 
     const isClickable     = isOwnTile && (isExplored || isExplorable);
@@ -321,8 +313,6 @@ function Tile({ tile, currentUserId, isExplorable, onTileClick, onHoverEnter, on
         ...(isExplored ? { 'data-base-type': baseType } : {}),
     };
 
-    const isPueblo = baseType === 'pueblo';
-
     const tileLabel = isExplored
         ? `Casilla ${baseType}${level > 0 ? `, nivel ${level}` : ''}, coordenadas ${tile.coord_x},${tile.coord_y}${isExplored ? '. Mejorable.' : ''}`
         : isExplorable
@@ -332,7 +322,7 @@ function Tile({ tile, currentUserId, isExplorable, onTileClick, onHoverEnter, on
     return (
         <div
             data-testid="tile"
-            className={`tile${isExplored ? '' : ' tile--fog'}${isPueblo ? ' tile--pueblo' : ''}`}
+            className={`tile${isExplored ? '' : ' tile--fog'}`}
             style={{
                 backgroundColor,
                 width: '100%',
@@ -440,44 +430,13 @@ function Tile({ tile, currentUserId, isExplorable, onTileClick, onHoverEnter, on
 }
 
 /**
- * Renders TechTreeModal connected to store data. Only used when Redux is available.
- */
-function TechTreeWithStore({ gameId, onClose }) {
-    const { completed, available, blocked } = useTechTree(gameId);
-    const { vote } = useVoting(gameId);
-    return (
-        <TechTreeModal
-            isOpen
-            onClose={onClose}
-            completed={completed}
-            available={available}
-            blocked={blocked}
-            onVote={vote}
-        />
-    );
-}
-
-/**
- * Renders TechTreeModal with store data if Redux is available, or with empty data otherwise.
- * This allows BoardGrid to work in test environments without a Redux Provider.
- */
-function TechTreePanel({ gameId, onClose }) {
-    const storeCtx = useContext(ReactReduxContext);
-    if (storeCtx) {
-        return <TechTreeWithStore gameId={gameId} onClose={onClose} />;
-    }
-    return <TechTreeModal isOpen onClose={onClose} completed={[]} available={[]} blocked={[]} onVote={() => {}} />;
-}
-
-/**
  * Cuadrícula principal 15×15 del tablero de juego.
  */
 function BoardGrid() {
     const { user: currentUser } = useAuth();
     const { currentGame } = useGames();
     const { tiles, isLoading, exploreTile, upgradeTile } = useBoard(currentGame?.id);
-    const [isTechTreeOpen, setIsTechTreeOpen] = useState(false);
-    const [hoveredTile, setHoveredTile]       = useState(null);
+    const [hoveredTile, setHoveredTile] = useState(null);
     const [tooltipPos, setTooltipPos]         = useState({ x: 0, y: 0 });
 
     const handleHoverEnter = useCallback((tile, e) => {
@@ -515,11 +474,6 @@ function BoardGrid() {
      * @param {boolean} isExplorable
      */
     function handleTileClick(tile, isOwnTile, isExplorable) {
-        if (tile.type?.base_type === 'pueblo') {
-            setIsTechTreeOpen(true);
-            return;
-        }
-
         if (!isOwnTile) return;
 
         if (!tile.explored) {
@@ -545,12 +499,6 @@ function BoardGrid() {
 
     return (
         <>
-        {isTechTreeOpen && (
-            <TechTreePanel
-                gameId={currentGame?.id}
-                onClose={() => setIsTechTreeOpen(false)}
-            />
-        )}
         <TileTooltip tile={hoveredTile} pos={tooltipPos} />
         <div
             data-testid="board-grid"

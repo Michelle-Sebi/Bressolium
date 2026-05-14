@@ -50,7 +50,7 @@ class TileController extends Controller
      *     ),
      *     @OA\Response(response=401, description="No autenticado", @OA\JsonContent(ref="#/components/schemas/ApiError")),
      *     @OA\Response(response=403, description="El usuario no pertenece a esta partida", @OA\JsonContent(ref="#/components/schemas/ApiError")),
-     *     @OA\Response(response=422, description="Casilla ya explorada / no adyacente / sin acciones / casilla pueblo", @OA\JsonContent(ref="#/components/schemas/ApiError"))
+     *     @OA\Response(response=422, description="Casilla ya explorada / no adyacente / sin acciones", @OA\JsonContent(ref="#/components/schemas/ApiError"))
      * )
      */
     public function explore(ExploreActionRequest $request, string $id): JsonResponse

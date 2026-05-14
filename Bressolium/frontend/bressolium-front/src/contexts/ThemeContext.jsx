@@ -14,7 +14,6 @@ const THEME = {
         prado:   '#8FBC8F',
         rio:     '#4682B4',
         mina:    '#DAA520',
-        pueblo:  '#C1CDC1',
         fog:     '#a0a0a0',
     },
 };
