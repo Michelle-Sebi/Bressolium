@@ -41,4 +41,18 @@ interface CloseRoundRepositoryInterface
     public function hasInventionVoteTie(Round $round): bool;
 
     public function markRoundResult(Round $round, string $inventionId, bool $noConsensus): void;
+
+    public function markRoundEnded(Round $round): void;
+
+    public function setPlayerFinishedAt(Round $round, string $userId): void;
+
+    public function isPlayerFinished(Round $round, string $userId): bool;
+
+    public function getPlayerActionsSpent(Round $round, string $userId): int;
+
+    public function hasPlayerVoted(Round $round, string $userId): bool;
+
+    public function countFinishedPlayers(Round $round): int;
+
+    public function markAllUnfinishedPlayersAsDone(Round $round, Game $game): void;
 }

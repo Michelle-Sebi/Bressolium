@@ -10,6 +10,7 @@ namespace App\Services;
 
 use App\DTOs\CreateGameDTO;
 use App\DTOs\JoinGameDTO;
+use App\Jobs\ExpireRoundJob;
 use App\Models\Game;
 use App\Repositories\Contracts\GameRepositoryInterface;
 use App\Repositories\Contracts\RoundRepositoryInterface;
@@ -60,6 +61,8 @@ class GameService
             $this->boardGenerator->generate($game->id);
             $this->boardGenerator->assignStartingTile($game->id, $dto->userId, 0);
             $this->gameRepository->initializeMaterials($game);
+
+            ExpireRoundJob::dispatch($round->id, $game->id)->afterCommit()->delay(now()->addHours(2));
 
             return $game;
         });
