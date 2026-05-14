@@ -43,6 +43,7 @@ class SyncService
                     lastRoundResult: $round
                         ? $this->syncRepository->getLastRoundResult($round)
                         : [],
+                    gameStatus: $game->status,
                 );
             },
         );

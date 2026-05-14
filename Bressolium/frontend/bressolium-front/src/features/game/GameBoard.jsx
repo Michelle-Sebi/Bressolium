@@ -8,10 +8,13 @@
 import BoardGrid     from '../board/BoardGrid';
 import InventoryPanel from '../inventory/InventoryPanel';
 import VotingPanel    from './VotingPanel';
+import VictoryModal   from './VictoryModal';
 import { useGames }   from './useGames';
+import { useVoting }  from './useVoting';
 
 function GameBoard() {
     const { currentGame } = useGames();
+    const { gameStatus }  = useVoting(currentGame?.id);
     return (
         <div
             style={{
@@ -24,6 +27,10 @@ function GameBoard() {
                 boxSizing:           'border-box',
             }}
         >
+            {gameStatus === 'FINISHED' && (
+                <VictoryModal teamName={currentGame?.name} />
+            )}
+
             {/* Panel izquierdo — Votaciones (T11/T12) */}
             <div
                 style={{

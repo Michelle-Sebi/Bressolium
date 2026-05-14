@@ -13,5 +13,6 @@ final readonly class SyncResponseDTO
         public bool $hasVoted = false,
         public bool $hasFinished = false,
         public array $lastRoundResult = [],
+        public string $gameStatus = 'ACTIVE',
     ) {}
 }
