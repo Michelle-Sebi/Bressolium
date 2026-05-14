@@ -305,6 +305,7 @@ function Tile({ tile, currentUserId, isExplorable, onTileClick, onHoverEnter, on
         : isExplorable ? EXPLORABLE_BG_COLOR : FOG_BG_COLOR;
     const tileIcon        = isExplored ? TILE_ICONS[baseType] : null;
     const borderStyle     = DEFAULT_BORDER;
+    const tileName        = tile.type?.name ?? TYPE_LABELS[baseType] ?? baseType;
 
     const specificTestIdAttributes = {
         'data-x':     tile.coord_x,
@@ -314,7 +315,7 @@ function Tile({ tile, currentUserId, isExplorable, onTileClick, onHoverEnter, on
     };
 
     const tileLabel = isExplored
-        ? `Casilla ${baseType}${level > 0 ? `, nivel ${level}` : ''}, coordenadas ${tile.coord_x},${tile.coord_y}${isExplored ? '. Mejorable.' : ''}`
+        ? `${tileName}, coordenadas ${tile.coord_x},${tile.coord_y}${isUpgradeable ? '. Mejorable.' : ''}`
         : isExplorable
             ? `Casilla desconocida explorable, coordenadas ${tile.coord_x},${tile.coord_y}`
             : `Casilla en niebla de guerra, coordenadas ${tile.coord_x},${tile.coord_y}`;
