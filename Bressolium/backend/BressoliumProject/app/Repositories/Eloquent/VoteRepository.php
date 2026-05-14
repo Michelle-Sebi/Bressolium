@@ -16,6 +16,22 @@ class VoteRepository implements VoteRepositoryInterface
             ->exists();
     }
 
+    public function hasVotedForTechnology(string $roundId, string $userId): bool
+    {
+        return Vote::where('round_id', $roundId)
+            ->where('user_id', $userId)
+            ->whereNotNull('technology_id')
+            ->exists();
+    }
+
+    public function hasVotedForInvention(string $roundId, string $userId): bool
+    {
+        return Vote::where('round_id', $roundId)
+            ->where('user_id', $userId)
+            ->whereNotNull('invention_id')
+            ->exists();
+    }
+
     public function isTechnologyCompleted(string $gameId, string $technologyId): bool
     {
         return Game::find($gameId)

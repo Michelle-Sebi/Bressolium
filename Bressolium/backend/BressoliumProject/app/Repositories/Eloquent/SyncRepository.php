@@ -189,6 +189,24 @@ class SyncRepository implements SyncRepositoryInterface
             ->exists();
     }
 
+    public function hasVotedForTechnology(Round $round, string $userId): bool
+    {
+        return DB::table('votes')
+            ->where('round_id', $round->id)
+            ->where('user_id', $userId)
+            ->whereNotNull('technology_id')
+            ->exists();
+    }
+
+    public function hasVotedForInvention(Round $round, string $userId): bool
+    {
+        return DB::table('votes')
+            ->where('round_id', $round->id)
+            ->where('user_id', $userId)
+            ->whereNotNull('invention_id')
+            ->exists();
+    }
+
     public function hasFinishedRound(Round $round, string $userId): bool
     {
         $pivot = $round->users()->where('user_id', $userId)->first();
@@ -203,17 +221,26 @@ class SyncRepository implements SyncRepositoryInterface
             ->where('number', $currentRound->number - 1)
             ->first();
 
-        if (! $prev || ! $prev->no_consensus || ! $prev->last_built_invention_id) {
+        if (! $prev) {
             return [];
         }
 
-        $name = DB::table('inventions')
-            ->where('id', $prev->last_built_invention_id)
-            ->value('name');
+        $result = [];
 
-        return [
-            'no_consensus' => true,
-            'built_name'   => $name ?? 'Invento desconocido',
-        ];
+        if ($prev->no_consensus && $prev->last_built_invention_id) {
+            $result['no_consensus_inv'] = true;
+            $result['built_inv_name']   = DB::table('inventions')
+                ->where('id', $prev->last_built_invention_id)
+                ->value('name') ?? 'Invento desconocido';
+        }
+
+        if ($prev->no_consensus_tech && $prev->last_activated_tech_id) {
+            $result['no_consensus_tech'] = true;
+            $result['built_tech_name']   = DB::table('technologies')
+                ->where('id', $prev->last_activated_tech_id)
+                ->value('name') ?? 'Tecnología desconocida';
+        }
+
+        return $result;
     }
 }

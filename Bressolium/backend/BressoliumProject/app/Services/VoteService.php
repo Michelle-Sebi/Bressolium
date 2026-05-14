@@ -26,20 +26,26 @@ class VoteService
             throw new Exception('No hay una jornada activa para esta partida.');
         }
 
-        if ($this->voteRepository->hasVotedThisRound($round->id, $dto->userId)) {
-            throw new VoteValidationException('Ya has votado en esta jornada.');
-        }
-
         if ($dto->technologyId) {
+            if ($this->voteRepository->hasVotedForTechnology($round->id, $dto->userId)) {
+                throw new VoteValidationException('Ya has votado una tecnología en esta jornada.');
+            }
             if ($this->voteRepository->isTechnologyCompleted($dto->gameId, $dto->technologyId)) {
                 throw new VoteValidationException('Esta tecnología ya está investigada.');
             }
         }
 
         if ($dto->inventionId) {
+            if ($this->voteRepository->hasVotedForInvention($round->id, $dto->userId)) {
+                throw new VoteValidationException('Ya has votado un invento en esta jornada.');
+            }
             if (! $this->voteRepository->hasEnoughMaterialsForInvention($dto->gameId, $dto->inventionId)) {
                 throw new VoteValidationException('Materiales insuficientes para construir este invento.');
             }
+        }
+
+        if (! $dto->technologyId && ! $dto->inventionId) {
+            throw new VoteValidationException('Debes seleccionar una tecnología o un invento.');
         }
 
         $vote = $this->voteRepository->store($round->id, $dto->userId, $dto->technologyId, $dto->inventionId);

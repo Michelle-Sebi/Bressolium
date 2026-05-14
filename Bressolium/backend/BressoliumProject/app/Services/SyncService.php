@@ -37,6 +37,12 @@ class SyncService
                     hasVoted: $round
                         ? $this->syncRepository->hasVotedThisRound($round, $userId)
                         : false,
+                    hasVotedTech: $round
+                        ? $this->syncRepository->hasVotedForTechnology($round, $userId)
+                        : false,
+                    hasVotedInv: $round
+                        ? $this->syncRepository->hasVotedForInvention($round, $userId)
+                        : false,
                     hasFinished: $round
                         ? $this->syncRepository->hasFinishedRound($round, $userId)
                         : false,
@@ -44,6 +50,7 @@ class SyncService
                         ? $this->syncRepository->getLastRoundResult($round)
                         : [],
                     gameStatus: $game->status,
+                    playersCount: $game->users()->count(),
                 );
             },
         );

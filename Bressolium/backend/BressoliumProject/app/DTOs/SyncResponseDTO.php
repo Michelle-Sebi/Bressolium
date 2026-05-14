@@ -11,8 +11,11 @@ final readonly class SyncResponseDTO
         public array $technologies,
         public array $inventions,
         public bool $hasVoted = false,
+        public bool $hasVotedTech = false,
+        public bool $hasVotedInv = false,
         public bool $hasFinished = false,
         public array $lastRoundResult = [],
         public string $gameStatus = 'ACTIVE',
+        public int $playersCount = 1,
     ) {}
 }
