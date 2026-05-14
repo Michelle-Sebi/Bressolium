@@ -13,7 +13,8 @@ class TileResource extends JsonResource
             'coord_x' => $this->coord_x,
             'coord_y' => $this->coord_y,
             'tile_type_id' => $this->tile_type_id,
-            'explored' => (bool) $this->explored,
+            'explored'              => (bool) $this->explored,
+            'explored_by_player_id' => $this->explored_by_player_id,
             'type' => $this->whenLoaded('type', fn () => $this->type ? [
                 'id' => $this->type->id,
                 'name' => $this->type->name,
