@@ -81,6 +81,18 @@ export const joinRandomThunk = createAsyncThunk(
   }
 );
 
+export const leaveGameThunk = createAsyncThunk(
+  'game/leave',
+  async (gameId, { rejectWithValue }) => {
+    try {
+      await gameService.leave(gameId);
+      return gameId;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 function loadCurrentGame() {
   try {
     const raw = localStorage.getItem('current_game');
@@ -143,6 +155,14 @@ const gameSlice = createSlice({
       // Join Random
       .addCase(joinRandomThunk.fulfilled, (state, action) => {
         state.myGames.push(action.payload);
+      })
+      // Leave Game
+      .addCase(leaveGameThunk.fulfilled, (state, action) => {
+        state.myGames = state.myGames.filter(g => g.id !== action.payload);
+        if (state.currentGame?.id === action.payload) {
+          state.currentGame = null;
+          localStorage.removeItem('current_game');
+        }
       });
   },
 });

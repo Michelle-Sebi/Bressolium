@@ -263,26 +263,25 @@ const TILE_ICONS = {
  * @param {object[]} tiles
  * @returns {Set<string>|null}
  */
-function buildExplorableCoordSet(tiles) {
-    const exploredCoords = tiles
-        .filter((t) => t.explored)
+function buildExplorableCoordSet(tiles, currentUserId) {
+    if (!currentUserId) return new Set();
+
+    const myExploredCoords = tiles
+        .filter((t) => t.explored_by_player_id === currentUserId)
         .map((t) => `${t.coord_x},${t.coord_y}`);
 
-    if (exploredCoords.length === 0) return null;
+    if (myExploredCoords.length === 0) return new Set();
 
-    const exploredSet = new Set(exploredCoords);
-    const explorable  = new Set();
+    const myExploredSet = new Set(myExploredCoords);
+    const allExploredSet = new Set(
+        tiles.filter((t) => t.explored).map((t) => `${t.coord_x},${t.coord_y}`)
+    );
+    const explorable = new Set();
 
-    for (const coord of exploredSet) {
+    for (const coord of myExploredSet) {
         const [x, y] = coord.split(',').map(Number);
-        const neighbors = [
-            `${x - 1},${y}`,
-            `${x + 1},${y}`,
-            `${x},${y - 1}`,
-            `${x},${y + 1}`,
-        ];
-        for (const neighbor of neighbors) {
-            if (!exploredSet.has(neighbor)) explorable.add(neighbor);
+        for (const neighbor of [`${x - 1},${y}`, `${x + 1},${y}`, `${x},${y - 1}`, `${x},${y + 1}`]) {
+            if (!allExploredSet.has(neighbor)) explorable.add(neighbor);
         }
     }
 
@@ -496,7 +495,7 @@ function BoardGrid() {
     );
 
     /** Conjunto de coordenadas explorable en el turno actual. null = sin restricción. */
-    const explorableCoordSet = useMemo(() => buildExplorableCoordSet(tiles), [tiles]);
+    const explorableCoordSet = useMemo(() => buildExplorableCoordSet(tiles, currentUser?.id), [tiles, currentUser?.id]);
 
     /**
      * Devuelve true si el tile es explorable según la regla de adyacencia.
@@ -505,7 +504,6 @@ function BoardGrid() {
      * @returns {boolean}
      */
     function isTileExplorable(tile) {
-        if (explorableCoordSet === null) return true;
         return explorableCoordSet.has(`${tile.coord_x},${tile.coord_y}`);
     }
 
