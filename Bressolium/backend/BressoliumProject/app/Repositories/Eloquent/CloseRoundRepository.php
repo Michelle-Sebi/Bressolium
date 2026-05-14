@@ -241,4 +241,51 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
 
         return $voteCount >= $activePlayerCount;
     }
+
+    public function markRoundEnded(Round $round): void
+    {
+        $round->update(['ended_at' => now()]);
+    }
+
+    public function setPlayerFinishedAt(Round $round, string $userId): void
+    {
+        $round->users()->updateExistingPivot($userId, ['finished_at' => now()]);
+    }
+
+    public function isPlayerFinished(Round $round, string $userId): bool
+    {
+        $pivot = $round->users()->where('user_id', $userId)->first();
+
+        return $pivot !== null && $pivot->pivot->finished_at !== null;
+    }
+
+    public function getPlayerActionsSpent(Round $round, string $userId): int
+    {
+        $pivot = $round->users()->where('user_id', $userId)->first();
+
+        return $pivot ? (int) $pivot->pivot->actions_spent : 0;
+    }
+
+    public function hasPlayerVoted(Round $round, string $userId): bool
+    {
+        return DB::table('votes')
+            ->where('round_id', $round->id)
+            ->where('user_id', $userId)
+            ->exists();
+    }
+
+    public function countFinishedPlayers(Round $round): int
+    {
+        return $round->users()->wherePivotNotNull('finished_at')->count();
+    }
+
+    public function markAllUnfinishedPlayersAsDone(Round $round, Game $game): void
+    {
+        foreach ($game->users as $user) {
+            $pivot = $round->users()->where('user_id', $user->id)->first();
+            if ($pivot && $pivot->pivot->finished_at === null) {
+                $round->users()->updateExistingPivot($user->id, ['finished_at' => now()]);
+            }
+        }
+    }
 }

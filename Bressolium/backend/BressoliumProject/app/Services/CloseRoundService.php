@@ -6,6 +6,7 @@ use App\Events\GameFinished;
 use App\Events\InventionBuilt;
 use App\Events\MaterialsProduced;
 use App\Events\RoundClosed;
+use App\Jobs\ExpireRoundJob;
 use App\Models\Game;
 use App\Models\Round;
 use App\Repositories\Contracts\CloseRoundRepositoryInterface;
@@ -16,8 +17,15 @@ class CloseRoundService
 
     public function process(string $gameId): void
     {
-        $game = $this->repository->findGameWithUsers($gameId);
+        $game  = $this->repository->findGameWithUsers($gameId);
         $round = $this->repository->getLatestRound($game);
+
+        // Guard against double-processing (e.g. timer + button pressed simultaneously)
+        if ($round->ended_at !== null) {
+            return;
+        }
+
+        $this->repository->markRoundEnded($round);
 
         $this->resolveTechnologyWinner($game, $round);
         $gameFinished = $this->resolveInventionWinner($game, $round);
@@ -33,6 +41,8 @@ class CloseRoundService
 
         $newRound = $this->repository->createNextRound($game);
         $this->repository->initializePlayersForRound($newRound, $game);
+
+        ExpireRoundJob::dispatch($newRound->id, $game->id)->delay(now()->addHours(2));
 
         RoundClosed::dispatch($game, $round);
     }

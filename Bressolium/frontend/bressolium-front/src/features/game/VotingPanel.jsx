@@ -105,7 +105,8 @@ function VotingPanel({ gameId }) {
             : `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
     }
 
-    const isUrgent = timeLeft !== null && timeLeft < 30 * 60 * 1000;
+    const isUrgent   = timeLeft !== null && timeLeft > 0 && timeLeft < 30 * 60 * 1000;
+    const isExpired  = timeLeft === 0;
 
     const sortedTechs = [...technologies].sort((a, b) => (b.canVote ? 1 : 0) - (a.canVote ? 1 : 0));
     const sortedInvs  = [...inventions].sort((a, b) => (b.canVote ? 1 : 0) - (a.canVote ? 1 : 0));
@@ -152,49 +153,76 @@ function VotingPanel({ gameId }) {
                     </div>
                 )}
 
-                {/* Fila 2: tiempo restante + Finalizar Jornada */}
+                {/* Fila 2: tiempo restante + botón / estado de espera */}
                 {currentRound && (
-                    <div style={{
-                        display:         'flex',
-                        alignItems:      'center',
-                        justifyContent:  'space-between',
-                        padding:         '8px 10px',
-                        backgroundColor: isUrgent ? '#fff3e0' : '#fafafa',
-                        gap:             '8px',
-                    }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <svg width="13" height="13" viewBox="0 0 12 12" fill="none">
-                                <circle cx="6" cy="6" r="5" stroke={isUrgent ? '#e6961a' : '#a0a0a0'} strokeWidth="1.5"/>
-                                <path d="M6 3v3l2 1.5" stroke={isUrgent ? '#e6961a' : '#a0a0a0'} strokeWidth="1.5" strokeLinecap="round"/>
-                            </svg>
+                    (hasFinished || isExpired) ? (
+                        <div style={{
+                            display:         'flex',
+                            alignItems:      'center',
+                            gap:             '8px',
+                            padding:         '8px 10px',
+                            backgroundColor: '#f0f7f4',
+                            borderLeft:      '3px solid #458B74',
+                        }}>
+                            <img
+                                src={new URL('../../assets/icons/utils/Time-Rest-Time-1--Streamline-Ultimate.png', import.meta.url).href}
+                                alt=""
+                                aria-hidden="true"
+                                style={{ width: '18px', height: '18px', objectFit: 'contain', flexShrink: 0 }}
+                            />
                             <span style={{
-                                fontSize:           '13px',
-                                fontWeight:         'bold',
-                                color:              isUrgent ? '#b85e00' : 'rgba(0,0,0,0.75)',
-                                fontVariantNumeric: 'tabular-nums',
+                                fontSize:      '10px',
+                                fontWeight:    'bold',
+                                color:         '#2e7d5a',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em',
                             }}>
-                                {formatTime(timeLeft)}
+                                Esperando a que empiece un nuevo día…
                             </span>
                         </div>
-                        <button
-                            onClick={closeRound}
-                            disabled={isClosing || hasFinished}
-                            style={{
-                                padding:         '5px 12px',
-                                backgroundColor: (isClosing || hasFinished) ? '#a0a0a0' : '#458B74',
-                                color:           '#fff',
-                                border:          'none',
-                                fontWeight:      'bold',
-                                fontSize:        '10px',
-                                textTransform:   'uppercase',
-                                letterSpacing:   '0.06em',
-                                cursor:          (isClosing || hasFinished) ? 'default' : 'pointer',
-                                flexShrink:      0,
-                            }}
-                        >
-                            {isClosing ? 'Finalizando…' : hasFinished ? 'Esperando jugadores…' : 'Finalizar Jornada'}
-                        </button>
-                    </div>
+                    ) : (
+                        <div style={{
+                            display:         'flex',
+                            alignItems:      'center',
+                            justifyContent:  'space-between',
+                            padding:         '8px 10px',
+                            backgroundColor: isUrgent ? '#fff3e0' : '#fafafa',
+                            gap:             '8px',
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <svg width="13" height="13" viewBox="0 0 12 12" fill="none">
+                                    <circle cx="6" cy="6" r="5" stroke={isUrgent ? '#e6961a' : '#a0a0a0'} strokeWidth="1.5"/>
+                                    <path d="M6 3v3l2 1.5" stroke={isUrgent ? '#e6961a' : '#a0a0a0'} strokeWidth="1.5" strokeLinecap="round"/>
+                                </svg>
+                                <span style={{
+                                    fontSize:           '13px',
+                                    fontWeight:         'bold',
+                                    color:              isUrgent ? '#b85e00' : 'rgba(0,0,0,0.75)',
+                                    fontVariantNumeric: 'tabular-nums',
+                                }}>
+                                    {formatTime(timeLeft)}
+                                </span>
+                            </div>
+                            <button
+                                onClick={closeRound}
+                                disabled={isClosing}
+                                style={{
+                                    padding:         '5px 12px',
+                                    backgroundColor: isClosing ? '#a0a0a0' : '#458B74',
+                                    color:           '#fff',
+                                    border:          'none',
+                                    fontWeight:      'bold',
+                                    fontSize:        '10px',
+                                    textTransform:   'uppercase',
+                                    letterSpacing:   '0.06em',
+                                    cursor:          isClosing ? 'default' : 'pointer',
+                                    flexShrink:      0,
+                                }}
+                            >
+                                {isClosing ? 'Finalizando…' : 'Finalizar Día'}
+                            </button>
+                        </div>
+                    )
                 )}
 
                 {/* Fila 3: acciones restantes */}
