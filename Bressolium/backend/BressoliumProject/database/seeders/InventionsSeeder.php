@@ -24,8 +24,15 @@ class InventionsSeeder extends Seeder
         foreach ($defs as $slug => $data) {
             $invs[$slug] = Invention::firstOrCreate(
                 ['name' => $data['name']],
-                ['name' => $data['name']]
+                ['name' => $data['name'], 'is_final' => $data['is_final'] ?? false]
             );
+        }
+
+        // Ensure is_final is in sync even for already-existing rows
+        foreach ($defs as $slug => $data) {
+            if (!empty($data['is_final'])) {
+                $invs[$slug]->update(['is_final' => true]);
+            }
         }
 
         // Helper: obtener UUID de material por nombre (null si no existe)
@@ -507,6 +514,7 @@ class InventionsSeeder extends Seeder
             // ── Era Espacial ────────────────────────────────────────
             'nave-asentamiento' => [
                 'name' => 'Nave de Asentamiento Interestelar',
+                'is_final' => true,
                 'prereqs_inv' => [
                     'estacion-espacial',
                     ['slug' => 'acero',  'qty' => 2],

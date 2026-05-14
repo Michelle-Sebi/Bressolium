@@ -29,6 +29,7 @@ export function useVoting(gameId) {
     const rawInvs         = data?.progress?.inventions   ?? [];
     const currentRound    = data?.current_round ?? null;
     const lastRoundResult = data?.last_round_result ?? null;
+    const gameStatus      = data?.game_status ?? null;
 
     // Reset local "finished" flag when a new round arrives from the server
     useEffect(() => {
@@ -88,5 +89,5 @@ export function useVoting(gameId) {
         return result;
     }
 
-    return { technologies, inventions, userActions, currentRound, lastRoundResult, isLoading, isClosing, hasVoted, hasFinished, votedName, vote, abstain, closeRound };
+    return { technologies, inventions, userActions, currentRound, lastRoundResult, gameStatus, isLoading, isClosing, hasVoted, hasFinished, votedName, vote, abstain, closeRound };
 }
