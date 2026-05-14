@@ -40,7 +40,11 @@ interface CloseRoundRepositoryInterface
 
     public function hasInventionVoteTie(Round $round): bool;
 
+    public function hasVoteTieForTechnology(Round $round): bool;
+
     public function markRoundResult(Round $round, string $inventionId, bool $noConsensus): void;
+
+    public function markRoundTechResult(Round $round, string $techId, bool $noConsensus): void;
 
     public function markRoundEnded(Round $round): void;
 

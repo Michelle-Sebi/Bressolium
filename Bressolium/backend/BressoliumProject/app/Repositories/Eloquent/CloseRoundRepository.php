@@ -217,13 +217,40 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
         return $results[0]->vote_count === $results[1]->vote_count;
     }
 
+    public function hasVoteTieForTechnology(Round $round): bool
+    {
+        $results = DB::table('votes')
+            ->where('round_id', $round->id)
+            ->whereNotNull('technology_id')
+            ->select('technology_id', DB::raw('count(*) as vote_count'))
+            ->groupBy('technology_id')
+            ->orderByDesc('vote_count')
+            ->get();
+
+        if ($results->count() < 2) {
+            return false;
+        }
+
+        return $results[0]->vote_count === $results[1]->vote_count;
+    }
+
     public function markRoundResult(Round $round, string $inventionId, bool $noConsensus): void
     {
         DB::table('rounds')
             ->where('id', $round->id)
             ->update([
-                'no_consensus'             => $noConsensus,
-                'last_built_invention_id'  => $inventionId,
+                'no_consensus'            => $noConsensus,
+                'last_built_invention_id' => $inventionId,
+            ]);
+    }
+
+    public function markRoundTechResult(Round $round, string $techId, bool $noConsensus): void
+    {
+        DB::table('rounds')
+            ->where('id', $round->id)
+            ->update([
+                'no_consensus_tech'      => $noConsensus,
+                'last_activated_tech_id' => $techId,
             ]);
     }
 

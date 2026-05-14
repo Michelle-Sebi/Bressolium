@@ -68,16 +68,22 @@ function CheckIcon({ color = '#fff', size = 12 }) {
 
 // ─── Panel principal ───────────────────────────────────────────────────────────
 
-function VotingPanel({ gameId }) {
+function VotingPanel({ gameId, playersCount: playersCountProp }) {
     const {
         technologies, inventions, userActions, currentRound,
-        lastRoundResult, isLoading, isClosing, hasVoted, hasFinished, votedName,
-        vote, abstain, closeRound,
+        lastRoundResult, isLoading, isClosing,
+        hasVotedTech, hasVotedInv, hasFinished, votedName,
+        playersCount: playersCountSync,
+        vote, closeRound,
     } = useVoting(gameId);
 
-    const [selectedVote, setSelectedVote]   = useState(null);
-    const [timeLeft, setTimeLeft]           = useState(null);
-    const [techsOpen, setTechsOpen]         = useState(true);
+    const playersCount = playersCountSync ?? playersCountProp ?? 1;
+
+    const [selectedTech, setSelectedTech]     = useState(null);
+    const [selectedInv,  setSelectedInv]      = useState(null);
+    const [isVoting,     setIsVoting]         = useState(false);
+    const [timeLeft, setTimeLeft]             = useState(null);
+    const [techsOpen, setTechsOpen]           = useState(true);
     const [inventionsOpen, setInventionsOpen] = useState(true);
 
     const ROUND_DURATION_MS = 2 * 60 * 60 * 1000;
@@ -111,17 +117,23 @@ function VotingPanel({ gameId }) {
     const sortedTechs = [...technologies].sort((a, b) => (b.canVote ? 1 : 0) - (a.canVote ? 1 : 0));
     const sortedInvs  = [...inventions].sort((a, b) => (b.canVote ? 1 : 0) - (a.canVote ? 1 : 0));
 
-    function toggleSelect(type, id, name) {
-        setSelectedVote(prev => prev?.id === id ? null : { type, id, name });
-    }
+    const hasAnyPendingVote = (selectedTech && !hasVotedTech) || (selectedInv && !hasVotedInv);
 
     async function handleVote() {
-        if (!selectedVote) return;
-        const voteData = selectedVote.type === 'technology'
-            ? { technology_id: selectedVote.id }
-            : { invention_id: selectedVote.id };
-        await vote(voteData, selectedVote.name);
-        setSelectedVote(null);
+        if (!hasAnyPendingVote || isVoting) return;
+        setIsVoting(true);
+        try {
+            if (selectedTech && !hasVotedTech) {
+                await vote({ technology_id: selectedTech.id }, selectedTech.name);
+                setSelectedTech(null);
+            }
+            if (selectedInv && !hasVotedInv) {
+                await vote({ invention_id: selectedInv.id }, selectedInv.name);
+                setSelectedInv(null);
+            }
+        } finally {
+            setIsVoting(false);
+        }
     }
 
     return (
@@ -162,7 +174,6 @@ function VotingPanel({ gameId }) {
                             gap:             '8px',
                             padding:         '8px 10px',
                             backgroundColor: '#f0f7f4',
-                            borderLeft:      '3px solid #458B74',
                         }}>
                             <img
                                 src={new URL('../../assets/icons/utils/Time-Rest-Time-1--Streamline-Ultimate.png', import.meta.url).href}
@@ -225,58 +236,49 @@ function VotingPanel({ gameId }) {
                     )
                 )}
 
-                {/* Fila 3: acciones restantes */}
+                {/* Fila 3: acciones restantes + votar */}
                 <div style={{
+                    display:       'flex',
+                    alignItems:    'center',
+                    justifyContent:'space-between',
                     padding:       '4px 12px 8px',
-                    fontSize:      '10px',
-                    fontWeight:    'bold',
-                    color:         'rgba(0,0,0,0.8)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
+                    borderBottom:  '3px solid #C1CDC1',
                 }}>
-                    Acciones restantes: {Math.max(0, 2 - userActions)}/2
-                </div>
-
-                {/* Fila 4: Votar */}
-                <div style={{
-                    padding:      '8px 10px',
-                    borderTop:    '1px solid #e8e8e8',
-                    borderBottom: '3px solid #C1CDC1',
-                    display:      'flex',
-                    alignItems:   'center',
-                    gap:          '8px',
-                }}>
-                    {selectedVote && (
-                        <span style={{
-                            flex:         1,
-                            fontSize:     '11px',
-                            fontWeight:   'bold',
-                            color:        'rgba(0,0,0,0.75)',
-                            overflow:     'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace:   'nowrap',
-                        }}>
-                            {selectedVote.name}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '10px', fontWeight: 'bold', color: 'rgba(0,0,0,0.8)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            Acciones restantes: {Math.max(0, 2 - userActions)}/2
                         </span>
+                        {hasVotedTech && (
+                            <span style={{ fontSize: '9px', color: '#2e7d5a', fontWeight: 'bold', backgroundColor: '#e8f5e9', padding: '1px 5px', border: '1px solid #b2dfdb' }}>
+                                ✓ Tec
+                            </span>
+                        )}
+                        {hasVotedInv && (
+                            <span style={{ fontSize: '9px', color: '#2e7d5a', fontWeight: 'bold', backgroundColor: '#e8f5e9', padding: '1px 5px', border: '1px solid #b2dfdb' }}>
+                                ✓ Inv
+                            </span>
+                        )}
+                    </div>
+                    {!(hasVotedTech && hasVotedInv) && (
+                        <button
+                            onClick={handleVote}
+                            disabled={!hasAnyPendingVote || isVoting}
+                            style={{
+                                padding:         '4px 12px',
+                                backgroundColor: hasAnyPendingVote && !isVoting ? '#458B74' : '#c0c0c0',
+                                color:           '#fff',
+                                border:          'none',
+                                fontWeight:      'bold',
+                                fontSize:        '10px',
+                                textTransform:   'uppercase',
+                                letterSpacing:   '0.06em',
+                                cursor:          hasAnyPendingVote && !isVoting ? 'pointer' : 'default',
+                                flexShrink:      0,
+                            }}
+                        >
+                            {isVoting ? 'Votando…' : 'Votar'}
+                        </button>
                     )}
-                    <button
-                        onClick={handleVote}
-                        disabled={!selectedVote || hasVoted}
-                        style={{
-                            marginLeft:      selectedVote ? 0 : 'auto',
-                            padding:         '6px 16px',
-                            backgroundColor: selectedVote && !hasVoted ? '#458B74' : '#a0a0a0',
-                            color:           '#fff',
-                            border:          'none',
-                            fontWeight:      'bold',
-                            fontSize:        '11px',
-                            textTransform:   'uppercase',
-                            letterSpacing:   '0.06em',
-                            cursor:          selectedVote && !hasVoted ? 'pointer' : 'default',
-                        }}
-                    >
-                        Votar
-                    </button>
                 </div>
             </div>
 
@@ -301,8 +303,8 @@ function VotingPanel({ gameId }) {
             {/* ── Lista scrollable ── */}
             <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#C1CDC1' }}>
 
-            {/* Resultado de la jornada anterior: empate resuelto al azar */}
-            {lastRoundResult?.no_consensus && (
+            {/* Resultados de la jornada anterior: empates resueltos al azar */}
+            {lastRoundResult?.no_consensus_inv && (
                 <div style={{
                     padding:         '8px 10px',
                     backgroundColor: '#fff3e0',
@@ -314,24 +316,22 @@ function VotingPanel({ gameId }) {
                     textTransform:   'uppercase',
                     letterSpacing:   '0.05em',
                 }}>
-                    Sin consenso — se construyó {lastRoundResult.built_name} al azar
+                    Sin consenso — se construyó el invento {lastRoundResult.built_inv_name} al azar
                 </div>
             )}
-
-            {/* Confirmación de voto */}
-            {hasVoted && (
+            {lastRoundResult?.no_consensus_tech && (
                 <div style={{
                     padding:         '8px 10px',
-                    backgroundColor: '#e8f5e9',
-                    borderBottom:    '1px solid #458B74',
-                    borderLeft:      '3px solid #458B74',
+                    backgroundColor: '#fff3e0',
+                    borderBottom:    '1px solid #e6961a',
+                    borderLeft:      '3px solid #e6961a',
                     fontSize:        '10px',
                     fontWeight:      'bold',
-                    color:           '#2e7d5a',
+                    color:           '#b85e00',
                     textTransform:   'uppercase',
                     letterSpacing:   '0.05em',
                 }}>
-                    Voto registrado{votedName ? `: ${votedName}` : ''} — esperando al resto de jugadores
+                    Sin consenso — se investigó la tecnología {lastRoundResult.built_tech_name} al azar
                 </div>
             )}
 
@@ -348,8 +348,8 @@ function VotingPanel({ gameId }) {
                 </div>
             )}
             {techsOpen && sortedTechs.map((tech) => {
-                const canSelect  = tech.canVote && !hasVoted;
-                const isSelected = selectedVote?.id === tech.id;
+                const canSelect  = tech.canVote && !hasVotedTech;
+                const isSelected = selectedTech?.id === tech.id;
                 const subtitle   = tech.canVote ? 'Lista para investigar' : missingSubtitle(tech.missing);
                 return (
                     <div key={tech.id} style={{ display: 'flex', alignItems: 'stretch' }}>
@@ -364,7 +364,7 @@ function VotingPanel({ gameId }) {
                         </div>
                         {canSelect && (
                             <button
-                                onClick={() => toggleSelect('technology', tech.id, tech.name)}
+                                onClick={() => setSelectedTech(prev => prev?.id === tech.id ? null : { id: tech.id, name: tech.name })}
                                 aria-label={isSelected ? `Deseleccionar ${tech.name}` : `Seleccionar ${tech.name} para votar`}
                                 style={{
                                     flexShrink:      0,
@@ -387,29 +387,6 @@ function VotingPanel({ gameId }) {
                     </div>
                 );
             })}
-            {techsOpen && !isLoading && technologies.length > 0 && !hasVoted && (
-                <button
-                    onClick={abstain}
-                    aria-label="Abstenerse: no investigar esta jornada"
-                    style={{
-                        width:           '100%',
-                        padding:         '8px 10px',
-                        textAlign:       'left',
-                        backgroundColor: '#fff',
-                        color:           'rgba(0,0,0,0.35)',
-                        border:          'none',
-                        borderBottom:    '1px dashed #e8e8e8',
-                        cursor:          'pointer',
-                        fontSize:        '10px',
-                        fontStyle:       'italic',
-                        textTransform:   'uppercase',
-                        letterSpacing:   '0.05em',
-                    }}
-                >
-                    Abstenerse — no investigar esta jornada
-                </button>
-            )}
-
             {/* ── Inventos ── */}
             <SectionHeader label="Inventos" isOpen={inventionsOpen} onToggle={() => setInventionsOpen(o => !o)} />
             {inventionsOpen && !isLoading && inventions.length === 0 && (
@@ -418,8 +395,8 @@ function VotingPanel({ gameId }) {
                 </div>
             )}
             {inventionsOpen && sortedInvs.map((inv) => {
-                const canSelect  = inv.canVote && !hasVoted;
-                const isSelected = selectedVote?.id === inv.id;
+                const canSelect  = inv.canVote && !hasVotedInv;
+                const isSelected = selectedInv?.id === inv.id;
                 const iconKey    = inventionNameToKey(inv.name);
                 const subtitle   = missingSubtitle(inv.missing) ?? costsSubtitle(inv.costs) ?? 'Listo para construir';
                 return (
@@ -436,7 +413,7 @@ function VotingPanel({ gameId }) {
                         </div>
                         {canSelect && (
                             <button
-                                onClick={() => toggleSelect('invention', inv.id, inv.name)}
+                                onClick={() => setSelectedInv(prev => prev?.id === inv.id ? null : { id: inv.id, name: inv.name })}
                                 aria-label={isSelected ? `Deseleccionar ${inv.name}` : `Seleccionar ${inv.name} para votar`}
                                 style={{
                                     flexShrink:      0,

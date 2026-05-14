@@ -52,7 +52,9 @@ class CloseRoundService
         $technologyId = $this->repository->getMostVotedTechnologyId($round);
 
         if ($technologyId) {
+            $isTie = $this->repository->hasVoteTieForTechnology($round);
             $this->repository->activateTechnology($game, $technologyId);
+            $this->repository->markRoundTechResult($round, $technologyId, $isTie);
         }
     }
 
