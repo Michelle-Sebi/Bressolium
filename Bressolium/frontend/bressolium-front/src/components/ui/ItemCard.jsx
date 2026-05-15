@@ -67,7 +67,7 @@ function ItemCard({ iconSrc, iconBgColor = '#a0a0a0', name, subtitle, quantity, 
             {/* Texto */}
             <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 'bold', fontSize: '12px', color: 'rgba(0,0,0,0.85)', lineHeight: 1.3 }}>
-                    {name}
+                    {name.replace(/-/g, ' ')}
                 </div>
                 {subtitle && (
                     <div style={{ fontSize: '10px', color: 'rgba(0,0,0,0.45)', marginTop: '2px', lineHeight: 1.3 }}>
