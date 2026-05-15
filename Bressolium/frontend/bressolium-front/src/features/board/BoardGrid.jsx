@@ -33,15 +33,15 @@ const MATERIAL_LABELS = {
     'pieles':              'Pieles',
     'latex':               'Látex',
     'resinas-inflamables': 'Resinas',
-    'mat-aisl-nat':        'Mat. Aislante',
+    'materiales-aislantes':        'Mat. Aislante',
     'silex':               'Sílex',
     'granito':             'Granito',
     'obsidiana':           'Obsidiana',
     'arena-de-silice':     'Arena Sílice',
     'arena-de-cuarzo':     'Arena Cuarzo',
-    'cristales-nat':       'Cristales',
+    'cristales-naturales':       'Cristales',
     'silicio':             'Silicio',
-    'min-semi':            'Min. Semicon.',
+    'minerales-semiconductores':            'Min. Semicon.',
     'agua':                'Agua',
     'cana-comun':          'Caña',
     'tierras-fertiles':    'T. Fértiles',
@@ -56,7 +56,7 @@ const MATERIAL_LABELS = {
     'estano':              'Estaño',
     'grafito':             'Grafito',
     'oro':                 'Oro',
-    'mat-mag-nat':         'Mat. Magnético',
+    'materiales-magneticos':         'Mat. Magnético',
 };
 
 /** Materiales que produce cada casilla por ronda según su nivel actual */
@@ -66,14 +66,14 @@ const PRODUCTION_DATA = {
         2: [{ m: 'roble', q: 8 }, { m: 'pino', q: 8 }],
         3: [{ m: 'roble', q: 8 }, { m: 'pino', q: 8 }, { m: 'carbon-natural', q: 8 }],
         4: [{ m: 'roble', q: 9 }, { m: 'pino', q: 9 }, { m: 'carbon-natural', q: 9 }, { m: 'pieles', q: 9 }],
-        5: [{ m: 'latex', q: 8 }, { m: 'resinas-inflamables', q: 8 }, { m: 'mat-aisl-nat', q: 4 }],
+        5: [{ m: 'latex', q: 8 }, { m: 'resinas-inflamables', q: 8 }, { m: 'materiales-aislantes', q: 4 }],
     },
     cantera: {
         1: [{ m: 'silex', q: 5 }],
         2: [{ m: 'silex', q: 8 }, { m: 'granito', q: 8 }],
         3: [{ m: 'silex', q: 8 }, { m: 'granito', q: 8 }, { m: 'obsidiana', q: 8 }],
         4: [{ m: 'silex', q: 9 }, { m: 'granito', q: 9 }, { m: 'obsidiana', q: 9 }],
-        5: [{ m: 'arena-de-silice', q: 8 }, { m: 'arena-de-cuarzo', q: 8 }, { m: 'cristales-nat', q: 8 }, { m: 'silicio', q: 10 }, { m: 'min-semi', q: 8 }],
+        5: [{ m: 'arena-de-silice', q: 8 }, { m: 'arena-de-cuarzo', q: 8 }, { m: 'cristales-naturales', q: 8 }, { m: 'silicio', q: 10 }, { m: 'minerales-semiconductores', q: 8 }],
     },
     rio: {
         1: [{ m: 'agua', q: 5 }],
@@ -94,7 +94,7 @@ const PRODUCTION_DATA = {
         2: [{ m: 'cobre', q: 8 }, { m: 'hierro', q: 8 }],
         3: [{ m: 'cobre', q: 10 }, { m: 'hierro', q: 10 }, { m: 'estano', q: 10 }],
         4: [{ m: 'cobre', q: 12 }, { m: 'hierro', q: 12 }, { m: 'estano', q: 12 }, { m: 'grafito', q: 12 }],
-        5: [{ m: 'oro', q: 8 }, { m: 'mat-mag-nat', q: 8 }],
+        5: [{ m: 'oro', q: 8 }, { m: 'materiales-magneticos', q: 8 }],
     },
 };
 

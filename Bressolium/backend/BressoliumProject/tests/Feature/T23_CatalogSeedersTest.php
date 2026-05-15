@@ -46,7 +46,7 @@ test('ResourcesSeeder carga los recursos avanzados de nivel 5 con tier correcto'
     // Bosque Nv5
     $this->assertDatabaseHas('materials', ['name' => 'latex',               'group' => 'bosque', 'tier' => 2]);
     $this->assertDatabaseHas('materials', ['name' => 'resinas-inflamables', 'group' => 'bosque', 'tier' => 2]);
-    $this->assertDatabaseHas('materials', ['name' => 'mat-aisl-nat',        'group' => 'bosque', 'tier' => 2]);
+    $this->assertDatabaseHas('materials', ['name' => 'materiales-aislantes',        'group' => 'bosque', 'tier' => 2]);
 
     // Cantera Nv5
     $this->assertDatabaseHas('materials', ['name' => 'silicio',         'group' => 'cantera', 'tier' => 2]);
@@ -58,7 +58,7 @@ test('ResourcesSeeder carga los recursos avanzados de nivel 5 con tier correcto'
 
     // Mina Nv5
     $this->assertDatabaseHas('materials', ['name' => 'oro',         'group' => 'mina', 'tier' => 2]);
-    $this->assertDatabaseHas('materials', ['name' => 'mat-mag-nat', 'group' => 'mina', 'tier' => 2]);
+    $this->assertDatabaseHas('materials', ['name' => 'materiales-magneticos', 'group' => 'mina', 'tier' => 2]);
 });
 
 test('ResourcesSeeder no incluye recursos eliminados del diseño', function () {

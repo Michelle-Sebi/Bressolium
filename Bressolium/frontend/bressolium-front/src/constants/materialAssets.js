@@ -8,7 +8,7 @@ export const MATERIAL_COLORS = {
     'pieles':              PALETTE.marron5,
     'latex':               PALETTE.amarillo1,
     'resinas-inflamables': PALETTE.rojo3,
-    'mat-aisl-nat':        PALETTE.marron3,
+    'materiales-aislantes':        PALETTE.marron3,
 
     // Cantera
     'silex':               PALETTE.teal2,
@@ -16,9 +16,9 @@ export const MATERIAL_COLORS = {
     'obsidiana':           PALETTE.gris1,
     'arena-de-silice':     PALETTE.marron2,
     'arena-de-cuarzo':     PALETTE.teal2,
-    'cristales-nat':       PALETTE.azul1,
+    'cristales-naturales':       PALETTE.azul1,
     'silicio':             PALETTE.verde1,
-    'min-semi':            PALETTE.rojo1,
+    'minerales-semiconductores':            PALETTE.rojo1,
 
     // Río
     'agua':                PALETTE.azul5,
@@ -39,7 +39,7 @@ export const MATERIAL_COLORS = {
     'estano':              PALETTE.gris1,
     'grafito':             PALETTE.gris1,
     'oro':                 PALETTE.amarillo5,
-    'mat-mag-nat':         PALETTE.rojo4,
+    'materiales-magneticos':         PALETTE.rojo4,
 };
 
 export const MATERIAL_ICON_MAP = {
@@ -49,15 +49,15 @@ export const MATERIAL_ICON_MAP = {
     'pieles':              new URL('../assets/icons/materials/pieles.png',                    import.meta.url).href,
     'latex':               new URL('../assets/icons/materials/latex.png',                     import.meta.url).href,
     'resinas-inflamables': new URL('../assets/icons/materials/resinas-inflamables.png',       import.meta.url).href,
-    'mat-aisl-nat':        new URL('../assets/icons/materials/materiales-aislantes.png',      import.meta.url).href,
+    'materiales-aislantes':        new URL('../assets/icons/materials/materiales-aislantes.png',      import.meta.url).href,
     'silex':               new URL('../assets/icons/materials/silex.png',                     import.meta.url).href,
     'granito':             new URL('../assets/icons/materials/granito.png',                   import.meta.url).href,
     'obsidiana':           new URL('../assets/icons/materials/obsidiana.png',                 import.meta.url).href,
     'arena-de-silice':     new URL('../assets/icons/materials/arena-silice.png',              import.meta.url).href,
     'arena-de-cuarzo':     new URL('../assets/icons/materials/arena-cuarzo.png',              import.meta.url).href,
-    'cristales-nat':       new URL('../assets/icons/materials/cristales-naturales.png',       import.meta.url).href,
+    'cristales-naturales':       new URL('../assets/icons/materials/cristales-naturalesurales.png',       import.meta.url).href,
     'silicio':             new URL('../assets/icons/materials/silicio.png',                   import.meta.url).href,
-    'min-semi':            new URL('../assets/icons/materials/minerales-semiconductores.png', import.meta.url).href,
+    'minerales-semiconductores':            new URL('../assets/icons/materials/minerales-semiconductores.png', import.meta.url).href,
     'agua':                new URL('../assets/icons/materials/agua.png',                      import.meta.url).href,
     'cana-comun':          new URL('../assets/icons/materials/cana.png',                      import.meta.url).href,
     'tierras-fertiles':    new URL('../assets/icons/materials/tierras-fertiles.png',          import.meta.url).href,
@@ -72,5 +72,5 @@ export const MATERIAL_ICON_MAP = {
     'estano':              new URL('../assets/icons/materials/estaño.png',                    import.meta.url).href,
     'grafito':             new URL('../assets/icons/materials/grafito.png',                   import.meta.url).href,
     'oro':                 new URL('../assets/icons/materials/oro.png',                       import.meta.url).href,
-    'mat-mag-nat':         new URL('../assets/icons/materials/materiales-magenticos.png',     import.meta.url).href,
+    'materiales-magneticos':         new URL('../assets/icons/materials/materiales-magenticos.png',     import.meta.url).href,
 };

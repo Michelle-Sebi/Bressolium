@@ -17,7 +17,7 @@ class ResourcesSeeder extends Seeder
             ['name' => 'pieles',              'tier' => 3, 'group' => 'bosque'], // Nv4
             ['name' => 'latex',               'tier' => 4, 'group' => 'bosque'], // Nv5
             ['name' => 'resinas-inflamables', 'tier' => 4, 'group' => 'bosque'], // Nv5
-            ['name' => 'mat-aisl-nat',        'tier' => 4, 'group' => 'bosque'], // Nv5
+            ['name' => 'materiales-aislantes',        'tier' => 4, 'group' => 'bosque'], // Nv5
 
             // Cantera
             ['name' => 'silex',           'tier' => 0, 'group' => 'cantera'], // Nv1
@@ -25,9 +25,9 @@ class ResourcesSeeder extends Seeder
             ['name' => 'obsidiana',       'tier' => 2, 'group' => 'cantera'], // Nv3
             ['name' => 'arena-de-silice', 'tier' => 4, 'group' => 'cantera'], // Nv5
             ['name' => 'arena-de-cuarzo', 'tier' => 4, 'group' => 'cantera'], // Nv5
-            ['name' => 'cristales-nat',   'tier' => 4, 'group' => 'cantera'], // Nv5
+            ['name' => 'cristales-naturales',   'tier' => 4, 'group' => 'cantera'], // Nv5
             ['name' => 'silicio',         'tier' => 4, 'group' => 'cantera'], // Nv5
-            ['name' => 'min-semi',        'tier' => 4, 'group' => 'cantera'], // Nv5
+            ['name' => 'minerales-semiconductores',        'tier' => 4, 'group' => 'cantera'], // Nv5
 
             // Río
             ['name' => 'agua',             'tier' => 0, 'group' => 'rio'], // Nv1
@@ -48,7 +48,7 @@ class ResourcesSeeder extends Seeder
             ['name' => 'estano',      'tier' => 2, 'group' => 'mina'], // Nv3
             ['name' => 'grafito',     'tier' => 3, 'group' => 'mina'], // Nv4
             ['name' => 'oro',         'tier' => 4, 'group' => 'mina'], // Nv5
-            ['name' => 'mat-mag-nat', 'tier' => 4, 'group' => 'mina'], // Nv5
+            ['name' => 'materiales-magneticos', 'tier' => 4, 'group' => 'mina'], // Nv5
         ];
 
         foreach ($materials as $data) {

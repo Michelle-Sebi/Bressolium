@@ -55,7 +55,7 @@ class TileLevelResourcesSeeder extends Seeder
         $attach($tileTypes['bosque'][4], 'pieles', 9);
         $attach($tileTypes['bosque'][5], 'latex', 8);
         $attach($tileTypes['bosque'][5], 'resinas-inflamables', 8);
-        $attach($tileTypes['bosque'][5], 'mat-aisl-nat', 4);
+        $attach($tileTypes['bosque'][5], 'materiales-aislantes', 4);
 
         // ── CANTERA ──────────────────────────────────────────────────
         $attach($tileTypes['cantera'][1], 'silex', 5);
@@ -69,9 +69,9 @@ class TileLevelResourcesSeeder extends Seeder
         $attach($tileTypes['cantera'][4], 'obsidiana', 9);
         $attach($tileTypes['cantera'][5], 'arena-de-silice', 8);
         $attach($tileTypes['cantera'][5], 'arena-de-cuarzo', 8);
-        $attach($tileTypes['cantera'][5], 'cristales-nat', 8);
+        $attach($tileTypes['cantera'][5], 'cristales-naturales', 8);
         $attach($tileTypes['cantera'][5], 'silicio', 10);
-        $attach($tileTypes['cantera'][5], 'min-semi', 8);
+        $attach($tileTypes['cantera'][5], 'minerales-semiconductores', 8);
 
         // ── RÍO ──────────────────────────────────────────────────────
         $attach($tileTypes['rio'][1], 'agua', 5);
@@ -112,6 +112,6 @@ class TileLevelResourcesSeeder extends Seeder
         $attach($tileTypes['mina'][4], 'estano', 12);
         $attach($tileTypes['mina'][4], 'grafito', 12);
         $attach($tileTypes['mina'][5], 'oro', 8);
-        $attach($tileTypes['mina'][5], 'mat-mag-nat', 8);
+        $attach($tileTypes['mina'][5], 'materiales-magneticos', 8);
     }
 }
