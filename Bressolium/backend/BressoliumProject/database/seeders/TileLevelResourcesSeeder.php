@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Material;
+use App\Models\Technology;
 use App\Models\TileType;
 use Illuminate\Database\Seeder;
 
@@ -31,14 +32,16 @@ class TileLevelResourcesSeeder extends Seeder
             }
         }
 
-        // Helper para adjuntar material a un tile_type (solo producción, sin requisitos de tecnología)
-        $attach = function (TileType $tile, string $matName, int $qty) {
+        $techAgricultura = Technology::firstOrCreate(['name' => 'Agricultura']);
+
+        // Helper para adjuntar material a un tile_type con requisitos opcionales
+        $attach = function (TileType $tile, string $matName, int $qty, ?string $techId = null) {
             $material = Material::where('name', $matName)->first();
             if (! $material) {
                 return;
             }
             $tile->materials()->syncWithoutDetaching([
-                $material->id => ['quantity' => $qty],
+                $material->id => ['quantity' => $qty, 'tech_required' => $techId],
             ]);
         };
 
@@ -80,9 +83,9 @@ class TileLevelResourcesSeeder extends Seeder
         $attach($tileTypes['rio'][3], 'agua', 8);
         $attach($tileTypes['rio'][3], 'cana-comun', 8);
         $attach($tileTypes['rio'][3], 'tierras-fertiles', 8);
-        $attach($tileTypes['rio'][4], 'agua', 9);
-        $attach($tileTypes['rio'][4], 'cana-comun', 9);
-        $attach($tileTypes['rio'][4], 'tierras-fertiles', 9);
+        $attach($tileTypes['rio'][4], 'agua', 9, $techAgricultura->id);
+        $attach($tileTypes['rio'][4], 'cana-comun', 9, $techAgricultura->id);
+        $attach($tileTypes['rio'][4], 'tierras-fertiles', 9, $techAgricultura->id);
         $attach($tileTypes['rio'][5], 'hidrogeno', 10);
         $attach($tileTypes['rio'][5], 'gases-naturales', 8);
 

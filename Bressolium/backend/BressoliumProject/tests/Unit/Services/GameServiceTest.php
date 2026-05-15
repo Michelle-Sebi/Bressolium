@@ -61,6 +61,7 @@ function mockRoundWithUsers(): MockInterface
 
     $round = Mockery::mock(Round::class);
     $round->shouldReceive('users')->andReturn($rel);
+    $round->shouldReceive('getAttribute')->with('id')->andReturn('round-uuid');
 
     return $round;
 }

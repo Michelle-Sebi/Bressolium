@@ -36,11 +36,13 @@ function createMockTiles({ exploredCount = 0, otherPlayerTiles = [] } = {}) {
         for (let y = 0; y < 15; y++) {
             const id = `tile-${x}-${y}`;
             const isOtherPlayer = otherPlayerTiles.includes(id);
+            const isExplored = idx < exploredCount;
             tiles.push({
                 id,
                 coord_x: x,
                 coord_y: y,
-                explored: idx < exploredCount,
+                explored: isExplored,
+                explored_by_player_id: isExplored ? CURRENT_USER_ID : undefined,
                 assigned_player: isOtherPlayer ? OTHER_USER_ID : CURRENT_USER_ID,
                 type: { base_type: 'bosque', level: 1, name: 'Bosque Nv1' },
             });
@@ -188,9 +190,16 @@ describe('HU 2.2 — Niebla de guerra y visibilidad de casillas', () => {
 describe('HU 2.6 — Acciones sobre casillas', () => {
 
     it('click en casilla propia NO explorada llama a exploreTile con el id de la casilla', () => {
-        mockReduxState({ tiles: createMockTiles({ exploredCount: 0 }) });
+        // Simula el estado inicial: una casilla de arranque explorada adyacente a tile-0-0
+        const tiles = createMockTiles({ exploredCount: 0 });
+        const startTile = tiles.find(t => t.coord_x === 0 && t.coord_y === 1);
+        startTile.explored = true;
+        startTile.explored_by_player_id = CURRENT_USER_ID;
+
+        mockReduxState({ tiles });
         renderComponent();
 
+        // tile-0-0 es adyacente a tile-0-1 → debe ser explorable
         const unexploredOwnTile = screen.getByTestId('tile-0-0');
         fireEvent.click(unexploredOwnTile);
 
@@ -271,9 +280,9 @@ function createMockMaterials({ activeCount = 0 } = {}) {
     }));
 }
 
-function mockInventoryState({ materials = [], inventions = [], isLoading = false } = {}) {
+function mockInventoryState({ materials = [], inventions = [], technologies = [], isLoading = false } = {}) {
     useGames.mockReturnValue({ currentGame: { id: GAME_ID, name: 'Expedición Test' } });
-    useInventory.mockReturnValue({ materials, inventions, isLoading });
+    useInventory.mockReturnValue({ materials, inventions, technologies, isLoading });
 }
 
 const renderInventoryPanel = () =>

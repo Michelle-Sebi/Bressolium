@@ -35,7 +35,7 @@ function mockTileObj(string $gameId = 'game-1', bool $explored = false): MockInt
     $tile = Mockery::mock(Tile::class);
     $tile->shouldReceive('getAttribute')->with('game_id')->andReturn($gameId);
     $tile->shouldReceive('getAttribute')->with('explored')->andReturn($explored);
-    $tile->shouldReceive('getAttribute')->with('type')->andReturn(null);
+    $tile->shouldReceive('getAttribute')->with('type')->andReturn(Mockery::mock(TileType::class));
     $tile->shouldReceive('refresh')->andReturnSelf();
     $tile->shouldReceive('load')->andReturnSelf();
 
@@ -47,6 +47,7 @@ function makeAction($tileRepo, $cache = null): ActionService
     if ($cache === null) {
         $cache = Mockery::mock(CacheService::class);
         $cache->shouldReceive('invalidateBoard')->andReturn(null);
+        $cache->shouldReceive('invalidateSync')->andReturn(null);
     }
 
     return new ActionService($tileRepo, $cache);
@@ -284,6 +285,7 @@ test('explore: invalida la caché del tablero con el game_id correcto en el cami
 
     $cache = Mockery::mock(CacheService::class);
     $cache->shouldReceive('invalidateBoard')->with('game-cache-test')->once();
+    $cache->shouldReceive('invalidateSync')->with('game-cache-test', 'user-1')->once();
 
     makeAction($repo, $cache)->explore($dto);
 });
@@ -330,6 +332,7 @@ test('upgrade: invalida la caché del tablero con el game_id correcto en el cami
 
     $cache = Mockery::mock(CacheService::class);
     $cache->shouldReceive('invalidateBoard')->with($game->id)->once();
+    $cache->shouldReceive('invalidateSync')->with($game->id, 'user-1')->once();
 
     makeAction($repo, $cache)->upgrade($dto);
 });

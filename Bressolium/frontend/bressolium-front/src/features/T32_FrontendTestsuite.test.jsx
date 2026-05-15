@@ -22,6 +22,7 @@ vi.mock('../services/authService', () => ({
         register: vi.fn(),
         logout:   vi.fn(),
         getToken: vi.fn(() => null),
+        getUser:  vi.fn(() => null),
     },
 }));
 
@@ -457,7 +458,7 @@ describe('Dashboard — tests de componente', () => {
 
     it('renderiza el botón de crear equipo nuevo', () => {
         renderDashboard();
-        expect(screen.getByRole('button', { name: /crear equipo nuevo/i })).toBeTruthy();
+        expect(screen.getByRole('button', { name: /crear expedición/i })).toBeTruthy();
     });
 
     it('renderiza el botón de asignación aleatoria', () => {
@@ -467,7 +468,7 @@ describe('Dashboard — tests de componente', () => {
 
     it('renderiza el input de búsqueda de equipos', () => {
         renderDashboard();
-        expect(screen.getByPlaceholderText(/buscar equipo/i)).toBeTruthy();
+        expect(screen.getByPlaceholderText(/buscar expedición/i)).toBeTruthy();
     });
 
     it('muestra las partidas cuando fetchMyGamesThunk devuelve datos', async () => {
@@ -496,7 +497,7 @@ describe('Dashboard — tests de componente', () => {
             expect(screen.getByText(/equipo alpha/i)).toBeTruthy();
         });
 
-        fireEvent.change(screen.getByPlaceholderText(/buscar equipo/i), {
+        fireEvent.change(screen.getByPlaceholderText(/buscar expedición/i), {
             target: { value: 'Alpha' },
         });
 
