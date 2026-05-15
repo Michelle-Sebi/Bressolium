@@ -107,15 +107,15 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col lg:flex-row font-sans overflow-hidden">
-      
+    <div className="flex-1 flex flex-col md:flex-row font-sans overflow-y-auto md:overflow-hidden">
+
       {/* SECCIÓN IZQUIERDA: LOBBY (UNIRSE) */}
-      <div className="w-full lg:w-1/2 bg-bgray p-8 lg:p-16 flex flex-col overflow-y-auto">
-        <h1 className="text-4xl lg:text-5xl font-black text-white mb-12 tracking-tighter">
+      <div className="w-full md:w-1/2 bg-bgray p-6 md:p-10 xl:p-16 flex flex-col md:overflow-y-auto">
+        <h1 className="text-2xl md:text-4xl xl:text-5xl font-black text-white mb-8 xl:mb-12 tracking-tighter">
           UNIRSE A LA <br/> TERRAFORMACIÓN
         </h1>
 
-        <div className="space-y-8 max-w-md">
+        <div className="space-y-4 md:space-y-8 max-w-md">
           {/* Unirse Aleatorio */}
           <button 
             onClick={handleJoinRandom}
@@ -133,7 +133,7 @@ const Dashboard = () => {
           </button>
 
           {/* Buscador y Lista */}
-          <div className="mt-12">
+          <div className="mt-6 md:mt-12">
             <input 
               id="search"
               name="search"
@@ -173,8 +173,8 @@ const Dashboard = () => {
       </div>
 
       {/* SECCIÓN DERECHA: MIS PARTIDAS */}
-      <div className="w-full lg:w-1/2 bg-white p-8 lg:p-16 flex flex-col overflow-y-auto">
-        <h2 className="text-3xl lg:text-4xl font-black text-bdark mb-12 tracking-tighter border-b-8 border-bgray pb-4 inline-block">
+      <div className="w-full md:w-1/2 bg-white p-6 md:p-10 xl:p-16 flex flex-col md:overflow-y-auto">
+        <h2 className="text-xl md:text-3xl xl:text-4xl font-black text-bdark mb-8 xl:mb-12 tracking-tighter border-b-8 border-bgray pb-4 inline-block">
           MIS EXPEDICIONES <br/> ACTIVAS
         </h2>
 
@@ -190,38 +190,38 @@ const Dashboard = () => {
                   aria-label={`Ir a la partida ${game.name}, estado ${game.status}`}
                   className="group cursor-pointer p-6 hover:bg-bbrown transition-all"
                 >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <span className="block text-2xl font-black text-white transition-colors">
+                  <div className="flex flex-wrap justify-between items-center gap-2">
+                    <div className="min-w-0">
+                      <span className="block text-lg md:text-2xl font-black text-white transition-colors truncate">
                         {game.name.toUpperCase()}
                       </span>
                       <span className="text-xs font-bold text-bgreen group-hover:text-bgray uppercase">
                         {{ WAITING: 'ESPERANDO JUGADORES', COMPLETA: 'COMPLETA' }[game.status] ?? game.status}
                       </span>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 shrink-0">
                       <button
                         onClick={(e) => { e.stopPropagation(); setExpandedPlayersId(expandedPlayersId === game.id ? null : game.id); }}
                         onKeyDown={(e) => e.stopPropagation()}
-                        className="text-xs font-black uppercase px-3 py-1 border-2 border-white text-white hover:bg-white hover:text-bdark transition-colors"
+                        className="text-xs font-black uppercase px-2 py-1 border-2 border-white text-white hover:bg-white hover:text-bdark transition-colors"
                         aria-label={`Ver jugadores de ${game.name}`}
                       >
-                        {game.users_count ?? 0}/5 PIONEROS
+                        {game.users_count ?? 0}/5
                       </button>
                       <button
                         onClick={(e) => handleLeave(e, game.id)}
                         onKeyDown={(e) => e.stopPropagation()}
-                        className={`text-xs font-black uppercase px-3 py-1 border-2 transition-colors ${
+                        className={`text-xs font-black uppercase px-2 py-1 border-2 transition-colors ${
                           confirmingLeaveId === game.id
                             ? 'border-bred text-bred hover:bg-bred hover:text-white'
                             : 'border-white text-white hover:bg-bred hover:border-bred hover:text-white'
                         }`}
                         aria-label={confirmingLeaveId === game.id ? 'Confirmar abandono' : `Abandonar ${game.name}`}
                       >
-                        {confirmingLeaveId === game.id ? '¿SEGURO?' : 'ABANDONAR'}
+                        {confirmingLeaveId === game.id ? '¿SEGURO?' : 'SALIR'}
                       </button>
                       <div className="text-white">
-                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>
                       </div>
