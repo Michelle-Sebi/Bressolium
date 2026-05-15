@@ -32,7 +32,7 @@ test('ResourcesSeeder carga al menos los recursos definidos en casillas.md', fun
     foreach (['roble', 'pino', 'carbon-natural', 'pieles'] as $name) {
         $this->assertDatabaseHas('materials', ['name' => $name, 'group' => 'bosque', 'tier' => 0]);
     }
-    foreach (['latex', 'resinas-inflamables', 'mat-aisl-nat'] as $name) {
+    foreach (['latex', 'resinas-inflamables', 'materiales-aislantes'] as $name) {
         $this->assertDatabaseHas('materials', ['name' => $name, 'group' => 'bosque', 'tier' => 2]);
     }
 
@@ -40,7 +40,7 @@ test('ResourcesSeeder carga al menos los recursos definidos en casillas.md', fun
     foreach (['silex', 'granito', 'obsidiana'] as $name) {
         $this->assertDatabaseHas('materials', ['name' => $name, 'group' => 'cantera', 'tier' => 0]);
     }
-    foreach (['arena-de-silice', 'arena-de-cuarzo', 'cristales-nat', 'silicio', 'min-semi'] as $name) {
+    foreach (['arena-de-silice', 'arena-de-cuarzo', 'cristales-naturales', 'silicio', 'minerales-semiconductores'] as $name) {
         $this->assertDatabaseHas('materials', ['name' => $name, 'group' => 'cantera', 'tier' => 2]);
     }
 
@@ -61,7 +61,7 @@ test('ResourcesSeeder carga al menos los recursos definidos en casillas.md', fun
     foreach (['cobre', 'hierro', 'estano', 'grafito'] as $name) {
         $this->assertDatabaseHas('materials', ['name' => $name, 'group' => 'mina', 'tier' => 0]);
     }
-    foreach (['oro', 'mat-mag-nat'] as $name) {
+    foreach (['oro', 'materiales-magneticos'] as $name) {
         $this->assertDatabaseHas('materials', ['name' => $name, 'group' => 'mina', 'tier' => 2]);
     }
 });
