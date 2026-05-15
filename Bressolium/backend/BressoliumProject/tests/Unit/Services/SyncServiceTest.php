@@ -19,6 +19,11 @@ function mockSyncGame(string $id = 'game-1'): Game
 {
     $game = Mockery::mock(Game::class);
     $game->shouldReceive('getAttribute')->with('id')->andReturn($id);
+    $game->shouldReceive('getAttribute')->with('status')->andReturn('ACTIVE');
+
+    $usersRelation = Mockery::mock(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class);
+    $usersRelation->shouldReceive('count')->andReturn(1);
+    $game->shouldReceive('users')->andReturn($usersRelation);
 
     return $game;
 }
@@ -53,18 +58,25 @@ test('sync: usa rememberSync con el game_id del modelo', function () {
 
 test('sync: no llama al repositorio cuando la caché devuelve el resultado', function () {
     $game = mockSyncGame('game-1');
-    $cachedDto = new \App\DTOs\SyncResponseDTO(
-        currentRound: [],
-        userActions: [],
-        inventory: [],
-        technologies: [],
-        inventions: [],
-    );
+    $cachedArray = [
+        'currentRound'    => [],
+        'userActions'     => ['actions_spent' => 0],
+        'inventory'       => [],
+        'technologies'    => [],
+        'inventions'      => [],
+        'hasVoted'        => false,
+        'hasVotedTech'    => false,
+        'hasVotedInv'     => false,
+        'hasFinished'     => false,
+        'lastRoundResult' => [],
+        'gameStatus'      => 'ACTIVE',
+        'playersCount'    => 1,
+    ];
 
     $cache = Mockery::mock(CacheService::class);
     $cache->shouldReceive('rememberSync')
         ->once()
-        ->andReturn($cachedDto);
+        ->andReturn($cachedArray);
 
     $syncRepo = Mockery::mock(SyncRepositoryInterface::class);
     $syncRepo->shouldReceive('getCurrentRound')->never();
@@ -73,7 +85,8 @@ test('sync: no llama al repositorio cuando la caché devuelve el resultado', fun
     $syncRepo->shouldReceive('getInventions')->never();
 
     $result = makeSyncService($syncRepo, $cache)->sync($game, 'user-1');
-    expect($result)->toBe($cachedDto);
+    expect($result)->toBeInstanceOf(\App\DTOs\SyncResponseDTO::class);
+    expect($result->gameStatus)->toBe('ACTIVE');
 });
 
 test('sync: usa el userId como parte de la clave de caché', function () {

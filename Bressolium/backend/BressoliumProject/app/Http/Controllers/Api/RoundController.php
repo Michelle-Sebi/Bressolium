@@ -71,7 +71,13 @@ class RoundController extends Controller
         $finishedPlayers = $round->users()->wherePivotNotNull('finished_at')->count();
 
         if ($finishedPlayers >= $totalPlayers) {
-            CloseRoundJob::dispatchSync($gameId);
+            try {
+                CloseRoundJob::dispatchSync($gameId);
+            } catch (\Throwable $e) {
+                // Revert finished_at so the player can retry — avoids permanent deadlock
+                $round->users()->updateExistingPivot($userId, ['finished_at' => null]);
+                throw $e;
+            }
             return $this->rb->success(['message' => 'Jornada cerrada correctamente.']);
         }
 

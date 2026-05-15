@@ -26,17 +26,23 @@ class RoundProgressService
             return;
         }
 
-        $actionsSpent = $this->repo->getPlayerActionsSpent($round, $userId);
-        $hasVoted     = $this->repo->hasPlayerVoted($round, $userId);
+        $actionsSpent  = $this->repo->getPlayerActionsSpent($round, $userId);
+        $hasVotedTech  = $this->repo->hasPlayerVotedForTechnology($round, $userId);
+        $hasVotedInv   = $this->repo->hasPlayerVotedForInvention($round, $userId);
 
-        if ($actionsSpent >= 2 && $hasVoted) {
+        if ($actionsSpent >= 2 && $hasVotedTech && $hasVotedInv) {
             $this->repo->setPlayerFinishedAt($round, $userId);
 
             $total    = $game->users()->count();
             $finished = $this->repo->countFinishedPlayers($round);
 
             if ($finished >= $total) {
-                CloseRoundJob::dispatch($gameId);
+                try {
+                    CloseRoundJob::dispatchSync($gameId);
+                } catch (\Throwable $e) {
+                    $this->repo->clearPlayerFinishedAt($round, $userId);
+                    throw $e;
+                }
             }
         }
     }

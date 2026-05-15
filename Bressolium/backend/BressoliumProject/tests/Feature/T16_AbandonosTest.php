@@ -3,6 +3,7 @@
 use App\Events\VoteCast;
 use App\Jobs\CloseRoundJob;
 use App\Models\Game;
+use App\Models\Invention;
 use App\Models\Technology;
 use App\Models\User;
 use App\Repositories\Contracts\CloseRoundRepositoryInterface;
@@ -200,46 +201,52 @@ test('allNonAfkPlayersHaveVoted devuelve false si no ha votado nadie', function 
 // jugadores activos han votado y despacha CloseRoundJob si es así.
 // ==========================================
 
-test('VoteCast cierra la jornada automáticamente cuando todos los jugadores activos han votado', function () {
-    // Ambos usuarios activos, vinculados al round
-    $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 1]);
-    $this->round->users()->attach($this->users[1]->id, ['actions_spent' => 1]);
+test('VoteCast cierra la jornada automáticamente cuando todos los jugadores han hecho 2 acciones y votado tech+inv', function () {
+    $tech = Technology::factory()->create();
+    $inv  = Invention::factory()->create();
 
-    // Ambos votan
-    $this->round->votes()->create(['user_id' => $this->users[0]->id, 'technology_id' => null, 'invention_id' => null]);
-    $this->round->votes()->create(['user_id' => $this->users[1]->id, 'technology_id' => null, 'invention_id' => null]);
+    // Ambos jugadores: 2 acciones + voto de tecnología + voto de invento
+    foreach ($this->users as $user) {
+        $this->round->users()->attach($user->id, ['actions_spent' => 2]);
+        $this->round->votes()->create(['user_id' => $user->id, 'technology_id' => $tech->id, 'invention_id' => null]);
+        $this->round->votes()->create(['user_id' => $user->id, 'technology_id' => null, 'invention_id' => $inv->id]);
+    }
 
-    // Al emitir VoteCast el listener comprueba quórum y cierra la jornada
     VoteCast::dispatch($this->users[1]->id, $this->game->id);
 
     expect($this->game->fresh()->rounds()->count())->toBe(2);
 });
 
-test('VoteCast no cierra la jornada si algún jugador activo no ha votado aún', function () {
-    $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 1]);
-    $this->round->users()->attach($this->users[1]->id, ['actions_spent' => 0]);
+test('VoteCast no cierra la jornada si un jugador solo ha votado tecnología pero no invento', function () {
+    $tech = Technology::factory()->create();
 
-    // Solo users[0] vota; users[1] todavía no
-    $this->round->votes()->create(['user_id' => $this->users[0]->id, 'technology_id' => null, 'invention_id' => null]);
+    // users[0]: 2 acciones + solo voto de tech (falta inv)
+    $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 2]);
+    $this->round->votes()->create(['user_id' => $this->users[0]->id, 'technology_id' => $tech->id, 'invention_id' => null]);
+
+    // users[1]: sin acciones ni voto
+    $this->round->users()->attach($this->users[1]->id, ['actions_spent' => 0]);
 
     VoteCast::dispatch($this->users[0]->id, $this->game->id);
 
-    // La jornada sigue abierta
+    // Falta el voto de invento de users[0] → la jornada sigue abierta
     expect($this->game->fresh()->rounds()->count())->toBe(1);
 });
 
-test('VoteCast cierra la jornada aunque un jugador AFK no haya votado', function () {
-    // users[1] es AFK y no vota
-    $this->game->users()->updateExistingPivot($this->users[1]->id, ['is_afk' => true]);
+test('VoteCast no cierra la jornada si hay un jugador sin terminar aunque otro haya completado todo', function () {
+    $tech = Technology::factory()->create();
+    $inv  = Invention::factory()->create();
 
-    $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 1]);
+    // users[0]: ha hecho todo (2 acciones + tech + inv)
+    $this->round->users()->attach($this->users[0]->id, ['actions_spent' => 2]);
+    $this->round->votes()->create(['user_id' => $this->users[0]->id, 'technology_id' => $tech->id, 'invention_id' => null]);
+    $this->round->votes()->create(['user_id' => $this->users[0]->id, 'technology_id' => null, 'invention_id' => $inv->id]);
+
+    // users[1]: AFK, sin acciones ni votos → bloquea el cierre hasta el timer de 2h
     $this->round->users()->attach($this->users[1]->id, ['actions_spent' => 0]);
-
-    // Solo el jugador activo vota
-    $this->round->votes()->create(['user_id' => $this->users[0]->id, 'technology_id' => null, 'invention_id' => null]);
 
     VoteCast::dispatch($this->users[0]->id, $this->game->id);
 
-    // El quórum se cumple: la jornada cierra sin esperar al AFK
-    expect($this->game->fresh()->rounds()->count())->toBe(2);
+    // users[1] no ha terminado → la jornada no puede cerrarse todavía
+    expect($this->game->fresh()->rounds()->count())->toBe(1);
 });
