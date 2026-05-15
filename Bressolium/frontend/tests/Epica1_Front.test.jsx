@@ -22,6 +22,7 @@ vi.mock('../src/services/authService', () => ({
   default: {
     login: vi.fn(),
     getToken: vi.fn(() => null),
+    getUser: vi.fn(() => null),
   },
 }));
 
@@ -122,7 +123,7 @@ describe('FrontAuth Routing', () => {
                 </Provider>
             );
 
-            const searchInput = await screen.findByPlaceholderText(/buscar equipo/i);
+            const searchInput = await screen.findByPlaceholderText(/buscar expedición/i);
             await user.type(searchInput, 'Beta');
 
             expect(screen.getByText(/Beta Team/i)).toBeDefined();
@@ -140,7 +141,7 @@ describe('FrontAuth Routing', () => {
                 </Provider>
             );
 
-            const createButton = await screen.findByRole('button', { name: /crear equipo/i });
+            const createButton = await screen.findByRole('button', { name: /crear expedición/i });
             await user.click(createButton);
 
             const nameInput = screen.getByLabelText(/nombre del equipo/i);

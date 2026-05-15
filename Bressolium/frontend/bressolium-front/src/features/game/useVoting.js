@@ -46,11 +46,10 @@ export function useVoting(gameId) {
     }, [isWaiting, gameId, refetch]);
 
     const technologies = rawTechs
-        .filter((t) => !t.is_active)
         .map((t) => ({
             id:      t.id,
             name:    t.name,
-            canVote: (t.missing ?? []).length === 0,
+            canVote: !t.is_active && (t.missing ?? []).length === 0,
             missing: t.missing ?? [],
         }));
 

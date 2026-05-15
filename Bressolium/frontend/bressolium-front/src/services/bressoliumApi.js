@@ -53,7 +53,6 @@ export const bressoliumApi = createApi({
                 method: 'POST',
                 data:   body,
             }),
-            invalidatesTags: ['Sync'],
         }),
 
         closeRound: builder.mutation({

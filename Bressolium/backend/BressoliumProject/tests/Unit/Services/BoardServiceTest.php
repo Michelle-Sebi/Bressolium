@@ -39,7 +39,7 @@ test('getBoardForUser: usa rememberBoard con el game_id correcto', function () {
 });
 
 test('getBoardForUser: no llama al repositorio cuando la caché devuelve el resultado', function () {
-    $cachedTiles = collect(['tile-cached']);
+    $cachedTiles = [['id' => 'tile-cached']];
 
     $cache = Mockery::mock(CacheService::class);
     $cache->shouldReceive('rememberBoard')

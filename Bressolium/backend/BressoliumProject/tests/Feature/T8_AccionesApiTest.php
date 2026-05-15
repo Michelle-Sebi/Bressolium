@@ -25,7 +25,7 @@ function makeUpgradeScenario(Game $game, Tile $tile, int $stock = 15): array
     $nextType = TileType::create(['name' => 'Bosque Nv2', 'level' => 2, 'base_type' => 'bosque']);
     $material = Material::create(['name' => 'Roble', 'tier' => 0, 'group' => 'Bosque']);
 
-    $nextType->materials()->attach($material->id, ['quantity' => 10]);
+    $currentType->upgradeCosts()->attach($material->id, ['quantity' => 10]);
     $game->materials()->attach($material->id, ['quantity' => $stock]);
     $tile->update(['tile_type_id' => $currentType->id, 'explored' => true]);
 

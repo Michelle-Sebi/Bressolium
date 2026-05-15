@@ -212,6 +212,8 @@ test('VoteCast cierra la jornada automáticamente cuando todos los jugadores han
         $this->round->votes()->create(['user_id' => $user->id, 'technology_id' => null, 'invention_id' => $inv->id]);
     }
 
+    // Cada jugador envía su último voto → VoteCast se dispara por separado para cada uno
+    VoteCast::dispatch($this->users[0]->id, $this->game->id);
     VoteCast::dispatch($this->users[1]->id, $this->game->id);
 
     expect($this->game->fresh()->rounds()->count())->toBe(2);
