@@ -5,7 +5,6 @@ namespace App\Repositories\Eloquent;
 use App\Models\Game;
 use App\Models\Invention;
 use App\Models\Round;
-use App\Models\Tile;
 use App\Repositories\Contracts\CloseRoundRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 
@@ -21,30 +20,46 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
         return $game->rounds()->orderByDesc('number')->firstOrFail();
     }
 
-    public function getMostVotedTechnologyId(Round $round): ?string
+    public function resolveTechnologyVote(Round $round): ?array
     {
-        $result = DB::table('votes')
+        $rows = DB::table('votes')
             ->where('round_id', $round->id)
             ->whereNotNull('technology_id')
             ->select('technology_id', DB::raw('count(*) as vote_count'))
             ->groupBy('technology_id')
             ->orderByDesc('vote_count')
-            ->first();
+            ->limit(2)
+            ->get();
 
-        return $result?->technology_id;
+        if ($rows->isEmpty()) {
+            return null;
+        }
+
+        return [
+            'id'     => $rows[0]->technology_id,
+            'is_tie' => $rows->count() >= 2 && $rows[0]->vote_count === $rows[1]->vote_count,
+        ];
     }
 
-    public function getMostVotedInventionId(Round $round): ?string
+    public function resolveInventionVote(Round $round): ?array
     {
-        $result = DB::table('votes')
+        $rows = DB::table('votes')
             ->where('round_id', $round->id)
             ->whereNotNull('invention_id')
             ->select('invention_id', DB::raw('count(*) as vote_count'))
             ->groupBy('invention_id')
             ->orderByDesc('vote_count')
-            ->first();
+            ->limit(2)
+            ->get();
 
-        return $result?->invention_id;
+        if ($rows->isEmpty()) {
+            return null;
+        }
+
+        return [
+            'id'     => $rows[0]->invention_id,
+            'is_tie' => $rows->count() >= 2 && $rows[0]->vote_count === $rows[1]->vote_count,
+        ];
     }
 
     public function activateTechnology(Game $game, string $technologyId): void
@@ -62,21 +77,34 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
 
     public function inventionPrerequisitesMet(Game $game, Invention $invention): bool
     {
-        $activeTechIds = $game->technologies()->wherePivot('is_active', true)->pluck('technologies.id');
+        $prereqs = $invention->inventionPrerequisites;
+        if ($prereqs->isEmpty()) {
+            return true;
+        }
 
-        foreach ($invention->inventionPrerequisites as $prerequisite) {
-            if ($prerequisite->prereq_type === 'invention') {
-                $gameInvention = $game->inventions()
-                    ->where('invention_id', $prerequisite->prereq_id)
-                    ->first();
+        $invPrereqIds  = $prereqs->where('prereq_type', 'invention')->pluck('prereq_id');
+        $techPrereqIds = $prereqs->where('prereq_type', 'technology')->pluck('prereq_id');
 
-                $currentQuantity = $gameInvention ? (int) $gameInvention->pivot->quantity : 0;
+        $gameInvMap = $invPrereqIds->isNotEmpty()
+            ? $game->inventions()->whereIn('invention_id', $invPrereqIds)->get()->keyBy('id')
+            : collect();
 
-                if ($currentQuantity < $prerequisite->quantity) {
+        $activeTechIds = $techPrereqIds->isNotEmpty()
+            ? $game->technologies()->wherePivot('is_active', true)
+                ->whereIn('technologies.id', $techPrereqIds)
+                ->pluck('technologies.id')
+            : collect();
+
+        foreach ($prereqs as $prereq) {
+            if ($prereq->prereq_type === 'invention') {
+                $have = $gameInvMap->has($prereq->prereq_id)
+                    ? (int) $gameInvMap[$prereq->prereq_id]->pivot->quantity
+                    : 0;
+                if ($have < $prereq->quantity) {
                     return false;
                 }
-            } elseif ($prerequisite->prereq_type === 'technology') {
-                if (! $activeTechIds->contains($prerequisite->prereq_id)) {
+            } elseif ($prereq->prereq_type === 'technology') {
+                if (! $activeTechIds->contains($prereq->prereq_id)) {
                     return false;
                 }
             }
@@ -87,14 +115,21 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
 
     public function inventionResourcesMet(Game $game, Invention $invention): bool
     {
-        foreach ($invention->inventionCosts as $cost) {
-            $gameMaterial = $game->materials()
-                ->where('material_id', $cost->resource_id)
-                ->first();
+        $costs = $invention->inventionCosts;
+        if ($costs->isEmpty()) {
+            return true;
+        }
 
-            $currentQuantity = $gameMaterial ? (int) $gameMaterial->pivot->quantity : 0;
+        $gameMatMap = $game->materials()
+            ->whereIn('material_id', $costs->pluck('resource_id'))
+            ->get()
+            ->keyBy('id');
 
-            if ($currentQuantity < $cost->quantity) {
+        foreach ($costs as $cost) {
+            $have = $gameMatMap->has($cost->resource_id)
+                ? (int) $gameMatMap[$cost->resource_id]->pivot->quantity
+                : 0;
+            if ($have < $cost->quantity) {
                 return false;
             }
         }
@@ -104,34 +139,23 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
 
     public function buildInvention(Game $game, Invention $invention): void
     {
+        // Deduct costs with direct decrements — no SELECT needed (resources already validated)
         foreach ($invention->inventionCosts as $cost) {
-            $gameMaterial = $game->materials()
+            DB::table('game_material')
+                ->where('game_id', $game->id)
                 ->where('material_id', $cost->resource_id)
-                ->first();
-
-            $currentQuantity = $gameMaterial ? (int) $gameMaterial->pivot->quantity : 0;
-
-            $game->materials()->updateExistingPivot($cost->resource_id, [
-                'quantity' => $currentQuantity - $cost->quantity,
-            ]);
+                ->decrement('quantity', $cost->quantity);
         }
 
-        $existingInvention = $game->inventions()
-            ->where('invention_id', $invention->id)
-            ->first();
+        $existingInvention = $game->inventions()->where('invention_id', $invention->id)->first();
 
         if ($existingInvention) {
-            $currentQuantity = (int) $existingInvention->pivot->quantity;
-
             $game->inventions()->updateExistingPivot($invention->id, [
-                'quantity' => $currentQuantity + 1,
+                'quantity'  => (int) $existingInvention->pivot->quantity + 1,
                 'is_active' => true,
             ]);
         } else {
-            $game->inventions()->attach($invention->id, [
-                'quantity' => 1,
-                'is_active' => true,
-            ]);
+            $game->inventions()->attach($invention->id, ['quantity' => 1, 'is_active' => true]);
         }
     }
 
@@ -142,32 +166,34 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
 
     public function produceMaterialsFromExploredTiles(Game $game): void
     {
-        $exploredTiles = Tile::where('game_id', $game->id)
-            ->where('explored', true)
-            ->with('type.materials')
+        // Single JOIN+GROUP BY to sum total production across all explored tiles
+        $rows = DB::table('tiles')
+            ->join('material_tile_type', 'material_tile_type.tile_type_id', '=', 'tiles.tile_type_id')
+            ->where('tiles.game_id', $game->id)
+            ->where('tiles.explored', true)
+            ->select('material_tile_type.material_id', DB::raw('SUM(material_tile_type.quantity) as total'))
+            ->groupBy('material_tile_type.material_id')
             ->get();
 
-        foreach ($exploredTiles as $tile) {
-            foreach ($tile->type->materials as $material) {
-                $production = (int) $material->pivot->quantity;
-
-                $gameMaterial = $game->materials()
-                    ->where('material_id', $material->id)
-                    ->first();
-
-                if ($gameMaterial) {
-                    $currentQuantity = (int) $gameMaterial->pivot->quantity;
-
-                    $game->materials()->updateExistingPivot($material->id, [
-                        'quantity' => $currentQuantity + $production,
-                    ]);
-                } else {
-                    $game->materials()->attach($material->id, [
-                        'quantity' => $production,
-                    ]);
-                }
-            }
+        if ($rows->isEmpty()) {
+            return;
         }
+
+        // Single upsert: increment existing rows, insert new ones
+        $placeholders = implode(', ', array_fill(0, $rows->count(), '(?, ?, ?)'));
+        $bindings = [];
+        foreach ($rows as $row) {
+            $bindings[] = $game->id;
+            $bindings[] = $row->material_id;
+            $bindings[] = (int) $row->total;
+        }
+
+        DB::statement(
+            "INSERT INTO game_material (game_id, material_id, quantity)
+             VALUES {$placeholders}
+             ON DUPLICATE KEY UPDATE quantity = quantity + VALUES(quantity)",
+            $bindings
+        );
     }
 
     public function createNextRound(Game $game): Round
@@ -182,56 +208,41 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
 
     public function initializePlayersForRound(Round $round, Game $game): void
     {
-        foreach ($game->users as $user) {
-            $round->users()->attach($user->id, ['actions_spent' => 0]);
-            // Cada jornada empieza limpia: el AFK se re-evalúa al cierre, no se arrastra
-            $game->users()->updateExistingPivot($user->id, ['is_afk' => false]);
-        }
+        $now     = now();
+        $userIds = $game->users->pluck('id');
+
+        DB::table('round_user')->insert(
+            $userIds->map(fn ($id) => [
+                'round_id'    => $round->id,
+                'user_id'     => $id,
+                'actions_spent' => 0,
+                'created_at'  => $now,
+                'updated_at'  => $now,
+            ])->toArray()
+        );
+
+        // Each round starts clean — AFK is re-evaluated at close, never carried over
+        DB::table('game_user')
+            ->where('game_id', $game->id)
+            ->whereIn('user_id', $userIds)
+            ->update(['is_afk' => false, 'updated_at' => $now]);
     }
 
     public function markAfkPlayers(Round $round, Game $game): void
     {
-        foreach ($game->users as $user) {
-            $roundUser = $round->users()->where('user_id', $user->id)->first();
-
-            if ($roundUser && (int) $roundUser->pivot->actions_spent === 0) {
-                $game->users()->updateExistingPivot($user->id, ['is_afk' => true]);
-            }
-        }
-    }
-
-    public function hasInventionVoteTie(Round $round): bool
-    {
-        $results = DB::table('votes')
+        $afkUserIds = DB::table('round_user')
             ->where('round_id', $round->id)
-            ->whereNotNull('invention_id')
-            ->select('invention_id', DB::raw('count(*) as vote_count'))
-            ->groupBy('invention_id')
-            ->orderByDesc('vote_count')
-            ->get();
+            ->where('actions_spent', 0)
+            ->pluck('user_id');
 
-        if ($results->count() < 2) {
-            return false;
+        if ($afkUserIds->isEmpty()) {
+            return;
         }
 
-        return $results[0]->vote_count === $results[1]->vote_count;
-    }
-
-    public function hasVoteTieForTechnology(Round $round): bool
-    {
-        $results = DB::table('votes')
-            ->where('round_id', $round->id)
-            ->whereNotNull('technology_id')
-            ->select('technology_id', DB::raw('count(*) as vote_count'))
-            ->groupBy('technology_id')
-            ->orderByDesc('vote_count')
-            ->get();
-
-        if ($results->count() < 2) {
-            return false;
-        }
-
-        return $results[0]->vote_count === $results[1]->vote_count;
+        DB::table('game_user')
+            ->where('game_id', $game->id)
+            ->whereIn('user_id', $afkUserIds)
+            ->update(['is_afk' => true, 'updated_at' => now()]);
     }
 
     public function markRoundResult(Round $round, string $inventionId, bool $noConsensus): void
@@ -279,6 +290,11 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
         $round->users()->updateExistingPivot($userId, ['finished_at' => now()]);
     }
 
+    public function clearPlayerFinishedAt(Round $round, string $userId): void
+    {
+        $round->users()->updateExistingPivot($userId, ['finished_at' => null]);
+    }
+
     public function isPlayerFinished(Round $round, string $userId): bool
     {
         $pivot = $round->users()->where('user_id', $userId)->first();
@@ -298,6 +314,24 @@ class CloseRoundRepository implements CloseRoundRepositoryInterface
         return DB::table('votes')
             ->where('round_id', $round->id)
             ->where('user_id', $userId)
+            ->exists();
+    }
+
+    public function hasPlayerVotedForTechnology(Round $round, string $userId): bool
+    {
+        return DB::table('votes')
+            ->where('round_id', $round->id)
+            ->where('user_id', $userId)
+            ->whereNotNull('technology_id')
+            ->exists();
+    }
+
+    public function hasPlayerVotedForInvention(Round $round, string $userId): bool
+    {
+        return DB::table('votes')
+            ->where('round_id', $round->id)
+            ->where('user_id', $userId)
+            ->whereNotNull('invention_id')
             ->exists();
     }
 

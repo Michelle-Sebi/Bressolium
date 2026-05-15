@@ -12,9 +12,9 @@ interface CloseRoundRepositoryInterface
 
     public function getLatestRound(Game $game): Round;
 
-    public function getMostVotedTechnologyId(Round $round): ?string;
+    public function resolveTechnologyVote(Round $round): ?array;
 
-    public function getMostVotedInventionId(Round $round): ?string;
+    public function resolveInventionVote(Round $round): ?array;
 
     public function activateTechnology(Game $game, string $technologyId): void;
 
@@ -38,10 +38,6 @@ interface CloseRoundRepositoryInterface
 
     public function allNonAfkPlayersHaveVoted(Round $round, Game $game): bool;
 
-    public function hasInventionVoteTie(Round $round): bool;
-
-    public function hasVoteTieForTechnology(Round $round): bool;
-
     public function markRoundResult(Round $round, string $inventionId, bool $noConsensus): void;
 
     public function markRoundTechResult(Round $round, string $techId, bool $noConsensus): void;
@@ -50,11 +46,17 @@ interface CloseRoundRepositoryInterface
 
     public function setPlayerFinishedAt(Round $round, string $userId): void;
 
+    public function clearPlayerFinishedAt(Round $round, string $userId): void;
+
     public function isPlayerFinished(Round $round, string $userId): bool;
 
     public function getPlayerActionsSpent(Round $round, string $userId): int;
 
     public function hasPlayerVoted(Round $round, string $userId): bool;
+
+    public function hasPlayerVotedForTechnology(Round $round, string $userId): bool;
+
+    public function hasPlayerVotedForInvention(Round $round, string $userId): bool;
 
     public function countFinishedPlayers(Round $round): int;
 
