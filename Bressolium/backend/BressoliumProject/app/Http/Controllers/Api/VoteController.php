@@ -21,7 +21,7 @@ class VoteController extends Controller
      * @OA\Post(
      *     path="/game/{gameId}/vote",
      *     summary="Vota una tecnología o un invento en la jornada actual",
-     *     description="El usuario vota por la tecnología o invento que quiere investigar/construir. Si no se envía ni technology_id ni invention_id se considera abstención. Solo se puede votar una vez por jornada.",
+     *     description="El usuario vota por una tecnología y/o un invento en la jornada actual. Se puede votar en ambas categorías (una llamada con ambos campos o dos llamadas separadas). No se puede repetir el voto en la misma categoría. Enviar ambos campos a null lanza un error de validación. La jornada se cierra automáticamente cuando todos los jugadores han completado 2 acciones y han votado en ambas categorías.",
      *     tags={"Vote"},
      *     security={{"sanctum":{}}},
      *     @OA\Parameter(
@@ -50,7 +50,8 @@ class VoteController extends Controller
      *         )
      *     ),
      *     @OA\Response(response=403, description="No perteneces a esta partida", @OA\JsonContent(ref="#/components/schemas/ApiError")),
-     *     @OA\Response(response=404, description="Partida no encontrada", @OA\JsonContent(ref="#/components/schemas/ApiError"))
+     *     @OA\Response(response=404, description="Partida no encontrada", @OA\JsonContent(ref="#/components/schemas/ApiError")),
+     *     @OA\Response(response=422, description="Ya votaste en esa categoría / tecnología ya investigada / materiales insuficientes / ningún campo enviado", @OA\JsonContent(ref="#/components/schemas/ApiError"))
      * )
      */
     public function vote(Request $request, string $gameId): JsonResponse

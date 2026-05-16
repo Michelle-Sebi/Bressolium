@@ -791,10 +791,38 @@
                                                     "type": "object"
                                                 },
                                                 "has_voted": {
+                                                    "description": "true si el jugador ha votado en alguna categoría esta jornada",
                                                     "type": "boolean",
                                                     "example": false
                                                 },
+                                                "has_voted_tech": {
+                                                    "description": "true si ha votado por una tecnología esta jornada",
+                                                    "type": "boolean",
+                                                    "example": false
+                                                },
+                                                "has_voted_inv": {
+                                                    "description": "true si ha votado por un invento esta jornada",
+                                                    "type": "boolean",
+                                                    "example": false
+                                                },
+                                                "has_finished": {
+                                                    "description": "true si el jugador ya completó acciones y votos (finished_at != null en round_user)",
+                                                    "type": "boolean",
+                                                    "example": false
+                                                },
+                                                "game_status": {
+                                                    "description": "Estado actual de la partida",
+                                                    "type": "string",
+                                                    "enum": ["WAITING", "ACTIVE", "COMPLETA", "FINISHED"],
+                                                    "example": "ACTIVE"
+                                                },
+                                                "players_count": {
+                                                    "description": "Número de jugadores en la partida",
+                                                    "type": "integer",
+                                                    "example": 3
+                                                },
                                                 "last_round_result": {
+                                                    "description": "Resultado de la jornada anterior (null si es la primera jornada). Incluye no_consensus_inv/tech y los nombres del invento/tecnología activados.",
                                                     "type": "object",
                                                     "nullable": true
                                                 }
@@ -1010,13 +1038,72 @@
                 ]
             }
         },
+        "/game/{gameId}/leave": {
+            "delete": {
+                "tags": [
+                    "Game"
+                ],
+                "summary": "Abandona una partida",
+                "description": "El usuario abandona la partida indicada. Si era el último jugador, la partida no se elimina automáticamente.",
+                "operationId": "a3f1c2e4b5d6a7f8e9b0c1d2e3f4a5b6",
+                "parameters": [
+                    {
+                        "name": "gameId",
+                        "in": "path",
+                        "description": "UUID de la partida a abandonar",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Abandono correcto",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No perteneces a esta partida",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Partida no encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/game/{gameId}/vote": {
             "post": {
                 "tags": [
                     "Vote"
                 ],
                 "summary": "Vota una tecnología o un invento en la jornada actual",
-                "description": "El usuario vota por la tecnología o invento que quiere investigar/construir. Si no se envía ni technology_id ni invention_id se considera abstención. Solo se puede votar una vez por jornada.",
+                "description": "El usuario vota por una tecnología y/o un invento en la jornada actual. Se puede votar en ambas categorías (dos llamadas separadas o una sola con ambos campos). No se puede repetir el voto en la misma categoría dentro de la misma jornada. La jornada se cierra automáticamente cuando todos los jugadores han completado 2 acciones y han votado en ambas categorías.",
                 "operationId": "1639536305c5cdbed4489448db130ed5",
                 "parameters": [
                     {
@@ -1103,6 +1190,16 @@
                                 }
                             }
                         }
+                    },
+                    "422": {
+                        "description": "Ya votaste en esa categoría / tecnología ya investigada / materiales insuficientes / ningún campo enviado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1166,7 +1263,7 @@
     "tags": [
         {
             "name": "Auth",
-            "description": "Registro, login y logout de usuarios"
+            "description": "Registro y login de usuarios (el logout es cliente: se elimina el token de localStorage)"
         },
         {
             "name": "Game",

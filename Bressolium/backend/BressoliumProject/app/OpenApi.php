@@ -23,7 +23,7 @@ namespace App;
  *     description="Token de Laravel Sanctum obtenido al hacer login. Se envía en la cabecera Authorization: Bearer {token}."
  * )
  *
- * @OA\Tag(name="Auth", description="Registro, login y logout de usuarios")
+ * @OA\Tag(name="Auth", description="Registro y login de usuarios (el logout es cliente: se elimina el token de localStorage)")
  * @OA\Tag(name="Game", description="Creación, unión y consulta de partidas")
  * @OA\Tag(name="Board", description="Consulta del tablero de juego")
  * @OA\Tag(name="Tile", description="Acciones sobre casillas (explorar, mejorar)")

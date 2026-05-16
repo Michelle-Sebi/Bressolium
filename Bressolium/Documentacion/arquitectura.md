@@ -162,9 +162,12 @@ Route::prefix('v1')->middleware('throttle:60,1')->group(function () {
 
     // Rutas autenticadas
     Route::middleware('auth:sanctum')->group(function () {
-        Route::post('/game/create',      [GameController::class, 'create']);
-        Route::post('/game/join',        [GameController::class, 'join']);
-        Route::get('/game/my',           [GameController::class, 'myGames']);
+        Route::post('/game/create',           [GameController::class, 'create']);
+        Route::post('/game/join',             [GameController::class, 'join']);
+        Route::post('/game/join-random',      [GameController::class, 'joinRandom']);
+        Route::get('/game/my',                [GameController::class, 'myGames']);
+        Route::get('/game/all',               [GameController::class, 'allGames']);
+        Route::delete('/game/{gameId}/leave', [GameController::class, 'leave']);
 
         Route::get('/board/{gameId}',           [BoardController::class, 'show']);
         Route::get('/game/{gameId}/sync',       [SyncController::class,  'sync']);
@@ -241,10 +244,6 @@ class ActionService
             throw new UserNotInGameException;
         }
 
-        if ($tile->type?->base_type === 'pueblo') {
-            throw new PuebloTileActionException;
-        }
-
         $round = $this->tileRepo->getCurrentRound($tile->game_id);
         if ($this->tileRepo->getActionsSpent($round, $dto->userId) >= 2) {
             throw new ActionLimitExceededException;
@@ -264,6 +263,7 @@ class ActionService
         $tile->refresh()->load('type');
         TileExplored::dispatch($tile, $dto->userId);
         $this->cacheService->invalidateBoard($tile->game_id);
+        $this->cacheService->invalidateSync($tile->game_id, $dto->userId);
 
         return $tile;
     }
@@ -274,7 +274,7 @@ class ActionService
 - Las dependencias (`TileRepositoryInterface`, `CacheService`) se inyectan por el constructor — **no se instancian dentro del Service**.
 - Se inyecta la **interfaz**, no la implementación concreta. Laravel resuelve esto automáticamente gracias al binding del IoC Container (ver §3.6).
 - Las precondiciones se validan en orden y, si fallan, se lanzan excepciones del dominio (`UserNotInGameException`, `TileAlreadyExploredException`, etc.).
-- Tras completar la acción, el Service dispara un evento (`TileExplored::dispatch`) e invalida la caché del tablero. Estos efectos secundarios son responsabilidad del Service.
+- Tras completar la acción, el Service dispara un evento (`TileExplored::dispatch`) e invalida tanto la caché del tablero (`invalidateBoard`) como la caché de estado del jugador que actuó (`invalidateSync`). Estos efectos secundarios son responsabilidad del Service.
 
 ---
 
@@ -396,7 +396,7 @@ class RepositoryServiceProvider extends ServiceProvider
 
 Esto es **Inversión de Control (IoC)**: el código no decide qué clases concretas usar; lo decide el contenedor de dependencias en función de la configuración. El resultado es **bajo acoplamiento** entre capas.
 
-El `AppServiceProvider` se usa además para registrar **Policies** y **Listeners de eventos**:
+El `AppServiceProvider` se usa además para registrar **Policies**:
 
 ```php
 class AppServiceProvider extends ServiceProvider
@@ -405,11 +405,11 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(Game::class, GamePolicy::class);
         Gate::policy(Tile::class, TilePolicy::class);
-
-        Event::listen(VoteCast::class, CheckQuorumOnVoteCast::class);
     }
 }
 ```
+
+Los **listeners de eventos** no se registran explícitamente: Laravel 11 usa **Event Auto-Discovery**. El framework escanea `app/Listeners/` y, si el método `handle()` de un listener tiene un type-hint sobre un evento concreto (`VoteCast`, `TileExplored`…), lo enlaza automáticamente sin configuración adicional.
 
 ---
 
@@ -425,7 +425,7 @@ Toda la base de datos usa **UUIDs** como claves primarias (ver §4.13), y la int
 | ---------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | `users`          | Jugadores registrados                                                | `id` (UUID), `name`, `email`, `password`                                       |
 | `games`          | Partidas. Una partida tiene 1-5 jugadores y un tablero 15×15         | `id`, `name`, `status` (`WAITING`/`ACTIVE`/`FINISHED`)                          |
-| `rounds`         | Jornadas de una partida. Cada partida arranca con la jornada 1       | `id`, `game_id`, `number`, `start_date`, `ended_at`, `no_consensus`             |
+| `rounds`         | Jornadas de una partida. Cada partida arranca con la jornada 1       | `id`, `game_id`, `number`, `start_date`, `ended_at`, `no_consensus`, `last_built_invention_id`, `no_consensus_tech`, `last_activated_tech_id` |
 | `tiles`          | Casillas del tablero (225 por partida)                               | `id`, `game_id`, `tile_type_id`, `coord_x`, `coord_y`, `explored`, `explored_by_player_id`, `explored_at` |
 | `tile_types`     | Catálogo de tipos de casilla (con su nivel y tipo base)              | `id`, `name`, `base_type`, `level`                                              |
 | `materials`      | Catálogo de materiales (madera, piedra, oro…)                        | `id`, `name`, `tier`, `group`                                                   |
@@ -438,7 +438,7 @@ Toda la base de datos usa **UUIDs** como claves primarias (ver §4.13), y la int
 | Tabla              | Relaciona            | Datos extra que aporta                                            |
 | ------------------ | -------------------- | ----------------------------------------------------------------- |
 | `game_user`        | partida ↔ jugador    | `is_afk`                                                          |
-| `round_user`       | jornada ↔ jugador    | `actions_spent` (acciones gastadas en esa jornada, máx. 2)        |
+| `round_user`       | jornada ↔ jugador    | `actions_spent` (acciones gastadas, máx. 2), `finished_at` (timestamp cuando el jugador ha completado sus acciones y votos) |
 | `game_material`    | partida ↔ material   | `quantity` (stock actual en la partida)                           |
 | `game_technology`  | partida ↔ tecnología | `is_active` (si está investigada)                                  |
 | `game_invention`   | partida ↔ invento    | `is_active`, `quantity`                                            |
@@ -620,7 +620,6 @@ class TileAlreadyExploredException extends DomainException
 | ---------------------------------- | ---- | ------------------------------------------------------------------------ |
 | `UserNotInGameException`           | 403  | "El usuario no pertenece a esta partida."                                |
 | `ActionLimitExceededException`     | 403  | "No quedan acciones disponibles en esta jornada."                        |
-| `PuebloTileActionException`        | 422  | "La casilla pueblo central no puede explorarse ni mejorarse."            |
 | `TileAlreadyExploredException`     | 422  | "La casilla ya ha sido explorada."                                        |
 | `TileNotExploredException`         | 422  | "La casilla aún no ha sido explorada."                                    |
 | `TileNotAdjacentException`         | 422  | "Solo puedes explorar casillas adyacentes a tu territorio."              |
@@ -720,11 +719,17 @@ Implementar `ShouldQueue` hace que el listener se ejecute en una **cola** (asín
 | `RoundClosed`       | `CloseRoundService::process()` tras cerrar la jornada              | (sin listener específico, log only)  |
 | `GameFinished`      | `CloseRoundService::resolveInventionWinner()` al construir invento final | (sin listener específico, log only) |
 
+#### Comportamiento AFK durante el voto
+
+`VoteService::vote()` tiene un efecto secundario importante: en cuanto cualquier jugador vota, **todos los jugadores de la partida pasan a `is_afk = false`**. La razón es que un voto demuestra actividad real en la sesión, lo que invalida cualquier marcado AFK previo. El AFK se re-evalúa únicamente al cerrar la jornada (`markAfkPlayers`) mirando quién tiene `actions_spent = 0` en esa jornada.
+
 #### Listener clave: `CheckQuorumOnVoteCast`
 
-Cuando un jugador vota, este listener comprueba si **todos los jugadores no-AFK han votado ya**. Si es así, dispara automáticamente `CloseRoundJob::dispatchSync()` para cerrar la jornada sin esperar a que pulsen el botón de "Finalizar Turno".
+Cuando un jugador vota, este listener delega en `RoundProgressService::markDoneIfReady()`. Este servicio comprueba si ese jugador ya ha **gastado 2 acciones Y votado por una tecnología Y votado por un invento**. Si se cumplen las tres condiciones, lo marca como "terminado" en la jornada. Cuando *todos* los jugadores están marcados como terminados, dispara automáticamente `CloseRoundJob::dispatchSync()` para cerrar la jornada sin esperar a que nadie pulse "Finalizar Turno".
 
-Esta es una pieza esencial del bucle de juego: combina un evento del dominio (`VoteCast`) con la lógica de quórum (mayoría simple sobre los activos) para automatizar el avance de jornada.
+Esta es una pieza esencial del bucle de juego: combina un evento del dominio (`VoteCast`) con la lógica de progreso individual (`RoundProgressService`) para automatizar el avance de jornada en cuanto todos han completado sus acciones.
+
+Adicionalmente, `ExpireRoundJob` actúa como temporizador de seguridad: si se despacha cuando expira el tiempo de una jornada, marca como terminados a todos los jugadores que aún no lo estén y dispara el cierre si procede. Esto garantiza que la partida no se quede bloqueada si algún jugador es inactivo.
 
 ---
 
@@ -894,33 +899,54 @@ El Job es **muy fino**: solo recibe el `gameId` y delega en `CloseRoundService::
 
 #### Flujo de `CloseRoundService::process()`
 
-1. **Cargar partida y jornada actual**.
-2. **Resolver tecnología ganadora** — la más votada se activa en `game_technology` con `is_active = true`.
+0. **Guard anti-doble-procesamiento** — si `round.ended_at` ya está relleno (p.ej. por el temporizador y el botón simultáneamente), se retorna sin hacer nada.
+1. **Marcar la jornada como terminada** (`markRoundEnded`) — se escribe `ended_at = now()` antes de resolver nada, para que cualquier invocación paralela que llegue entre medio sea bloqueada por el guard del punto 0.
+2. **Resolver tecnología ganadora** — la más votada se activa en `game_technology` con `is_active = true`. Se registra en el resultado de la jornada (`markRoundTechResult`).
 3. **Resolver invento ganador** — el más votado se intenta construir:
    - Comprueba **prerrequisitos** (otras tecnologías o inventos previos).
    - Comprueba **recursos disponibles** (`game_material.quantity` ≥ `invention_costs.quantity`).
    - Si todo OK: descuenta materiales, registra el invento en `game_invention`, dispara `InventionBuilt`.
 4. **¿Es el invento final?**
    - Sí → dispara `GameFinished`, marca la partida como `FINISHED` y termina.
-5. **Producción de materiales** — para cada casilla explorada, se suman los materiales que ese tipo de casilla produce.
-6. **Detección de AFK** — todo jugador con `actions_spent = 0` se marca como `is_afk = true` para la siguiente jornada (puede recuperarse votando o actuando en la nueva).
+5. **Producción de materiales** — para cada casilla explorada, se suman los materiales que ese tipo de casilla produce. Dispara `MaterialsProduced`.
+6. **Detección de AFK** — todo jugador con `actions_spent = 0` se marca como `is_afk = true` para la siguiente jornada.
 7. **Crear nueva jornada** con `number = anterior + 1`.
-8. **Inicializar jugadores** — todos los `users` se enlazan a la nueva jornada con `actions_spent = 0`.
-9. **Disparar `RoundClosed`** para que cualquier listener pueda reaccionar.
+8. **Inicializar jugadores** — todos los `users` se enlazan a la nueva jornada con `actions_spent = 0` y `finished_at = null`.
+9. **Programar temporizador** — se despacha `ExpireRoundJob` con un retraso de 2 horas. Si la jornada no se cierra antes de ese tiempo, el Job la cerrará automáticamente.
+10. **Invalidar caché** — se invalida la caché de `sync` de todos los jugadores y el tablero, para que el siguiente poll reciba datos frescos.
+11. **Disparar `RoundClosed`** para que cualquier listener pueda reaccionar.
 
-#### Disparo desde dos rutas
+#### Tres rutas de disparo hacia `CloseRoundJob`
 
-```php
-// 1) Manual: el jugador pulsa "Finalizar Turno"
-// RoundController::close()
-CloseRoundJob::dispatchSync($gameId);
+La jornada puede cerrarse por tres vías distintas, pero las tres convergen en el mismo `CloseRoundJob → CloseRoundService::process()`:
 
-// 2) Automático: cuando todos votan (quórum alcanzado)
-// CheckQuorumOnVoteCast listener
-CloseRoundJob::dispatchSync($gameId);
+```
+1) Manual — jugador pulsa "Finalizar Turno":
+   RoundController::close()
+     → marca al jugador como finished_at = now()
+     → si TODOS los jugadores tienen finished_at → CloseRoundJob::dispatchSync($gameId)
+     → si no → responde "Esperando al resto de jugadores"
+
+2) Automático — jugador completa 2 acciones y vota en ambas categorías:
+   VoteCast → CheckQuorumOnVoteCast → RoundProgressService::markDoneIfReady()
+     → verifica: actions_spent ≥ 2 && voted_tech && voted_invention
+     → si se cumple → marca al jugador como finished_at
+     → si TODOS los jugadores tienen finished_at → CloseRoundJob::dispatchSync($gameId)
+
+3) Temporizador — expira el tiempo de la jornada (2 h desde su creación):
+   ExpireRoundJob::handle()
+     → marca como finished_at a todos los jugadores que aún no lo tengan
+     → si TODOS los jugadores tienen finished_at → CloseRoundJob::dispatch($gameId)  ← asíncrono
 ```
 
-Como el cierre de jornada se ejecuta de forma síncrona (`dispatchSync`), el cliente recibe la respuesta una vez completado todo el proceso. Esto simplifica la sincronización del frontend (no hay estados intermedios).
+El uso de `dispatchSync` en las rutas 1 y 2 hace que el cliente reciba la respuesta HTTP una vez completado todo el proceso, simplificando la sincronización del frontend. El `dispatch` asíncrono del temporizador es seguro porque no hay ninguna petición HTTP esperando esa respuesta.
+
+El guard de `CloseRoundService` garantiza que, aunque las tres vías disparen `CloseRoundJob` simultáneamente (raza de condición), solo la primera ejecución que encuentre `ended_at = null` hará trabajo real; las demás retornan inmediatamente.
+
+> **Nota**: `ExpireRoundJob` se programa en dos momentos distintos:
+> 1. Al **crear una partida** (`GameService::createGame()`), para la jornada 1.
+> 2. Al **cerrar cada jornada** (`CloseRoundService::process()`), para la jornada siguiente.
+> En ambos casos el retraso es de 2 horas desde el momento de creación de la jornada.
 
 ---
 
@@ -949,6 +975,11 @@ class CacheService
     {
         $this->cache->forget("board:{$gameId}");
     }
+
+    public function invalidateSync(string $gameId, string $userId): void
+    {
+        $this->cache->forget("sync:{$gameId}:{$userId}");
+    }
 }
 ```
 
@@ -957,7 +988,7 @@ class CacheService
 | Clave                    | TTL    | Qué cachea                                     | Invalidación                              |
 | ------------------------ | ------ | ---------------------------------------------- | ----------------------------------------- |
 | `board:{gameId}`         | 300 s  | Tablero completo de la partida (225 casillas)  | Manual tras `explore`/`upgrade`           |
-| `sync:{gameId}:{userId}` | 30 s   | Estado del juego para un jugador concreto      | Por TTL (no se invalida manualmente)      |
+| `sync:{gameId}:{userId}` | 30 s   | Estado del juego para un jugador concreto      | Manual tras `explore`, `upgrade` (solo el jugador que actúa) y al cerrar jornada (todos los jugadores) |
 
 #### Cómo se usa
 
@@ -988,7 +1019,11 @@ return $this->cacheService->rememberSync($game->id, $userId, function () use ($g
 $this->cacheService->invalidateBoard($tile->game_id);
 ```
 
-Para `sync` no hace falta invalidar manualmente: el TTL de 30 s coincide con el `pollingInterval` del frontend (ver §6.5), así que como mucho un jugador ve datos 30 s desactualizados.
+La caché `sync` también se invalida manualmente en dos situaciones:
+- **Tras explorar o mejorar una casilla**: solo se invalida la entrada del jugador que realizó la acción (`invalidateSync(gameId, userId)`), para que su siguiente poll reciba sus acciones actualizadas inmediatamente.
+- **Al cerrar una jornada**: `CloseRoundService` invalida la entrada `sync` de **todos** los jugadores, porque el estado cambia globalmente (nueva jornada, materiales producidos, tecnología/invento activado).
+
+Para el resto de casos (acciones de otros jugadores, votos de otros), el TTL de 30 s es suficiente.
 
 #### Por qué dos TTLs distintos
 
@@ -1395,10 +1430,12 @@ Bressolium combina **dos sistemas de estado** porque cada uno resuelve un proble
 | **Redux Toolkit** (slices) | Estado **propio del cliente**: UI, sesión, selección, etc.    |
 | **RTK Query**     | Estado **del servidor cacheado**: tablero, sync, votos, etc.  |
 
-La regla práctica:
+La regla general:
 
-> Si el dato vive **en la base de datos** y se obtiene vía API, va en RTK Query.  
+> Si el dato vive **en la base de datos** y necesita cache automática y sincronización en tiempo real, va en RTK Query.  
 > Si el dato vive **solo en el navegador** (usuario logueado, modal abierto, casilla seleccionada), va en un slice de Redux.
+
+**Excepción histórica — `gameSlice`**: el Dashboard se construyó antes de adoptar RTK Query y usa `createAsyncThunk` con `gameService` (fetch directo). Los datos de lobby (`availableGames`, `myGames`) son datos del servidor gestionados en Redux, no en RTK Query. Esta excepción se mantiene porque el Dashboard solo necesita refrescar datos en momentos concretos (al cargar la página, al unirse/abandonar), no polling continuo.
 
 ---
 
@@ -1469,6 +1506,17 @@ export default authSlice.reducer;
 
 El estado `status` puede ser `'IDLE' | 'LOADING' | 'LOGGED_IN' | 'ERROR'`. Las páginas leen este estado para saber qué renderizar (formulario, spinner, dashboard, mensaje de error).
 
+#### Resumen de slices y su rol
+
+| Slice           | Qué contiene                                                        | Patrón              |
+| --------------- | ------------------------------------------------------------------- | ------------------- |
+| `authSlice`     | `status`, `user`, `error` de sesión                                 | UI + thunks de auth |
+| `gameSlice`     | `availableGames`, `myGames`, `currentGame` (partida activa), `error`| Thunks + `gameService` (excepción histórica, no RTK Query) |
+| `boardSlice`    | `pendingTileId` — qué casilla está esperando respuesta (spinner)    | UI pura, sin fetch  |
+| `inventorySlice`| Legacy: tenía `materials`/`inventions`; ahora `useInventory` lee directo de RTK Query. El slice queda en el store pero sus acciones ya no se despachan. | Legado              |
+
+**`currentGame` en `gameSlice`** merece atención especial: al navegar al tablero, el Dashboard despacha `setCurrentGame(game)` que escribe la partida en `localStorage`. Al volver a cargar la página, `gameSlice` la recupera de `localStorage` en el `initialState`, permitiendo que el usuario continúe sin tener que seleccionar la partida de nuevo. Al abandonar una partida, `leaveGameThunk` limpia también `localStorage`.
+
 ---
 
 ### 6.2. RTK Query — caché de servidor
@@ -1509,6 +1557,11 @@ export const bressoliumApi = createApi({
         getBoard: builder.query({
             query: (gameId) => ({ url: `/board/${gameId}` }),
             providesTags: ['Board'],
+            // Normaliza tanto la respuesta real { success, data: [] } como la forma de tests { tiles: [] }
+            transformResponse: (response) => {
+                if (Array.isArray(response?.tiles)) return response;
+                return { tiles: response.data ?? response };
+            },
         }),
 
         exploreTile: builder.mutation({
@@ -1524,6 +1577,8 @@ export const bressoliumApi = createApi({
         getSync: builder.query({
             query: (gameId) => ({ url: `/game/${gameId}/sync` }),
             providesTags: ['Sync'],
+            // Desenvuelve el wrapper { success, data: {...} } de la API
+            transformResponse: (response) => response.data ?? response,
         }),
 
         vote: builder.mutation({
@@ -1532,7 +1587,8 @@ export const bressoliumApi = createApi({
                 method: 'POST',
                 data:   body,
             }),
-            invalidatesTags: ['Sync'],
+            // Sin invalidatesTags: el feedback visual del voto se gestiona con estado local
+            // en useVoting para evitar un refetch completo tras cada voto parcial.
         }),
 
         closeRound: builder.mutation({
@@ -1558,10 +1614,11 @@ export const {
 **Cómo funcionan los `tagTypes`:**
 
 - `getBoard` y `getSync` declaran que **proveen** los tags `Board` y `Sync`. Sus respuestas se cachean asociadas a esos tags.
-- Mutaciones como `exploreTile`, `upgradeTile`, `vote`, `closeRound` declaran que **invalidan** ciertos tags.
-- Cuando una mutación se completa, RTK Query **automáticamente** vuelve a hacer fetch de las queries cuyos tags se han invalidado.
+- `exploreTile` y `upgradeTile` invalidan `['Board', 'Sync']`: el tablero y el estado del jugador se recargan automáticamente tras cada acción.
+- `closeRound` invalida `['Sync']`: al cerrarse la jornada, todos los consumidores de `/sync` reciben datos frescos.
+- `vote` **no invalida ningún tag**: el feedback visual del voto se gestiona con estado local en `useVoting` (ver §6.3). Esto evita un refetch completo tras cada voto parcial y permite que el hook detecte el cierre de jornada con polling acelerado.
 
-Es decir, después de explorar una casilla, el tablero se refresca solo, sin tener que escribir código de sincronización manual.
+Es decir, después de explorar una casilla, el tablero se refresca solo. El caso del voto es más sutil: el hook mantiene en local state qué categorías se han votado y solo dispara polling intensivo cuando el jugador pulsa "Finalizar Turno".
 
 ---
 
@@ -1572,11 +1629,17 @@ Para no exponer directamente los hooks de RTK Query a los componentes, se constr
 **Ejemplo real** — `src/features/game/useVoting.js`:
 
 ```javascript
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { bressoliumApi } from '../../services/bressoliumApi';
 
 export function useVoting(gameId) {
-    const { data, isLoading } = bressoliumApi.useGetSyncQuery(gameId, {
+    // Estado local por categoría de voto para feedback inmediato sin esperar refetch
+    const [votedTechRound, setVotedTechRound] = useState(null);
+    const [votedInvRound,  setVotedInvRound]  = useState(null);
+    const [votedName,      setVotedName]      = useState(null);
+    const [finishedRound,  setFinishedRound]  = useState(null);
+
+    const { data, isLoading, refetch } = bressoliumApi.useGetSyncQuery(gameId, {
         skip:                      !gameId,
         pollingInterval:           30000,
         refetchOnMountOrArgChange: true,
@@ -1585,48 +1648,99 @@ export function useVoting(gameId) {
     const [voteMutation]                                 = bressoliumApi.useVoteMutation();
     const [closeRoundMutation, { isLoading: isClosing }] = bressoliumApi.useCloseRoundMutation();
 
-    const [votedRound, setVotedRound] = useState(null);
-    const [votedName, setVotedName]   = useState(null);
-
-    const rawTechs        = data?.progress?.technologies ?? [];
-    const rawInvs         = data?.progress?.inventions   ?? [];
     const currentRound    = data?.current_round ?? null;
     const lastRoundResult = data?.last_round_result ?? null;
-    const hasVoted        = (data?.has_voted ?? false) || votedRound === currentRound?.number;
+    const gameStatus      = data?.game_status ?? null;
+    const playersCount    = data?.players_count ?? 1;
 
-    const technologies = rawTechs.map((t) => ({
+    // Resetear flags locales cuando llega una nueva jornada del servidor
+    useEffect(() => {
+        if (currentRound?.number > (votedTechRound ?? 0)) setVotedTechRound(null);
+        if (currentRound?.number > (votedInvRound  ?? 0)) setVotedInvRound(null);
+        if (currentRound?.number > (finishedRound  ?? 0)) setFinishedRound(null);
+    }, [currentRound?.number]);
+
+    // Combinar estado del servidor con estado local (optimistic UI)
+    const hasVotedTech = (data?.has_voted_tech ?? false) || votedTechRound === currentRound?.number;
+    const hasVotedInv  = (data?.has_voted_inv  ?? false) || votedInvRound  === currentRound?.number;
+    const hasVoted     = hasVotedTech || hasVotedInv;
+    const hasFinished  = (data?.has_finished   ?? false) || finishedRound  === currentRound?.number;
+
+    // Polling acelerado (1 s) mientras esperamos que el servidor cierre la jornada
+    const isWaiting = finishedRound !== null;
+    useEffect(() => {
+        if (!isWaiting || !gameId) return;
+        refetch();
+        const id = setInterval(refetch, 1000);
+        return () => clearInterval(id);
+    }, [isWaiting, gameId, refetch]);
+
+    const technologies = (data?.progress?.technologies ?? []).map((t) => ({
         id:      t.id,
         name:    t.name,
         canVote: !t.is_active && (t.missing ?? []).length === 0,
         missing: t.missing ?? [],
     }));
 
+    const inventions = (data?.progress?.inventions ?? []).map((i) => ({
+        id:       i.id,
+        name:     i.name,
+        quantity: i.quantity,
+        canVote:  (i.missing ?? []).length === 0,
+        missing:  i.missing ?? [],
+        costs:    i.costs ?? [],
+    }));
+
+    const userActions = data?.user_actions?.actions_spent ?? 0;
+
     async function vote(voteData, name = null) {
         const result = await voteMutation({ gameId, ...voteData });
         if (!result.error) {
-            setVotedRound(currentRound?.number ?? null);
-            setVotedName(name);
+            if (voteData.technology_id) {
+                setVotedTechRound(currentRound?.number ?? null);
+                setVotedName(name);
+            }
+            if (voteData.invention_id) {
+                setVotedInvRound(currentRound?.number ?? null);
+            }
         }
         return result;
     }
 
-    function closeRound() {
-        return closeRoundMutation(gameId);
+    async function closeRound() {
+        const result = await closeRoundMutation(gameId);
+        if (!result.error) {
+            setFinishedRound(currentRound?.number ?? null);
+            refetch();
+        }
+        return result;
     }
 
     return {
         technologies, inventions, userActions, currentRound, lastRoundResult,
-        isLoading, isClosing, hasVoted, votedName,
-        vote, abstain, closeRound,
+        gameStatus, playersCount, isLoading, isClosing,
+        hasVoted, hasVotedTech, hasVotedInv, hasFinished, votedName,
+        vote, closeRound,
     };
 }
 ```
+
+**Puntos clave del hook:**
+
+- **Estado local optimista**: el hook guarda en local state qué categorías ha votado el jugador en qué jornada (`votedTechRound`, `votedInvRound`). Esto actualiza la UI inmediatamente sin esperar el siguiente poll de 30 s.
+- **Polling acelerado**: cuando el jugador pulsa "Finalizar Turno" (`finishedRound` se establece), el hook activa un `setInterval` de 1 s para detectar cuanto antes que el servidor ha cerrado la jornada y actualizar la UI (nueva jornada, resultados).
+- **Reset automático**: al llegar un `currentRound.number` mayor del servidor, los flags locales se limpian para la nueva jornada.
+- **Sin `abstain()`**: el backend exige votar al menos en una categoría; la abstención no está implementada.
 
 **El componente que lo consume queda muy limpio:**
 
 ```jsx
 function VotingPanel({ gameId }) {
-    const { technologies, currentRound, hasVoted, vote, closeRound, isClosing } = useVoting(gameId);
+    const {
+        technologies, inventions, currentRound,
+        hasVotedTech, hasVotedInv, hasFinished,
+        vote, closeRound, isClosing,
+    } = useVoting(gameId);
 
     return (
         <div>
@@ -1634,17 +1748,44 @@ function VotingPanel({ gameId }) {
                 <VoteItem
                     key={tech.id}
                     name={tech.name}
-                    canVote={tech.canVote}
+                    canVote={!hasVotedTech && tech.canVote}
                     onClick={() => vote({ technology_id: tech.id }, tech.name)}
                 />
             ))}
-            <Button onClick={closeRound} disabled={isClosing}>Finalizar Turno</Button>
+            {inventions.map(inv => (
+                <VoteItem
+                    key={inv.id}
+                    name={inv.name}
+                    canVote={!hasVotedInv && inv.canVote}
+                    onClick={() => vote({ invention_id: inv.id })}
+                />
+            ))}
+            <Button onClick={closeRound} disabled={isClosing || hasFinished}>
+                {hasFinished ? 'Esperando jugadores...' : 'Finalizar Turno'}
+            </Button>
         </div>
     );
 }
 ```
 
-`VotingPanel` no sabe que detrás hay polling cada 30s, refetch on focus, ni invalidación de tags. Solo sabe que tiene `technologies`, una función `vote()` y otra `closeRound()`.
+`VotingPanel` no sabe que detrás hay polling a 30 s que se acelera a 1 s, ni estado local optimista. Solo sabe si puede votar tech, si puede votar invento, y si ya ha terminado su turno.
+
+**`useInventory`** sigue el mismo patrón pero más sencillo: consume el mismo `useGetSyncQuery` (RTK Query deduplica la petición) y extrae los datos del inventario. Filtra tecnologías para mostrar **solo las ya activas** (el panel de inventario muestra lo que se *tiene*, no lo que se puede votar):
+
+```javascript
+export function useInventory(gameId) {
+    const { data, isLoading } = bressoliumApi.useGetSyncQuery(gameId, {
+        skip:                      !gameId,
+        pollingInterval:           30000,
+        refetchOnMountOrArgChange: true,
+        refetchOnFocus:            true,
+    });
+    const materials    = data?.inventory                                          ?? [];
+    const inventions   = data?.progress?.inventions                               ?? [];
+    const technologies = (data?.progress?.technologies ?? []).filter(t => t.is_active);
+    return { materials, inventions, technologies, isLoading };
+}
+```
 
 ---
 
