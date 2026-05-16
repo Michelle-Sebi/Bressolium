@@ -1,5 +1,6 @@
 // Paleta cromática del juego — 7 familias × 5 niveles de intensidad
 // Nivel 1 = más claro (55% blanco), Nivel 5 = color base puro
+// Nivel 6 (solo verde) = ajuste de accesibilidad AA — mapeado a --color-bgreen en CSS
 
 export const PALETTE = {
     // Marrón — base Cantera #8B7355
@@ -10,11 +11,13 @@ export const PALETTE = {
     marron5: '#8B7355',
 
     // Verde — base Bosque #458B74
+    // verde6 es el valor UI interactivo ajustado para contraste AA 4.5:1 sobre blanco
     verde1: '#ABCBC0',
     verde2: '#8CB7A9',
     verde3: '#6EA593',
     verde4: '#54947F',
     verde5: '#458B74',
+    verde6: '#3D6B6B',  // --color-bgreen (teal oscuro, ratio AA 5.99:1)
 
     // Azul — base Río #4682B4
     azul1: '#ACC7DD',

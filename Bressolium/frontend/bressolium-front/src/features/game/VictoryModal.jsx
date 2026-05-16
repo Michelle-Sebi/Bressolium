@@ -1,3 +1,4 @@
+import { useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const overlay = {
@@ -26,7 +27,7 @@ const title = {
     fontWeight:    'bold',
     textTransform: 'uppercase',
     letterSpacing: '0.12em',
-    color:         '#458B74',
+    color:         'var(--color-bgreen)',
     margin:        '0 0 12px',
 };
 
@@ -41,7 +42,7 @@ const subtitle = {
 
 const badge = {
     display:         'inline-block',
-    backgroundColor: '#458B74',
+    backgroundColor: 'var(--color-bgreen)',
     color:           '#f7f9f7',
     fontFamily:      'monospace',
     fontWeight:      'bold',
@@ -56,7 +57,7 @@ const btn = {
     display:       'block',
     width:         '100%',
     padding:       '14px',
-    backgroundColor: '#458B74',
+    backgroundColor: 'var(--color-bgreen)',
     color:         '#f7f9f7',
     border:        'none',
     fontFamily:    'monospace',
@@ -68,11 +69,42 @@ const btn = {
 };
 
 export default function VictoryModal({ teamName }) {
-    const navigate = useNavigate();
+    const navigate  = useNavigate();
+    const modalRef  = useRef(null);
+    const handleClose = useCallback(() => navigate('/dashboard'), [navigate]);
+
+    useEffect(() => {
+        const dialog = modalRef.current;
+        if (!dialog) return;
+
+        const previousFocus = document.activeElement;
+        const focusable = Array.from(dialog.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        ));
+        focusable[0]?.focus();
+
+        function handleKeyDown(e) {
+            if (e.key === 'Escape') { handleClose(); return; }
+            if (e.key !== 'Tab' || focusable.length === 0) return;
+            const first = focusable[0];
+            const last  = focusable[focusable.length - 1];
+            if (e.shiftKey) {
+                if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+            } else {
+                if (document.activeElement === last)  { e.preventDefault(); first.focus(); }
+            }
+        }
+
+        dialog.addEventListener('keydown', handleKeyDown);
+        return () => {
+            dialog.removeEventListener('keydown', handleKeyDown);
+            previousFocus?.focus();
+        };
+    }, [handleClose]);
 
     return (
         <div style={overlay} role="dialog" aria-modal="true" aria-labelledby="victory-title">
-            <div style={modal}>
+            <div ref={modalRef} style={modal}>
                 <p style={title} id="victory-title">¡Victoria!</p>
                 <p style={subtitle}>La nave de asentamiento ha partido</p>
                 {teamName && <span style={badge}>{teamName}</span>}

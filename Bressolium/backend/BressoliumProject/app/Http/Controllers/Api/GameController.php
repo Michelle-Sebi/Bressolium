@@ -152,6 +152,23 @@ class GameController extends Controller
         }
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/game/{gameId}/leave",
+     *     summary="Abandona una partida",
+     *     description="El usuario abandona la partida indicada. Si era el último jugador, la partida no se elimina automáticamente.",
+     *     tags={"Game"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="gameId", in="path", required=true,
+     *         description="UUID de la partida a abandonar",
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     @OA\Response(response=200, description="Abandono correcto", @OA\JsonContent(ref="#/components/schemas/ApiResponse")),
+     *     @OA\Response(response=403, description="No perteneces a esta partida", @OA\JsonContent(ref="#/components/schemas/ApiError")),
+     *     @OA\Response(response=404, description="Partida no encontrada", @OA\JsonContent(ref="#/components/schemas/ApiError"))
+     * )
+     */
     public function leave(Request $request, string $gameId)
     {
         try {

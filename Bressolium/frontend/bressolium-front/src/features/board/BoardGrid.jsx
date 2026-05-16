@@ -336,7 +336,7 @@ function Tile({ tile, currentUserId, isExplorable, onTileClick, onHoverEnter, on
             <div
                 data-testid={`tile-${tile.coord_x}-${tile.coord_y}`}
                 {...specificTestIdAttributes}
-                role={isClickable ? 'button' : undefined}
+                role={isClickable ? 'button' : 'img'}
                 tabIndex={isClickable ? 0 : -1}
                 aria-label={tileLabel}
                 style={{

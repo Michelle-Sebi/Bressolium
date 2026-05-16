@@ -35,7 +35,7 @@ function SectionHeader({ label, isOpen, onToggle }) {
                 alignItems:      'center',
                 padding:         '8px 10px',
                 backgroundColor: '#f0f0f0',
-                color:           'rgba(0,0,0,0.5)',
+                color:           'rgba(0,0,0,0.75)',
                 fontWeight:      'bold',
                 textTransform:   'uppercase',
                 letterSpacing:   '0.08em',
@@ -48,7 +48,7 @@ function SectionHeader({ label, isOpen, onToggle }) {
         >
             {label}
             <svg
-                width="12" height="12" viewBox="0 0 12 12" fill="none"
+                width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"
                 style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', flexShrink: 0 }}
             >
                 <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -61,7 +61,7 @@ function SectionHeader({ label, isOpen, onToggle }) {
 
 function CheckIcon({ color = '#fff', size = 12 }) {
     return (
-        <svg width={size} height={size} viewBox="0 0 12 12" fill="none">
+        <svg width={size} height={size} viewBox="0 0 12 12" fill="none" aria-hidden="true">
             <path d="M2 6l3 3 5-5" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
     );
@@ -168,13 +168,16 @@ function VotingPanel({ gameId, playersCount: playersCountProp }) {
 
                 {/* Fila 2: tiempo restante + botón / estado de espera */}
                 {(hasFinished || isExpired) ? (
-                    <div style={{
-                        display:         'flex',
-                        alignItems:      'center',
-                        gap:             '8px',
-                        padding:         '8px 10px',
-                        backgroundColor: '#f0f7f4',
-                    }}>
+                    <div
+                        aria-live="polite"
+                        style={{
+                            display:         'flex',
+                            alignItems:      'center',
+                            gap:             '8px',
+                            padding:         '8px 10px',
+                            backgroundColor: '#f0f7f4',
+                        }}
+                    >
                         <img
                             src={new URL('../../assets/icons/utils/Time-Rest-Time-1--Streamline-Ultimate.png', import.meta.url).href}
                             alt=""
@@ -184,7 +187,7 @@ function VotingPanel({ gameId, playersCount: playersCountProp }) {
                         <span style={{
                             fontSize:      '10px',
                             fontWeight:    'bold',
-                            color:         '#2e7d5a',
+                            color:         'var(--color-bgreen)',
                             textTransform: 'uppercase',
                             letterSpacing: '0.05em',
                         }}>
@@ -201,16 +204,20 @@ function VotingPanel({ gameId, playersCount: playersCountProp }) {
                         gap:             '8px',
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <svg width="13" height="13" viewBox="0 0 12 12" fill="none">
+                            <svg width="13" height="13" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                                 <circle cx="6" cy="6" r="5" stroke={isUrgent ? '#e6961a' : '#a0a0a0'} strokeWidth="1.5"/>
                                 <path d="M6 3v3l2 1.5" stroke={isUrgent ? '#e6961a' : '#a0a0a0'} strokeWidth="1.5" strokeLinecap="round"/>
                             </svg>
-                            <span style={{
-                                fontSize:           '13px',
-                                fontWeight:         'bold',
-                                color:              isUrgent ? '#b85e00' : 'rgba(0,0,0,0.75)',
-                                fontVariantNumeric: 'tabular-nums',
-                            }}>
+                            <span
+                                role="timer"
+                                aria-label={`Tiempo restante: ${formatTime(timeLeft)}`}
+                                style={{
+                                    fontSize:           '13px',
+                                    fontWeight:         'bold',
+                                    color:              isUrgent ? '#b85e00' : 'rgba(0,0,0,0.75)',
+                                    fontVariantNumeric: 'tabular-nums',
+                                }}
+                            >
                                 {formatTime(timeLeft)}
                             </span>
                         </div>
@@ -244,12 +251,12 @@ function VotingPanel({ gameId, playersCount: playersCountProp }) {
                             Acciones restantes: {Math.max(0, 2 - userActions)}/2
                         </span>
                         {hasVotedTech && (
-                            <span style={{ fontSize: '9px', color: '#2e7d5a', fontWeight: 'bold', backgroundColor: '#e8f5e9', padding: '1px 5px', border: '1px solid #b2dfdb' }}>
+                            <span style={{ fontSize: '9px', color: 'var(--color-bgreen)', fontWeight: 'bold', backgroundColor: '#e8f5e9', padding: '1px 5px', border: '1px solid #b2dfdb' }}>
                                 ✓ Tec
                             </span>
                         )}
                         {hasVotedInv && (
-                            <span style={{ fontSize: '9px', color: '#2e7d5a', fontWeight: 'bold', backgroundColor: '#e8f5e9', padding: '1px 5px', border: '1px solid #b2dfdb' }}>
+                            <span style={{ fontSize: '9px', color: 'var(--color-bgreen)', fontWeight: 'bold', backgroundColor: '#e8f5e9', padding: '1px 5px', border: '1px solid #b2dfdb' }}>
                                 ✓ Inv
                             </span>
                         )}
@@ -260,7 +267,7 @@ function VotingPanel({ gameId, playersCount: playersCountProp }) {
                             disabled={!hasAnyPendingVote || isVoting}
                             style={{
                                 padding:         '4px 12px',
-                                backgroundColor: hasAnyPendingVote && !isVoting ? '#458B74' : '#c0c0c0',
+                                backgroundColor: hasAnyPendingVote && !isVoting ? 'var(--color-bgreen)' : '#c0c0c0',
                                 color:           '#fff',
                                 border:          'none',
                                 fontWeight:      'bold',
@@ -299,6 +306,7 @@ function VotingPanel({ gameId, playersCount: playersCountProp }) {
             <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#C1CDC1' }}>
 
             {/* Resultados de la jornada anterior: empates resueltos al azar */}
+            <div aria-live="polite" aria-atomic="true">
             {lastRoundResult?.no_consensus_inv && (
                 <div style={{
                     padding:         '8px 10px',
@@ -329,16 +337,17 @@ function VotingPanel({ gameId, playersCount: playersCountProp }) {
                     Sin consenso — se investigó la tecnología {lastRoundResult.built_tech_name} al azar
                 </div>
             )}
+            </div>
 
             {/* ── Tecnologías ── */}
             <SectionHeader label="Tecnologías" isOpen={techsOpen} onToggle={() => setTechsOpen(o => !o)} />
             {techsOpen && isLoading && (
-                <div style={{ fontSize: '11px', color: 'rgba(0,0,0,0.4)', padding: '8px 10px', fontStyle: 'italic' }}>
+                <div style={{ fontSize: '11px', color: '#555', padding: '8px 10px', fontStyle: 'italic' }}>
                     Cargando…
                 </div>
             )}
             {techsOpen && !isLoading && technologies.length === 0 && (
-                <div style={{ fontSize: '10px', color: '#458B74', padding: '8px 10px', fontStyle: 'italic' }}>
+                <div style={{ fontSize: '10px', color: 'var(--color-bgreen)', padding: '8px 10px', fontStyle: 'italic' }}>
                     Todas las tecnologías investigadas
                 </div>
             )}
@@ -376,7 +385,7 @@ function VotingPanel({ gameId, playersCount: playersCountProp }) {
                             <div style={{
                                 flexShrink:      0,
                                 width:           '44px',
-                                backgroundColor: isSelected ? '#458B74' : '#fafafa',
+                                backgroundColor: isSelected ? 'var(--color-bgreen)' : '#fafafa',
                                 borderLeft:      '1px solid #e8e8e8',
                                 display:         'flex',
                                 alignItems:      'center',
@@ -394,7 +403,7 @@ function VotingPanel({ gameId, playersCount: playersCountProp }) {
             {/* ── Inventos ── */}
             <SectionHeader label="Inventos" isOpen={inventionsOpen} onToggle={() => setInventionsOpen(o => !o)} />
             {inventionsOpen && !isLoading && inventions.length === 0 && (
-                <div style={{ fontSize: '10px', color: 'rgba(0,0,0,0.4)', padding: '8px 10px', fontStyle: 'italic' }}>
+                <div style={{ fontSize: '10px', color: '#555', padding: '8px 10px', fontStyle: 'italic' }}>
                     Sin inventos disponibles
                 </div>
             )}
@@ -436,7 +445,7 @@ function VotingPanel({ gameId, playersCount: playersCountProp }) {
                                 <div style={{
                                     flexShrink:      0,
                                     width:           '44px',
-                                    backgroundColor: isSelected ? '#458B74' : '#fafafa',
+                                    backgroundColor: isSelected ? 'var(--color-bgreen)' : '#fafafa',
                                     borderLeft:      '1px solid #e8e8e8',
                                     display:         'flex',
                                     alignItems:      'center',

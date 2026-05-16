@@ -78,7 +78,7 @@ test.describe('T47 — Accesibilidad (axe-core WCAG AA)', () => {
         const creds = uniqueCredentials();
         await registerAndLogin(page, creds);
 
-        await page.click('button:has-text("CREAR EQUIPO NUEVO")');
+        await page.click('button:has-text("CREAR EXPEDICIÓN NUEVA")');
         await page.waitForSelector('[role="dialog"]', { timeout: 5_000 });
 
         const results = await new AxeBuilder({ page })
@@ -95,7 +95,7 @@ test.describe('T47 — Accesibilidad (axe-core WCAG AA)', () => {
         await registerAndLogin(page, creds);
 
         // Crear una partida para que aparezca en "Mis expediciones"
-        await page.click('button:has-text("CREAR EQUIPO NUEVO")');
+        await page.click('button:has-text("CREAR EXPEDICIÓN NUEVA")');
         await page.waitForSelector('[role="dialog"]');
         await page.fill('#teamName', creds.teamName);
         await page.click('button[type="submit"]');
@@ -110,7 +110,7 @@ test.describe('T47 — Accesibilidad (axe-core WCAG AA)', () => {
         const creds = uniqueCredentials();
         await registerAndLogin(page, creds);
 
-        await page.click('button:has-text("CREAR EQUIPO NUEVO")');
+        await page.click('button:has-text("CREAR EXPEDICIÓN NUEVA")');
         await page.waitForSelector('[role="dialog"]');
         await page.keyboard.press('Escape');
         await expect(page.locator('[role="dialog"]')).toHaveCount(0);
@@ -123,7 +123,7 @@ test.describe('T47 — Accesibilidad (axe-core WCAG AA)', () => {
         await registerAndLogin(page, creds);
 
         // Crear partida y navegar al tablero
-        await page.click('button:has-text("CREAR EQUIPO NUEVO")');
+        await page.click('button:has-text("CREAR EXPEDICIÓN NUEVA")');
         await page.waitForSelector('[role="dialog"]');
         await page.fill('#teamName', creds.teamName);
         await page.click('button[type="submit"]');
@@ -144,7 +144,7 @@ test.describe('T47 — Accesibilidad (axe-core WCAG AA)', () => {
         const creds = uniqueCredentials();
         await registerAndLogin(page, creds);
 
-        await page.click('button:has-text("CREAR EQUIPO NUEVO")');
+        await page.click('button:has-text("CREAR EXPEDICIÓN NUEVA")');
         await page.waitForSelector('[role="dialog"]');
         await page.fill('#teamName', creds.teamName);
         await page.click('button[type="submit"]');

@@ -1,37 +1,37 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bwhite: #ffffff;
-  --color-bgray: #C1CDC1;
-  --color-bred: #CD4F39;
-  --color-bbrown: #a0a0a0;
-  --color-bgreen: #458B74;
-  --color-bdark: #333333;
+  --color-bwhite:        #ffffff;
+  --color-bgray:         #C1CDC1;  /* fondo de paneles, sage grisáceo */
+  --color-bred:          #CD4F39;  /* acción destructiva / error */
+  --color-bred-hover:    #b84633;
+  --color-btext:         #545454;  /* texto cuerpo (antes bbrown — es gris, no marrón) */
+  --color-btext-hover:   #7a7a7a;
+  --color-bgreen:        #3D6B6B;  /* verde interactivo, teal oscuro — ratio AA 5.99:1 sobre blanco */
+  --color-bgreen-hover:  #305E5E;
+  --color-bdark:         #333333;  /* titulares, énfasis */
 }
 
 @layer base {
   body {
-    @apply bg-white text-bbrown font-sans antialiased;
+    @apply bg-white text-btext font-sans antialiased;
   }
 }
 
 @layer components {
-  /* Diseño Plano y Sólido: sin bordes ni sombras */
   .bressolium-card {
     @apply bg-white p-12 lg:p-24 flex flex-col justify-center h-full;
   }
 
-  /* Botones Planos */
   .btn-primary {
-    @apply w-full flex justify-center py-4 px-6 text-base font-bold text-white bg-bgreen hover:bg-[#3b7864] transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-  
-  .btn-danger {
-    @apply w-full flex justify-center py-4 px-6 text-base font-bold text-white bg-bred hover:bg-[#b84633] transition-colors disabled:opacity-50;
+    @apply w-full flex justify-center py-4 px-6 text-base font-bold text-white bg-bgreen hover:bg-bgreen-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
-  /* Inputs Minimalistas: solo línea inferior o bloques sólidos muy sutiles */
+  .btn-danger {
+    @apply w-full flex justify-center py-4 px-6 text-base font-bold text-white bg-bred hover:bg-bred-hover transition-colors disabled:opacity-50;
+  }
+
   .input-field {
-    @apply block w-full px-4 py-4 bg-gray-50 text-bbrown border-0 border-l-4 border-bgray focus:ring-0 focus:border-bgreen focus:bg-white transition-all outline-none;
+    @apply block w-full px-4 py-4 bg-gray-50 text-btext border-0 border-l-4 border-bgray focus:ring-0 focus:border-bgreen focus:bg-white transition-all outline-none;
   }
 }

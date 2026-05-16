@@ -22,14 +22,14 @@ function Login() {
       {/* Panel Izquierdo - Bloque Sólido (Gris) */}
       <div className="hidden lg:flex lg:w-1/2 bg-bgray flex-col justify-between p-16">
         <div>
-          <h1 className="text-7xl font-black text-bbrown tracking-tighter leading-none">
+          <h1 className="text-7xl font-black text-btext tracking-tighter leading-none">
             BRESSOLIUM
           </h1>
-          <p className="mt-6 text-xl text-bbrown/80 font-medium max-w-md">
+          <p className="mt-6 text-xl font-medium max-w-md" style={{ color: '#4a4a4a' }}>
             Gestiona la supervivencia y expansión de tu equipo en un planeta por conquistar.
           </p>
         </div>
-        <div className="text-bbrown font-bold text-lg">
+        <div className="text-btext font-bold text-lg">
           v1.0.0
         </div>
       </div>
@@ -37,17 +37,17 @@ function Login() {
       {/* Panel Derecho - Formulario (Blanco) */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 xl:px-32">
         <div className="w-full max-w-md mx-auto">
-          <h2 className="text-4xl font-extrabold text-bbrown mb-2">
+          <h2 className="text-4xl font-extrabold text-btext mb-2">
             Acceso
           </h2>
-          <p className="text-bbrown/70 mb-10 text-lg">
+          <p className="mb-10 text-lg" style={{ color: '#5f5f5f' }}>
             Introduce tus credenciales para continuar.
           </p>
           
           <form id="login-form" className="space-y-8" onSubmit={handleSubmit} aria-label="Formulario de Login">
             <div className="space-y-6">
               <div className="form-group">
-                <label htmlFor="email" className="block text-sm font-bold text-bbrown mb-2 uppercase tracking-wide">
+                <label htmlFor="email" className="block text-sm font-bold text-btext mb-2 uppercase tracking-wide">
                   Email
                 </label>
                 <input
@@ -64,7 +64,7 @@ function Login() {
               </div>
               
               <div className="form-group">
-                <label htmlFor="password" className="block text-sm font-bold text-bbrown mb-2 uppercase tracking-wide">
+                <label htmlFor="password" className="block text-sm font-bold text-btext mb-2 uppercase tracking-wide">
                   Password
                 </label>
                 <input
@@ -99,9 +99,9 @@ function Login() {
           </form>
 
           <div className="mt-12 text-center">
-            <p className="text-bbrown/70">
+            <p style={{ color: '#5f5f5f' }}>
               ¿No tienes cuenta?{' '}
-              <Link to="/register" className="font-bold text-bbrown hover:text-bgreen transition-colors">
+              <Link to="/register" className="font-bold text-btext hover:text-bgreen transition-colors">
                 Regístrate aquí
               </Link>
             </p>

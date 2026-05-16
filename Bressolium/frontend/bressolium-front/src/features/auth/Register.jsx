@@ -33,16 +33,16 @@ function Register() {
         {/* Formulario (Bloque Blanco en el lado Izquierdo para contrastar con Login) */}
         <div className="w-full lg:w-1/2 bg-white flex flex-col justify-center px-8 sm:px-16 xl:px-32">
           <div className="w-full max-w-md mx-auto py-12">
-            <h2 className="text-4xl font-extrabold text-bbrown mb-2">
+            <h2 className="text-4xl font-extrabold text-btext mb-2">
               Únete a Bressolium
             </h2>
-            <p className="text-bbrown/70 mb-10 text-lg">
+            <p className="mb-10 text-lg" style={{ color: '#5f5f5f' }}>
               Crea tu cuenta e inicia la misión.
             </p>
             
             <form className="space-y-6" onSubmit={handleSubmit} aria-label="Formulario de Registro">
               <div className="form-group">
-                <label htmlFor="name" className="block text-sm font-bold text-bbrown mb-2 uppercase tracking-wide">
+                <label htmlFor="name" className="block text-sm font-bold text-btext mb-2 uppercase tracking-wide">
                   Nombre de pionero
                 </label>
                 <input
@@ -58,7 +58,7 @@ function Register() {
               </div>
 
               <div className="form-group">
-                <label htmlFor="email" className="block text-sm font-bold text-bbrown mb-2 uppercase tracking-wide">
+                <label htmlFor="email" className="block text-sm font-bold text-btext mb-2 uppercase tracking-wide">
                   Email
                 </label>
                 <input
@@ -75,7 +75,7 @@ function Register() {
               </div>
               
               <div className="form-group">
-                <label htmlFor="password" className="block text-sm font-bold text-bbrown mb-2 uppercase tracking-wide">
+                <label htmlFor="password" className="block text-sm font-bold text-btext mb-2 uppercase tracking-wide">
                   Password
                 </label>
                 <input
@@ -109,9 +109,9 @@ function Register() {
             </form>
 
             <div className="mt-12 text-center">
-              <p className="text-bbrown/70">
+              <p style={{ color: '#5f5f5f' }}>
                 ¿Ya tienes cuenta?{' '}
-                <Link to="/login" className="font-bold text-bbrown hover:text-bgreen transition-colors">
+                <Link to="/login" className="font-bold text-btext hover:text-bgreen transition-colors">
                   Accede aquí
                 </Link>
               </p>
@@ -122,14 +122,14 @@ function Register() {
         {/* Panel Decorativo Derecho */}
         <div className="hidden lg:flex lg:w-1/2 flex-col justify-center items-center py-16 px-8 relative overflow-hidden">
           <div className="relative z-10 w-full max-w-lg">
-             <h3 className="text-5xl font-black text-white mix-blend-difference mb-8 text-center leading-tight">
+             <h3 className="text-5xl font-black text-bdark mb-8 text-center leading-tight">
                 LA SUPERVIVENCIA<br />
                 ES TAREA<br />
                 DE TODOS
              </h3>
           </div>
           {/* Geometría abstracta usando marrón como acento */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-bbrown rounded-bl-full transform translate-x-1/3 -translate-y-1/3 opacity-20"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-btext rounded-bl-full transform translate-x-1/3 -translate-y-1/3 opacity-20"></div>
           <div className="absolute bottom-0 left-0 w-80 h-80 bg-bgreen rounded-tr-full transform -translate-x-1/4 translate-y-1/4 opacity-10"></div>
         </div>
 

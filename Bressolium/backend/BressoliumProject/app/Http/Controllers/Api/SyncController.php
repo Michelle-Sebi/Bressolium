@@ -49,8 +49,13 @@ class SyncController extends Controller
      *                     @OA\Property(property="technologies", type="array", @OA\Items(type="object")),
      *                     @OA\Property(property="inventions", type="array", @OA\Items(type="object"))
      *                 ),
-     *                 @OA\Property(property="has_voted", type="boolean", example=false),
-     *                 @OA\Property(property="last_round_result", type="object", nullable=true)
+     *                 @OA\Property(property="has_voted", type="boolean", example=false, description="true si ha votado en alguna categoría"),
+     *                 @OA\Property(property="has_voted_tech", type="boolean", example=false, description="true si ha votado por tecnología"),
+     *                 @OA\Property(property="has_voted_inv", type="boolean", example=false, description="true si ha votado por invento"),
+     *                 @OA\Property(property="has_finished", type="boolean", example=false, description="true si completó acciones y votos"),
+     *                 @OA\Property(property="game_status", type="string", enum={"WAITING","ACTIVE","COMPLETA","FINISHED"}),
+     *                 @OA\Property(property="players_count", type="integer", example=3),
+     *                 @OA\Property(property="last_round_result", type="object", nullable=true, description="Resultado de la jornada anterior: no_consensus_inv/tech, built_inv_name, built_tech_name")
      *             ),
      *             @OA\Property(property="error", type="string", nullable=true)
      *         )
