@@ -127,7 +127,7 @@ const Dashboard = () => {
           {/* Crear Nuevo */}
           <button
             onClick={() => setIsModalOpen(true)}
-            className="btn-primary bg-bbrown hover:bg-[#7a7a7a]"
+            className="btn-primary bg-btext hover:bg-btext-hover"
           >
             CREAR EXPEDICIÓN NUEVA
           </button>
@@ -151,7 +151,7 @@ const Dashboard = () => {
                     <li key={game.id} className="p-4 flex justify-between items-center hover:bg-gray-50 transition-colors">
                       <div>
                         <span className="font-bold text-bdark block">{game.name.toUpperCase()}</span>
-                        <span className="text-xs text-bbrown">{game.users_count || 0}/5 MIEMBROS</span>
+                        <span className="text-xs text-btext">{game.users_count || 0}/5 MIEMBROS</span>
                       </div>
                       <button
                         onClick={() => handleJoinByName(game.name)}
@@ -163,7 +163,7 @@ const Dashboard = () => {
                   ))}
                 </ul>
               ) : (
-                <div className="p-8 text-center text-bbrown italic">
+                <div className="p-8 text-center text-btext italic">
                   No hay exploraciones disponibles con ese nombre...
                 </div>
               )}
@@ -188,7 +188,7 @@ const Dashboard = () => {
                   onClick={() => handleGoToGame(game)}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleGoToGame(game); } }}
                   aria-label={`Ir a la partida ${game.name}, estado ${game.status}`}
-                  className="group cursor-pointer p-6 hover:bg-bbrown transition-all"
+                  className="group cursor-pointer p-6 hover:bg-btext transition-all"
                 >
                   <div className="flex flex-wrap justify-between items-center gap-2">
                     <div className="min-w-0">
@@ -230,9 +230,9 @@ const Dashboard = () => {
                 </div>
 
                 {expandedPlayersId === game.id && (
-                  <div className="border-t-2 border-bbrown/20 px-6 py-3 flex flex-wrap gap-2">
+                  <div className="border-t-2 border-btext/20 px-6 py-3 flex flex-wrap gap-2">
                     {(game.users ?? []).map(u => (
-                      <span key={u.id} className="text-xs font-bold text-bbrown uppercase bg-white px-2 py-1">
+                      <span key={u.id} className="text-xs font-bold text-btext uppercase bg-white px-2 py-1">
                         {u.name}
                       </span>
                     ))}
@@ -241,7 +241,7 @@ const Dashboard = () => {
               </div>
             ))
           ) : (
-            <div className="py-24 text-center border-4 border-dashed border-gray-100 text-bbrown font-bold">
+            <div className="py-24 text-center border-4 border-dashed border-gray-100 text-btext font-bold">
               SIN EXPEDICIONES EN CURSO
             </div>
           )}
@@ -255,22 +255,22 @@ const Dashboard = () => {
           role="dialog"
           aria-modal="true"
           aria-labelledby="create-team-title"
-          className="fixed inset-0 bg-bbrown/90 flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 bg-btext/90 flex items-center justify-center p-4 z-50"
         >
           <div className="bg-white w-full max-w-lg p-10 relative">
             <button
               onClick={closeModal}
               aria-label="Cerrar"
-              className="absolute top-4 right-4 text-3xl font-black text-bbrown hover:text-bred"
+              className="absolute top-4 right-4 text-3xl font-black text-btext hover:text-bred"
             >
               ×
             </button>
             
-            <h3 id="create-team-title" className="text-3xl font-black text-bbrown mb-8">FUNDAR EQUIPO</h3>
+            <h3 id="create-team-title" className="text-3xl font-black text-btext mb-8">FUNDAR EQUIPO</h3>
             
             <form onSubmit={handleCreateTeam} className="space-y-6">
               <div>
-                <label htmlFor="teamName" className="block text-xs font-bold text-bbrown mb-2 uppercase">NOMBRE DEL EQUIPO</label>
+                <label htmlFor="teamName" className="block text-xs font-bold text-btext mb-2 uppercase">NOMBRE DEL EQUIPO</label>
                 <input 
                   id="teamName"
                   name="teamName"

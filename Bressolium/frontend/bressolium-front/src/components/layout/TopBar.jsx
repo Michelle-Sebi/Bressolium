@@ -7,7 +7,7 @@ import { setCurrentGame } from '../../features/game/gameSlice';
 /**
  * @component TopBar
  * @description Barra superior persistente con gestión de sesión y cambio rápido de partida.
- * Sigue la estética Brutalista: bloques sólidos, bordes marcados (#a0a0a0) y colores planos.
+ * Sigue la estética Brutalista: bloques sólidos, bordes marcados y colores planos.
  */
 const TopBar = () => {
   const dispatch = useDispatch();
@@ -40,7 +40,7 @@ const TopBar = () => {
           <div className="relative">
             <button 
               onClick={() => setIsSwitcherOpen(!isSwitcherOpen)}
-              className="flex items-center space-x-2 px-3 py-1 bg-bgreen hover:bg-[#2d5c50] transition-colors"
+              className="flex items-center space-x-2 px-3 py-1 bg-bgreen hover:bg-bgreen-hover transition-colors"
               aria-label="Cambiar partida"
             >
               <span className="text-xs font-bold text-white uppercase">
@@ -58,7 +58,7 @@ const TopBar = () => {
 
             {/* Quick Switcher Dropdown */}
             {isSwitcherOpen && (
-              <div className="absolute top-full left-0 mt-1 w-64 bg-white border-4 border-bbrown shadow-none z-50">
+              <div className="absolute top-full left-0 mt-1 w-64 bg-white border-4 border-btext shadow-none z-50">
                 <div className="p-2 border-b-4 border-bgray bg-bgray">
                   <span className="text-[10px] font-black text-white uppercase">Tus expediciones activas</span>
                 </div>
@@ -70,7 +70,7 @@ const TopBar = () => {
                         onClick={() => handleSwitchGame(game)}
                         className={`w-full text-left p-3 hover:bg-bgray transition-colors flex items-center justify-between ${currentGame?.id === game.id ? 'bg-bgreen/10' : ''}`}
                       >
-                        <span className="font-bold text-sm text-bbrown">{game.name.toUpperCase()}</span>
+                        <span className="font-bold text-sm text-btext">{game.name.toUpperCase()}</span>
                         {currentGame?.id === game.id && (
                           <div className="w-2 h-2 bg-bgreen"></div>
                         )}
@@ -84,7 +84,7 @@ const TopBar = () => {
                   <Link 
                     to="/dashboard" 
                     onClick={() => setIsSwitcherOpen(false)}
-                    className="block w-full text-center py-2 text-xs font-black text-bbrown hover:text-bgreen transition-colors"
+                    className="block w-full text-center py-2 text-xs font-black text-btext hover:text-bgreen transition-colors"
                   >
                     + GESTIONAR EQUIPOS
                   </Link>

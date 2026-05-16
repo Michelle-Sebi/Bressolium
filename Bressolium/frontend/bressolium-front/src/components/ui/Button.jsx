@@ -1,7 +1,7 @@
 const VARIANT_CLASSES = {
-    primary:   'bg-bgreen hover:bg-[#2d5c50] text-white',
-    danger:    'bg-bred hover:bg-[#b84633] text-white',
-    secondary: 'bg-bbrown hover:bg-[#7a7a7a] text-white',
+    primary:   'bg-bgreen hover:bg-bgreen-hover text-white',
+    danger:    'bg-bred hover:bg-bred-hover text-white',
+    secondary: 'bg-btext hover:bg-btext-hover text-white',
 };
 
 function Button({ children, variant = 'primary', disabled = false, onClick, type = 'button', className = '', style }) {

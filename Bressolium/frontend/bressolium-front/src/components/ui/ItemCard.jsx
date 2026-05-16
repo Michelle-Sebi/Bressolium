@@ -51,6 +51,7 @@ function ItemCard({ iconSrc, iconBgColor = '#a0a0a0', name, subtitle, quantity, 
                     display:         'flex',
                     alignItems:      'center',
                     justifyContent:  'center',
+                    opacity:         isActive ? 1 : 0.4,
                 }}
             >
                 {iconSrc && (

@@ -8,7 +8,7 @@ function Input({ value, onChange, placeholder, type = 'text', name, id, required
             onChange={onChange}
             placeholder={placeholder}
             required={required}
-            className={`block w-full px-4 py-4 bg-gray-50 text-bbrown border-0 border-l-4 border-bgray
+            className={`block w-full px-4 py-4 bg-gray-50 text-btext border-0 border-l-4 border-bgray
                 focus:ring-0 focus:border-bgreen focus:bg-white transition-all outline-none ${className}`}
         />
     );
