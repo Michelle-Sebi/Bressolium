@@ -55,7 +55,7 @@ export const MATERIAL_ICON_MAP = {
     'obsidiana':           new URL('../assets/icons/materials/obsidiana.png',                 import.meta.url).href,
     'arena-de-silice':     new URL('../assets/icons/materials/arena-silice.png',              import.meta.url).href,
     'arena-de-cuarzo':     new URL('../assets/icons/materials/arena-cuarzo.png',              import.meta.url).href,
-    'cristales-naturales':       new URL('../assets/icons/materials/cristales-naturalesurales.png',       import.meta.url).href,
+    'cristales-naturales':       new URL('../assets/icons/materials/cristales-naturales.png',             import.meta.url).href,
     'silicio':             new URL('../assets/icons/materials/silicio.png',                   import.meta.url).href,
     'minerales-semiconductores':            new URL('../assets/icons/materials/minerales-semiconductores.png', import.meta.url).href,
     'agua':                new URL('../assets/icons/materials/agua.png',                      import.meta.url).href,

@@ -25,7 +25,7 @@ function Login() {
           <h1 className="text-7xl font-black text-bbrown tracking-tighter leading-none">
             BRESSOLIUM
           </h1>
-          <p className="mt-6 text-xl text-bbrown/80 font-medium max-w-md">
+          <p className="mt-6 text-xl font-medium max-w-md" style={{ color: '#4a4a4a' }}>
             Gestiona la supervivencia y expansión de tu equipo en un planeta por conquistar.
           </p>
         </div>
@@ -40,7 +40,7 @@ function Login() {
           <h2 className="text-4xl font-extrabold text-bbrown mb-2">
             Acceso
           </h2>
-          <p className="text-bbrown/70 mb-10 text-lg">
+          <p className="mb-10 text-lg" style={{ color: '#5f5f5f' }}>
             Introduce tus credenciales para continuar.
           </p>
           
@@ -99,7 +99,7 @@ function Login() {
           </form>
 
           <div className="mt-12 text-center">
-            <p className="text-bbrown/70">
+            <p style={{ color: '#5f5f5f' }}>
               ¿No tienes cuenta?{' '}
               <Link to="/register" className="font-bold text-bbrown hover:text-bgreen transition-colors">
                 Regístrate aquí

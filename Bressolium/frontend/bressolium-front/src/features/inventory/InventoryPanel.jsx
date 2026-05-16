@@ -28,7 +28,7 @@ function SectionHeader({ label, isOpen, onToggle }) {
                 alignItems:      'center',
                 padding:         '8px 10px',
                 backgroundColor: '#f0f0f0',
-                color:           'rgba(0,0,0,0.5)',
+                color:           'rgba(0,0,0,0.75)',
                 fontWeight:      'bold',
                 textTransform:   'uppercase',
                 letterSpacing:   '0.08em',
@@ -41,7 +41,7 @@ function SectionHeader({ label, isOpen, onToggle }) {
         >
             {label}
             <svg
-                width="12" height="12" viewBox="0 0 12 12" fill="none"
+                width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"
                 style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
             >
                 <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -78,7 +78,7 @@ function InventoryPanel() {
         return (
             <div
                 data-testid="inventory-loading"
-                style={{ padding: '16px', color: '#a0a0a0', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '11px' }}
+                style={{ padding: '16px', color: '#545454', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '11px' }}
             >
                 Cargando inventario…
             </div>
@@ -170,7 +170,7 @@ function InventoryPanel() {
             {/* ── Tecnologías ── */}
             <SectionHeader label="Tecnologías" isOpen={technologiesOpen} onToggle={() => setTechnologiesOpen(o => !o)} />
             {technologiesOpen && technologies.length === 0 && (
-                <div style={{ padding: '8px 10px', fontSize: '10px', color: 'rgba(0,0,0,0.35)', fontStyle: 'italic' }}>
+                <div style={{ padding: '8px 10px', fontSize: '10px', color: '#6b6b6b', fontStyle: 'italic' }}>
                     Ninguna tecnología investigada
                 </div>
             )}
