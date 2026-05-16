@@ -36,7 +36,7 @@ function Register() {
             <h2 className="text-4xl font-extrabold text-bbrown mb-2">
               Únete a Bressolium
             </h2>
-            <p className="text-bbrown/70 mb-10 text-lg">
+            <p className="mb-10 text-lg" style={{ color: '#5f5f5f' }}>
               Crea tu cuenta e inicia la misión.
             </p>
             
@@ -109,7 +109,7 @@ function Register() {
             </form>
 
             <div className="mt-12 text-center">
-              <p className="text-bbrown/70">
+              <p style={{ color: '#5f5f5f' }}>
                 ¿Ya tienes cuenta?{' '}
                 <Link to="/login" className="font-bold text-bbrown hover:text-bgreen transition-colors">
                   Accede aquí
@@ -122,7 +122,7 @@ function Register() {
         {/* Panel Decorativo Derecho */}
         <div className="hidden lg:flex lg:w-1/2 flex-col justify-center items-center py-16 px-8 relative overflow-hidden">
           <div className="relative z-10 w-full max-w-lg">
-             <h3 className="text-5xl font-black text-white mix-blend-difference mb-8 text-center leading-tight">
+             <h3 className="text-5xl font-black text-bdark mb-8 text-center leading-tight">
                 LA SUPERVIVENCIA<br />
                 ES TAREA<br />
                 DE TODOS

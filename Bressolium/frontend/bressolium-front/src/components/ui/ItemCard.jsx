@@ -39,7 +39,6 @@ function ItemCard({ iconSrc, iconBgColor = '#a0a0a0', name, subtitle, quantity, 
                 padding:         '8px 10px',
                 backgroundColor: '#fff',
                 borderBottom:    '1px solid #e8e8e8',
-                opacity:         isActive ? 1 : 0.4,
             }}
         >
             {/* Icono */}
@@ -66,11 +65,11 @@ function ItemCard({ iconSrc, iconBgColor = '#a0a0a0', name, subtitle, quantity, 
 
             {/* Texto */}
             <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 'bold', fontSize: '12px', color: 'rgba(0,0,0,0.85)', lineHeight: 1.3 }}>
+                <div style={{ fontWeight: 'bold', fontSize: '12px', color: isActive ? '#1a1a1a' : '#6b6b6b', lineHeight: 1.3 }}>
                     {name.replace(/-/g, ' ')}
                 </div>
                 {subtitle && (
-                    <div style={{ fontSize: '10px', color: 'rgba(0,0,0,0.45)', marginTop: '2px', lineHeight: 1.3 }}>
+                    <div style={{ fontSize: '10px', color: '#6b6b6b', marginTop: '2px', lineHeight: 1.3 }}>
                         {subtitle}
                     </div>
                 )}
@@ -83,7 +82,7 @@ function ItemCard({ iconSrc, iconBgColor = '#a0a0a0', name, subtitle, quantity, 
                     style={{
                         fontWeight:  'bold',
                         fontSize:    '14px',
-                        color:       isActive ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.4)',
+                        color:       isActive ? '#1a1a1a' : '#6b6b6b',
                         flexShrink:  0,
                         minWidth:    '24px',
                         textAlign:   'right',

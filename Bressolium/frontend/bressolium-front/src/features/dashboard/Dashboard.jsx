@@ -111,7 +111,7 @@ const Dashboard = () => {
 
       {/* SECCIÓN IZQUIERDA: LOBBY (UNIRSE) */}
       <div className="w-full md:w-1/2 bg-bgray p-6 md:p-10 xl:p-16 flex flex-col md:overflow-y-auto">
-        <h1 className="text-2xl md:text-4xl xl:text-5xl font-black text-white mb-8 xl:mb-12 tracking-tighter">
+        <h1 className="text-2xl md:text-4xl xl:text-5xl font-black text-bdark mb-8 xl:mb-12 tracking-tighter">
           UNIRSE A LA <br/> TERRAFORMACIÓN
         </h1>
 
@@ -220,8 +220,8 @@ const Dashboard = () => {
                       >
                         {confirmingLeaveId === game.id ? '¿SEGURO?' : 'SALIR'}
                       </button>
-                      <div className="text-white">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="text-white" aria-hidden="true">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>
                       </div>

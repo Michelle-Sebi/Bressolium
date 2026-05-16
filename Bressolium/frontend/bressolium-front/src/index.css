@@ -4,8 +4,8 @@
   --color-bwhite: #ffffff;
   --color-bgray: #C1CDC1;
   --color-bred: #CD4F39;
-  --color-bbrown: #a0a0a0;
-  --color-bgreen: #458B74;
+  --color-bbrown: #545454;
+  --color-bgreen: #3b7864;
   --color-bdark: #333333;
 }
 
@@ -23,7 +23,7 @@
 
   /* Botones Planos */
   .btn-primary {
-    @apply w-full flex justify-center py-4 px-6 text-base font-bold text-white bg-bgreen hover:bg-[#3b7864] transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply w-full flex justify-center py-4 px-6 text-base font-bold text-white bg-bgreen hover:bg-[#2d5c50] transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
   }
   
   .btn-danger {

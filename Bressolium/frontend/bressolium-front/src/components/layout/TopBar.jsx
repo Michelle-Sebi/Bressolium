@@ -40,7 +40,7 @@ const TopBar = () => {
           <div className="relative">
             <button 
               onClick={() => setIsSwitcherOpen(!isSwitcherOpen)}
-              className="flex items-center space-x-2 px-3 py-1 bg-bgreen hover:bg-[#3b7864] transition-colors"
+              className="flex items-center space-x-2 px-3 py-1 bg-bgreen hover:bg-[#2d5c50] transition-colors"
               aria-label="Cambiar partida"
             >
               <span className="text-xs font-bold text-white uppercase">
