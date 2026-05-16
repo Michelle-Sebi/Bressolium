@@ -197,7 +197,7 @@ function MobileGameBoard({ currentGame }) {
                                 alt="" aria-hidden="true"
                                 style={{ width: '16px', height: '16px', objectFit: 'contain', flexShrink: 0 }}
                             />
-                            <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#2e7d5a', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            <span style={{ fontSize: '10px', fontWeight: 'bold', color: 'var(--color-bgreen)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                                 Esperando un nuevo día…
                             </span>
                         </div>
@@ -210,8 +210,8 @@ function MobileGameBoard({ currentGame }) {
                                 <span style={{ fontSize: '12px', fontWeight: 'bold', color: isUrgent ? '#b85e00' : 'rgba(0,0,0,0.6)', fontVariantNumeric: 'tabular-nums' }}>
                                     {formatTime(timeLeft)}
                                 </span>
-                                {hasVotedTech && <span style={{ fontSize: '9px', color: '#2e7d5a', fontWeight: 'bold', backgroundColor: '#e8f5e9', padding: '1px 5px', border: '1px solid #b2dfdb' }}>✓ Tec</span>}
-                                {hasVotedInv  && <span style={{ fontSize: '9px', color: '#2e7d5a', fontWeight: 'bold', backgroundColor: '#e8f5e9', padding: '1px 5px', border: '1px solid #b2dfdb' }}>✓ Inv</span>}
+                                {hasVotedTech && <span style={{ fontSize: '9px', color: 'var(--color-bgreen)', fontWeight: 'bold', backgroundColor: '#e8f5e9', padding: '1px 5px', border: '1px solid #b2dfdb' }}>✓ Tec</span>}
+                                {hasVotedInv  && <span style={{ fontSize: '9px', color: 'var(--color-bgreen)', fontWeight: 'bold', backgroundColor: '#e8f5e9', padding: '1px 5px', border: '1px solid #b2dfdb' }}>✓ Inv</span>}
                             </div>
                             <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
                                 {!(hasVotedTech && hasVotedInv) && (
@@ -223,7 +223,7 @@ function MobileGameBoard({ currentGame }) {
                                             fontSize:        '10px',
                                             fontWeight:      'bold',
                                             textTransform:   'uppercase',
-                                            backgroundColor: hasAnyPendingVote && !isVoting ? '#458B74' : '#c0c0c0',
+                                            backgroundColor: hasAnyPendingVote && !isVoting ? 'var(--color-bgreen)' : '#c0c0c0',
                                             color:           '#fff',
                                             border:          'none',
                                             cursor:          hasAnyPendingVote ? 'pointer' : 'default',
@@ -240,7 +240,7 @@ function MobileGameBoard({ currentGame }) {
                                         fontSize:        '10px',
                                         fontWeight:      'bold',
                                         textTransform:   'uppercase',
-                                        backgroundColor: isClosing ? '#a0a0a0' : '#458B74',
+                                        backgroundColor: isClosing ? '#a0a0a0' : 'var(--color-bgreen)',
                                         color:           '#fff',
                                         border:          'none',
                                         cursor:          isClosing ? 'default' : 'pointer',

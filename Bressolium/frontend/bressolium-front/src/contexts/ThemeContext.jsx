@@ -5,7 +5,7 @@ import { createContext, useContext } from 'react';
 // Los componentes Tailwind usan los tokens de index.css directamente.
 const THEME = {
     colors: {
-        primary:   '#3b7864',  // --color-bgreen (AA sobre blanco)
+        primary:   '#3D6B6B',  // --color-bgreen (AA 5.99:1 sobre blanco)
         secondary: '#8B7355',  // PALETTE.marron5 — cantera
         light:     '#C1CDC1',  // --color-bgray — fondo panel
         resalt:    '#CD4F39',  // --color-bred

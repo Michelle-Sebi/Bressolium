@@ -17,7 +17,7 @@ export const PALETTE = {
     verde3: '#6EA593',
     verde4: '#54947F',
     verde5: '#458B74',
-    verde6: '#3b7864',  // --color-bgreen
+    verde6: '#3D6B6B',  // --color-bgreen (teal oscuro, ratio AA 5.99:1)
 
     // Azul — base Río #4682B4
     azul1: '#ACC7DD',

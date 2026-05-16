@@ -7,8 +7,8 @@
   --color-bred-hover:    #b84633;
   --color-btext:         #545454;  /* texto cuerpo (antes bbrown — es gris, no marrón) */
   --color-btext-hover:   #7a7a7a;
-  --color-bgreen:        #3b7864;  /* verde interactivo, ajustado de #458B74 para ratio AA 4.5:1 */
-  --color-bgreen-hover:  #2d5c50;
+  --color-bgreen:        #3D6B6B;  /* verde interactivo, teal oscuro — ratio AA 5.99:1 sobre blanco */
+  --color-bgreen-hover:  #305E5E;
   --color-bdark:         #333333;  /* titulares, énfasis */
 }
 

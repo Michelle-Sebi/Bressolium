@@ -187,7 +187,7 @@ function VotingPanel({ gameId, playersCount: playersCountProp }) {
                         <span style={{
                             fontSize:      '10px',
                             fontWeight:    'bold',
-                            color:         '#2e7d5a',
+                            color:         'var(--color-bgreen)',
                             textTransform: 'uppercase',
                             letterSpacing: '0.05em',
                         }}>
@@ -251,12 +251,12 @@ function VotingPanel({ gameId, playersCount: playersCountProp }) {
                             Acciones restantes: {Math.max(0, 2 - userActions)}/2
                         </span>
                         {hasVotedTech && (
-                            <span style={{ fontSize: '9px', color: '#2e7d5a', fontWeight: 'bold', backgroundColor: '#e8f5e9', padding: '1px 5px', border: '1px solid #b2dfdb' }}>
+                            <span style={{ fontSize: '9px', color: 'var(--color-bgreen)', fontWeight: 'bold', backgroundColor: '#e8f5e9', padding: '1px 5px', border: '1px solid #b2dfdb' }}>
                                 ✓ Tec
                             </span>
                         )}
                         {hasVotedInv && (
-                            <span style={{ fontSize: '9px', color: '#2e7d5a', fontWeight: 'bold', backgroundColor: '#e8f5e9', padding: '1px 5px', border: '1px solid #b2dfdb' }}>
+                            <span style={{ fontSize: '9px', color: 'var(--color-bgreen)', fontWeight: 'bold', backgroundColor: '#e8f5e9', padding: '1px 5px', border: '1px solid #b2dfdb' }}>
                                 ✓ Inv
                             </span>
                         )}
@@ -267,7 +267,7 @@ function VotingPanel({ gameId, playersCount: playersCountProp }) {
                             disabled={!hasAnyPendingVote || isVoting}
                             style={{
                                 padding:         '4px 12px',
-                                backgroundColor: hasAnyPendingVote && !isVoting ? '#458B74' : '#c0c0c0',
+                                backgroundColor: hasAnyPendingVote && !isVoting ? 'var(--color-bgreen)' : '#c0c0c0',
                                 color:           '#fff',
                                 border:          'none',
                                 fontWeight:      'bold',
@@ -347,7 +347,7 @@ function VotingPanel({ gameId, playersCount: playersCountProp }) {
                 </div>
             )}
             {techsOpen && !isLoading && technologies.length === 0 && (
-                <div style={{ fontSize: '10px', color: '#1a6b4e', padding: '8px 10px', fontStyle: 'italic' }}>
+                <div style={{ fontSize: '10px', color: 'var(--color-bgreen)', padding: '8px 10px', fontStyle: 'italic' }}>
                     Todas las tecnologías investigadas
                 </div>
             )}
@@ -385,7 +385,7 @@ function VotingPanel({ gameId, playersCount: playersCountProp }) {
                             <div style={{
                                 flexShrink:      0,
                                 width:           '44px',
-                                backgroundColor: isSelected ? '#458B74' : '#fafafa',
+                                backgroundColor: isSelected ? 'var(--color-bgreen)' : '#fafafa',
                                 borderLeft:      '1px solid #e8e8e8',
                                 display:         'flex',
                                 alignItems:      'center',
@@ -445,7 +445,7 @@ function VotingPanel({ gameId, playersCount: playersCountProp }) {
                                 <div style={{
                                     flexShrink:      0,
                                     width:           '44px',
-                                    backgroundColor: isSelected ? '#458B74' : '#fafafa',
+                                    backgroundColor: isSelected ? 'var(--color-bgreen)' : '#fafafa',
                                     borderLeft:      '1px solid #e8e8e8',
                                     display:         'flex',
                                     alignItems:      'center',

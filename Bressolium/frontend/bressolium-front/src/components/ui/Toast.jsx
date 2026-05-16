@@ -1,5 +1,5 @@
 const TYPE_COLORS = {
-    success: '#458B74',
+    success: 'var(--color-bgreen)',
     error:   '#CD4F39',
     info:    '#a0a0a0',
 };

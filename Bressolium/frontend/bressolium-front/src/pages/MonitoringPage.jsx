@@ -6,7 +6,7 @@ import {
 import httpClient from '../lib/httpClient';
 
 const C_BROWN  = '#a0a0a0';
-const C_GREEN  = '#458B74';
+const C_GREEN  = 'var(--color-bgreen)';
 const C_RED    = '#CD4F39';
 const C_GRAY   = '#C1CDC1';
 const C_BG     = '#f7f9f7';

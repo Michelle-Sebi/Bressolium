@@ -27,7 +27,7 @@ const title = {
     fontWeight:    'bold',
     textTransform: 'uppercase',
     letterSpacing: '0.12em',
-    color:         '#458B74',
+    color:         'var(--color-bgreen)',
     margin:        '0 0 12px',
 };
 
@@ -42,7 +42,7 @@ const subtitle = {
 
 const badge = {
     display:         'inline-block',
-    backgroundColor: '#458B74',
+    backgroundColor: 'var(--color-bgreen)',
     color:           '#f7f9f7',
     fontFamily:      'monospace',
     fontWeight:      'bold',
@@ -57,7 +57,7 @@ const btn = {
     display:       'block',
     width:         '100%',
     padding:       '14px',
-    backgroundColor: '#458B74',
+    backgroundColor: 'var(--color-bgreen)',
     color:         '#f7f9f7',
     border:        'none',
     fontFamily:    'monospace',
